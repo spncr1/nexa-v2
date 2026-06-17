@@ -7,8 +7,9 @@
 :root {
     /* Base */
     --color-bg: #ffffff;
-    --color-text: #111111;
+    --color-text: #0f0f10f5;
     --color-surface: #ffffff;
+    --color-dark-border: rgba(255, 255, 255, 0.2);
 
     /* Core accent */
     --color-primary: #4d9eff;

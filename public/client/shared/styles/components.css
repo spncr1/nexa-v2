@@ -66,3 +66,149 @@ body.dark-mode #theme-switch img:last-child {
     display: block;
     filter: invert(1);
 }
+
+.nexa-toast-region {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translate(-50%, 12px);
+    z-index: 3000;
+    width: min(calc(100vw - 32px), 420px);
+    min-height: 20px;
+    padding: 12px 18px;
+    border: 1px solid rgba(2, 30, 80, 0.24);
+    border-radius: 12px;
+    background: var(--color-surface);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    color: var(--color-text);
+    font-family: "Noto Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    box-sizing: border-box;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+}
+
+.nexa-toast-region.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+}
+
+.nexa-toast-region--positive,
+.nexa-inline-notice--positive {
+    color: #2fa84f;
+}
+
+.nexa-toast-region--negative,
+.nexa-inline-notice--negative {
+    color: #d44c4c;
+}
+
+.nexa-toast-region--neutral,
+.nexa-inline-notice--neutral {
+    color: var(--color-text);
+}
+
+.nexa-inline-notice {
+    margin: 8px 0 12px;
+    font-family: "Noto Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.nexa-confirm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2990;
+    background: rgba(0, 0, 0, 0.42);
+}
+
+.nexa-confirm-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 3001;
+    transform: translate(-50%, -50%);
+    width: min(420px, calc(100vw - 32px));
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-family: "Noto Sans", sans-serif;
+    text-align: center;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+    box-sizing: border-box;
+}
+
+.nexa-confirm-title {
+    margin: 0 0 10px;
+    color: inherit;
+    font-family: "Manrope", sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.nexa-confirm-message {
+    margin: 0 auto 18px;
+    max-width: 32ch;
+    color: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.45;
+}
+
+.nexa-confirm-dialog--positive .nexa-confirm-title,
+.nexa-confirm-dialog--positive .nexa-confirm-message {
+    color: #2fa84f;
+}
+
+.nexa-confirm-dialog--negative .nexa-confirm-title,
+.nexa-confirm-dialog--negative .nexa-confirm-message {
+    color: #d44c4c;
+}
+
+.nexa-confirm-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.nexa-confirm-actions .btn-secondary {
+    min-width: 118px;
+}
+
+.nexa-confirm-accept--positive {
+    background: rgba(57, 195, 94, 0.82);
+}
+
+.nexa-confirm-accept--negative {
+    background: rgba(210, 78, 78, 0.82);
+}
+
+.nexa-confirm-accept--neutral {
+    background: var(--color-primary-active);
+}
+
+@media (max-width: 520px) {
+    .nexa-toast-region {
+        bottom: 16px;
+        padding: 11px 14px;
+    }
+
+    .nexa-confirm-actions {
+        display: grid;
+    }
+
+    .nexa-confirm-actions .btn-secondary {
+        width: 100%;
+    }
+}

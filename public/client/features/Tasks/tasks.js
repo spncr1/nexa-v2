@@ -594,11 +594,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         refreshCalendarViews();
     }
 
+    function showInlineStatus(message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.notice(statusEl, message, { tone });
+            return;
+        }
+
+        statusEl.textContent = message;
+    }
+
+    function showTaskToast(message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.toast(message, { tone });
+            return;
+        }
+
+        showInlineStatus(message, tone);
+    }
+
     function closeTaskModal() {
         if (!backdrop || !modal) return;
         backdrop.classList.add("hidden");
         modal.classList.add("hidden");
-        statusEl.textContent = "";
+        showInlineStatus("");
         editingTaskId = null;
         modalDateKey = "";
         modalHour = null;
@@ -651,7 +669,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         prioritySelect.value = "medium";
         if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = "not-started";
         timeInput.value = hourToTimeInput(targetHour);
-        statusEl.textContent = "";
+        showInlineStatus("");
 
         setModalContext();
         backdrop.classList.remove("hidden");
@@ -678,7 +696,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         prioritySelect.value = task.priority || "medium";
         if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = normalizeTaskStatus(task);
         timeInput.value = taskTime ? taskTime.normalized : "";
-        statusEl.textContent = "";
+        showInlineStatus("");
 
         setModalContext();
         backdrop.classList.remove("hidden");
@@ -696,7 +714,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const chosenMinute = parseMinuteFromTimeInput(timeInput.value);
 
         if (!title) {
-            statusEl.textContent = "Please enter a task title.";
+            showInlineStatus("Please enter a task title.", "negative");
             return;
         }
 
@@ -717,7 +735,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             list[index].scheduledMinute = chosenMinute;
             list[index].scheduledTime = normalizedTime;
             list[index].updatedAt = Date.now();
-            statusEl.textContent = "Task updated.";
+            showTaskToast("Task updated.", "neutral");
         } else {
             list.push({
                 id: Date.now(),
@@ -732,14 +750,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-            statusEl.textContent = "Task added.";
+            showTaskToast("Task added.", "positive");
         }
 
         tasksByDate[key] = list;
         saveAllTasks(tasksByDate);
 
         refreshCalendarViews();
-        setTimeout(closeTaskModal, 500);
+        closeTaskModal();
     }
 
     function deleteTask() {
@@ -752,6 +770,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAllTasks(tasksByDate);
         refreshCalendarViews();
         closeTaskModal();
+        showTaskToast("Task deleted.", "negative");
     }
 
     function randomInt(min, max) {

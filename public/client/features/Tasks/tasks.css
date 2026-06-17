@@ -549,7 +549,7 @@ h2 {
 
 .task-status {
     margin: 8px 0 12px;
-    font-family: "Noto Snas";
+    font-family: "Noto Sans";
     font-weight: 700;
     text-align: center;
     min-height: 1.2em;
@@ -567,41 +567,6 @@ h2 {
     display: flex;
     justify-content: space-between;
     gap: 12px;
-}
-
-.account-delete-notice {
-    position: fixed;
-    top: 24px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2000;
-    width: min(100%, 380px);
-    margin: 0;
-    padding: 0;
-    color: #39c35e;
-    text-align: center;
-    font-family: "Noto Sans";
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 1.4;
-    box-sizing: border-box;
-}
-
-.settings-status {
-    position: fixed;
-    transform: translateX(-50%);
-    z-index: 11;
-    width: min(100%, 360px);
-    margin: 0;
-    padding: 0;
-    color: #0ee848;
-    text-align: center;
-    font-family: "Noto Sans";
-    font-size: 18px;
-    font-weight: 700;
-    line-height: 1.4;
-    pointer-events: none;
-    box-sizing: border-box;
 }
 
 .switch {

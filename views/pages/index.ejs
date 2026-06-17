@@ -92,16 +92,10 @@
                     </div>
                 </div>
 
-                <aside class="upcoming-assignments-widget">
-                    <div class="upcoming-assignments-header">
-                        <h3>UPCOMING ASSIGNMENTS</h3>
-                    </div>
-                    <ul id="upcoming-assignments-list"></ul>
-                </aside>
             </div>
             
             <hr>
-            <h2>Welcome, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
+            <h2>Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
 
             <!-- Today's Tasks & Assignments Due dashboard cards -->
             <div class="dashboard-cards">
@@ -172,31 +166,6 @@
                 <li class="assignment-due-empty">No assignments due on this date.</li>
             </template>
 
-            <template id="upcoming-assignment-item-template">
-                <li class="upcoming-assignment-item">
-                    <a class="upcoming-assignment-link" href="#">
-                        <div class="upcoming-assignment-countdown">
-                            <div class="upcoming-assignment-badge" aria-hidden="true">
-                                <img class="app-icon" src="/client/shared/assets/Icons/exclamation.svg" alt="">
-                                <span>Urgent</span>
-                            </div>
-                            <span class="upcoming-assignment-days-value"></span>
-                            <span class="upcoming-assignment-days-label"></span>
-                        </div>
-
-                        <div class="upcoming-assignment-content">
-                            <div class="upcoming-assignment-task"></div>
-                            <div class="upcoming-assignment-subject"></div>
-                            <div class="upcoming-assignment-due-date"></div>
-                        </div>
-                    </a>
-                </li>
-            </template>
-
-            <template id="upcoming-assignment-empty-template">
-                <li class="upcoming-assignment-empty">No upcoming assignments yet.</li>
-            </template>
-
             <template id="task-empty-template">
                 <li class="task-empty">No tasks to show yet.</li>
             </template>
@@ -238,7 +207,6 @@
                     </select>
                 </div>
                 
-                 <!-- success message (if added task successfully) -->
                   <p id="task-status" class="task-status"></p>
 
                  <div class="modal-actions">
@@ -252,6 +220,7 @@
         
         <script src="/client/shared/theme-boot.js"></script>
         <script src="/client/app-storage.js"></script>
+        <script src="/client/shared/feedback.js"></script>
         <script src="/client/shared/settings-modal.js"></script>
         <script src="/index.js"></script>
     </body>

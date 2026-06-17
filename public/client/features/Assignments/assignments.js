@@ -41,9 +41,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const viewAssignmentTitle = document.getElementById("view-assignment-title");
     const viewAssignmentDesc = document.getElementById("view-assignment-desc");
 
-    const assignmentsSort = document.getElementById("assignments-sort");
-    const assignmentsFilter = document.getElementById("assignments-filter");
+    const assignmentSortBtns = document.querySelectorAll("[data-assignment-sort]");
     const resetAssignmentsBtn = document.getElementById("reset-btn");
+    const clearFiltersBtn = document.getElementById("clear-filters-btn");
+    const assignmentRemindersListEl = document.getElementById("assignment-reminders-list");
+    const assignmentReminderItemTemplate = document.getElementById("assignment-reminder-item-template");
+    const assignmentReminderEmptyTemplate = document.getElementById("assignment-reminder-empty-template");
 
     const ASSIGNMENTS_KEY = "studenthub_assignments";
     const TASKS_KEY = "tasksByDate";
@@ -59,6 +62,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const SEMESTER_KEY = "studenthub_semester_label";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
     const PIE_ASSIGNMENT_LABEL_MAX = 12;
+    const ASSIGNMENT_REMINDERS_LIMIT = 3;
+    const DEFAULT_ASSIGNMENT_SORT = { key: "dueDate", direction: "asc" };
+    let activeChartFilter = { type: null, value: null };
+    let assignmentTableSort = { ...DEFAULT_ASSIGNMENT_SORT };
 
     function loadSemesterLabel() {
         const saved = storage.getItem(SEMESTER_KEY);
@@ -95,20 +102,54 @@ document.addEventListener("DOMContentLoaded", async () => {
     const STATUS_MS = 1500;
     let statusTimer = null;
 
+    function showToast(message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.toast(message, { tone });
+            return;
+        }
+
+        window.alert(message);
+    }
+
+    function confirmAction(options) {
+        if (window.NexaFeedback) {
+            return window.NexaFeedback.confirm(options);
+        }
+
+        return Promise.resolve(window.confirm(options.message || options.title || "Are you sure?"));
+    }
+
+    function showInlineNotice(targetEl, message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.notice(targetEl, message, { tone });
+            return;
+        }
+
+        targetEl.textContent = message;
+    }
+
     function clearSubjectStatus() {
         if (statusTimer) clearTimeout(statusTimer);
         statusTimer = null;
-        subjectStatus.textContent = "";
+        showInlineNotice(subjectStatus, "");
     }
 
-    function showSubjectStatus(message, { closeAfter = false } = {}) {
-        subjectStatus.textContent = message;
+    function showSubjectStatus(message, { closeAfter = false, tone = "neutral" } = {}) {
+        if (closeAfter) {
+            closeSubjectModal();
+            showToast(message, tone);
+            return;
+        }
 
         if (statusTimer) clearTimeout(statusTimer);
+        showInlineNotice(subjectStatus, message, tone);
         statusTimer = setTimeout(() => {
             clearSubjectStatus();
-            if (closeAfter) closeSubjectModal();
         }, STATUS_MS);
+    }
+
+    function showAssignmentStatus(message, tone = "neutral") {
+        showInlineNotice(assignmentStatusText, message, tone);
     }
 
     function setButtonLabel(button, label) {
@@ -151,7 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         subjectModalTitle.textContent = "ADD SUBJECT";
         setButtonLabel(confirmSubjectBtn, "Add");
-        subjectStatus.textContent = "";
+        showInlineNotice(subjectStatus, "");
         subjectNameInput.value = "";
         subjectBackdrop.classList.remove("hidden");
         subjectModal.classList.remove("hidden");
@@ -169,7 +210,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjectModalTitle.textContent = "EDIT SUBJECT";
         setButtonLabel(confirmSubjectBtn, "Save");
         deleteSubjectBtn.classList.remove("hidden");
-        subjectStatus.textContent = "";
+        showInlineNotice(subjectStatus, "");
         subjectNameInput.value = subject.name;
         subjectBackdrop.classList.remove("hidden");
         subjectModal.classList.remove("hidden");
@@ -179,7 +220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function closeSubjectModal() {
         subjectBackdrop.classList.add("hidden");
         subjectModal.classList.add("hidden");
-        subjectStatus.textContent = "";
+        showInlineNotice(subjectStatus, "");
     }
 
     // Widget helpers
@@ -201,7 +242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const name = subjectNameInput.value.trim();
 
         if (!name) {
-            showSubjectStatus("Please enter a subject name.");
+            showSubjectStatus("Please enter a subject name.", { tone: "negative" });
             return;
         }
 
@@ -210,7 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // prevents duplicates (case-sensitive)
         const exists = subjects.some(s => s.name.toLowerCase() === name.toLowerCase());
         if (exists) {
-            subjectStatus.textContent = "That subject already exists.";
+            showSubjectStatus("That subject already exists.", { tone: "negative" });
             return;
         }
 
@@ -225,7 +266,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjects.push(newSubject);
         saveSubjects(subjects);
         refreshSubjectViews();
-        showSubjectStatus("Subject added successfully.", { closeAfter: true });
+        showSubjectStatus("Subject added.", { closeAfter: true, tone: "positive" });
     }
 
     function saveSubjectEdits() {
@@ -233,7 +274,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const name = subjectNameInput.value.trim();
         if (!name) {
-            subjectStatus.textContent = "Subject name is required.";
+            showSubjectStatus("Subject name is required.", { tone: "negative" });
             return;
         }
 
@@ -243,7 +284,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             s => s.id !== editingSubjectId && s.name.toLowerCase() === name.toLowerCase()
         );
         if (duplicate) {
-            subjectStatus.textContent = "That subject already exists.";
+            showSubjectStatus("That subject already exists.", { tone: "negative" });
             return;
         }
 
@@ -255,7 +296,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         saveSubjects(subjects);
         refreshSubjectViews();
-        showSubjectStatus("Subject updated.", { closeAfter: true });
+        showSubjectStatus("Subject updated.", { closeAfter: true, tone: "neutral" });
     }
 
     function deleteSubject() {
@@ -265,7 +306,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         saveSubjects(subjects);
         refreshSubjectViews();
-        showSubjectStatus("Subject deleted.", { closeAfter: true });
+        showSubjectStatus("Subject deleted.", { closeAfter: true, tone: "negative" });
     }
 
     // Add Assignment
@@ -326,6 +367,107 @@ document.addEventListener("DOMContentLoaded", async () => {
         return formatted;
     }
 
+    function getTodayAtNoon() {
+        const today = new Date();
+        today.setHours(12, 0, 0, 0);
+        return today;
+    }
+
+    function getDaysUntil(targetDate, fromDate) {
+        return Math.round((targetDate - fromDate) / 86400000);
+    }
+
+    function normalizeAssignmentStatus(assignment) {
+        return (assignment?.status || "not-started").trim().toLowerCase();
+    }
+
+    function isReminderAssignmentIncomplete(assignment) {
+        return normalizeAssignmentStatus(assignment) !== "completed";
+    }
+
+    function getReminderTone(assignment, daysUntil) {
+        const priority = (assignment?.priority || "").toLowerCase();
+
+        if (daysUntil < 0 || daysUntil <= 3) return "critical";
+        if (daysUntil <= 7 || priority === "high") return "important";
+        if (daysUntil <= 14) return "watch";
+        return "neutral";
+    }
+
+    function formatReminderDays(daysUntil) {
+        if (daysUntil < 0) return { value: "Overdue", label: "" };
+        if (daysUntil === 0) return { value: "0", label: "DAYS" };
+        if (daysUntil === 1) return { value: "1", label: "DAY" };
+        return { value: String(daysUntil), label: "DAYS" };
+    }
+
+    function formatReminderBadge(daysUntil) {
+        if (daysUntil < 0) return "Overdue";
+        return `${daysUntil}d`;
+    }
+
+    function priorityRankByTone(tone) {
+        if (tone === "critical") return 3;
+        if (tone === "important") return 2;
+        if (tone === "watch") return 1;
+        return 0;
+    }
+
+    function isHighPriorityAssignment(assignment) {
+        return (assignment?.priority || "").toLowerCase() === "high";
+    }
+
+    function assignmentMatchesChartFilter(assignment) {
+        if (!activeChartFilter.type || !activeChartFilter.value) return true;
+        if (activeChartFilter.type === "subject") return assignment.courseId === activeChartFilter.value;
+        if (activeChartFilter.type === "status") return normalizeAssignmentStatus(assignment) === activeChartFilter.value;
+        if (activeChartFilter.type === "priority") return (assignment.priority || "").toLowerCase() === activeChartFilter.value;
+        return true;
+    }
+
+    function hasActiveFilters() {
+        return Boolean(activeChartFilter.type);
+    }
+
+    function updateClearFiltersButton() {
+        clearFiltersBtn?.classList.toggle("hidden", !hasActiveFilters());
+    }
+
+    function clearAssignmentFilters() {
+        activeChartFilter = { type: null, value: null };
+        renderAssignments();
+        renderTotalCourseAssignmentsWidget();
+        renderDashboard();
+    }
+
+    function getDefaultSortDirection(key) {
+        return ["priority", "weighting", "share"].includes(key) ? "desc" : "asc";
+    }
+
+    function toggleAssignmentSort(key) {
+        const isSameColumn = assignmentTableSort.key === key;
+        assignmentTableSort = {
+            key,
+            direction: isSameColumn
+                ? (assignmentTableSort.direction === "asc" ? "desc" : "asc")
+                : getDefaultSortDirection(key)
+        };
+        renderAssignments();
+    }
+
+    function renderAssignmentSortButtons() {
+        assignmentSortBtns.forEach((btn) => {
+            const isActive = btn.dataset.assignmentSort === assignmentTableSort.key;
+            btn.classList.toggle("is-active", isActive);
+            btn.dataset.sortDirection = isActive ? assignmentTableSort.direction : "none";
+            btn.closest("th")?.setAttribute("aria-sort", isActive ? (assignmentTableSort.direction === "asc" ? "ascending" : "descending") : "none");
+            btn.setAttribute(
+                "aria-label",
+                `Sort assignments by ${btn.textContent.trim()} ${isActive && assignmentTableSort.direction === "asc" ? "descending" : "ascending"}`
+            );
+        });
+    }
+
     function formatWeight(num) {
         if (num === null || num === undefined || num === "") return "";
         const n = Number(num);
@@ -370,6 +512,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         return p === "high" ? 3 : p === "medium" ? 2 : p === "low" ? 1 : 0;
     }
 
+    function statusRank(status) {
+        const normalized = (status || "").toLowerCase();
+        if (normalized === "not-started") return 1;
+        if (normalized === "in-progress") return 2;
+        if (normalized === "completed") return 3;
+        return 4;
+    }
+
     function calculateSubjectTotals(assignments) {
         const totals = new Map();
 
@@ -384,84 +534,198 @@ document.addEventListener("DOMContentLoaded", async () => {
         return totals;
     }
 
-    function renderAssignments() {
-        let assignments = loadAssignments();
-        assignmentsBody.innerHTML = "";
-        if (!assignments.length) return;
+    function getAssignmentShareValue(assignment, subjectTotals) {
+        const totalForSubject = subjectTotals.get(assignment.courseId) || 0;
+        const weighting = Number(assignment.weighting);
+        if (!Number.isFinite(weighting) || totalForSubject <= 0) return null;
+        return (weighting / totalForSubject) * 100;
+    }
 
-        // FILTER (by priority)
-        const filterVal = (assignmentsFilter?.value || "all").toLowerCase();
-        if (filterVal !== "all") {
-            assignments = assignments.filter(a => (a.priority || "").toLowerCase() === filterVal);
+    function compareNullable(a, b, direction) {
+        if (a === null && b === null) return 0;
+        if (a === null) return 1;
+        if (b === null) return -1;
+        return direction === "asc" ? a - b : b - a;
+    }
+
+    function compareAssignmentRows(a, b, subjectNameById, subjectTotals) {
+        const direction = assignmentTableSort.direction;
+        const textDirection = direction === "asc" ? 1 : -1;
+
+        switch (assignmentTableSort.key) {
+            case "course":
+                return textDirection * (subjectNameById.get(a.courseId) || "(Deleted subject)").localeCompare(subjectNameById.get(b.courseId) || "(Deleted subject)");
+            case "task":
+                return textDirection * (a.task || "").localeCompare(b.task || "");
+            case "priority":
+                return direction === "asc"
+                    ? priorityRank(a.priority) - priorityRank(b.priority)
+                    : priorityRank(b.priority) - priorityRank(a.priority);
+            case "status":
+                return direction === "asc"
+                    ? statusRank(a.status) - statusRank(b.status)
+                    : statusRank(b.status) - statusRank(a.status);
+            case "weighting":
+                return compareNullable(Number.isFinite(Number(a.weighting)) ? Number(a.weighting) : null, Number.isFinite(Number(b.weighting)) ? Number(b.weighting) : null, direction);
+            case "share":
+                return compareNullable(getAssignmentShareValue(a, subjectTotals), getAssignmentShareValue(b, subjectTotals), direction);
+            case "dueDate":
+            default:
+                return compareNullable(parseISODate(a.dueDate)?.getTime() ?? null, parseISODate(b.dueDate)?.getTime() ?? null, direction);
+        }
+    }
+
+    function getAssignmentRowClasses(assignment) {
+        const classes = [];
+        const status = normalizeAssignmentStatus(assignment);
+        const dueDateObj = parseISODate(assignment.dueDate);
+        const priority = (assignment.priority || "unknown").toLowerCase();
+
+        classes.push(`is-status-${status}`);
+        classes.push(`is-priority-${priority}`);
+
+        if (priority === "high") classes.push("is-urgent-priority");
+
+        if (dueDateObj && status !== "completed") {
+            const daysUntil = getDaysUntil(dueDateObj, getTodayAtNoon());
+            if (daysUntil < 0) classes.push("is-overdue");
+            else if (daysUntil <= 3) classes.push("is-due-soon");
         }
 
-        // SORT
-        const sortVal = assignmentsSort?.value || "dueSoon";
+        return classes;
+    }
 
-        assignments.sort((a, b) => {
-            const aDate = parseISODate(a.dueDate);
-            const bDate = parseISODate(b.dueDate);
+    function renderAssignments() {
+        const allAssignments = loadAssignments();
+        let assignments = [...allAssignments];
+        assignmentsBody.innerHTML = "";
 
-            const aWeight = Number.isFinite(a.weighting) ? a.weighting : null;
-            const bWeight = Number.isFinite(b.weighting) ? b.weighting : null;
-
-            switch (sortVal) {
-                case "dueSoon":
-                    if (!aDate && !bDate) return 0;
-                    if (!aDate) return 1;
-                    if (!bDate) return -1;
-                    return aDate - bDate;
-                case "dueLate":
-                    if (!aDate && !bDate) return 0;
-                    if (!aDate) return 1;
-                    if (!bDate) return -1;
-                    return bDate - aDate;
-                case "weightHigh":
-                    if (aWeight === null && bWeight === null) return 0;
-                    if (aWeight === null) return 1;
-                    if (bWeight === null) return -1;
-                    return bWeight - aWeight;
-                case "weightLow":
-                    if (aWeight === null && bWeight === null) return 0;
-                    if (aWeight === null) return 1;
-                    if (bWeight === null) return -1;
-                    return aWeight - bWeight;
-                case "priority":
-                    return priorityRank(b.priority) - priorityRank(a.priority);
-                default:
-                    return 0;
-            }
-        });
+        // Chart filters stack on top of the base table data without touching header sort state.
+        assignments = assignments.filter(assignmentMatchesChartFilter);
 
         const subjects = loadSubjects();
         const subjectNameById = new Map(subjects.map(s => [s.id, s.name]));
 
-        const subjectTotals = calculateSubjectTotals(assignments);
+        const subjectTotals = calculateSubjectTotals(allAssignments);
+        assignments.sort((a, b) => {
+            const primary = compareAssignmentRows(a, b, subjectNameById, subjectTotals);
+            if (primary !== 0) return primary;
+            return (a.task || "").localeCompare(b.task || "");
+        });
+        renderAssignmentSortButtons();
+
+        if (!assignments.length) {
+            const tr = document.createElement("tr");
+            tr.className = "assignments-empty-row";
+            const td = document.createElement("td");
+            td.colSpan = 7;
+            td.textContent = allAssignments.length ? "No assignments match this filter." : "No assignments yet.";
+            tr.appendChild(td);
+            assignmentsBody.appendChild(tr);
+            updateClearFiltersButton();
+            return;
+        }
         
         assignments.forEach(a => {
             const tr = document.createElement("tr");
             tr.dataset.assignmentId = a.id;
+            tr.classList.add(...getAssignmentRowClasses(a));
             const courseName = subjectNameById.get(a.courseId) || "(Deleted subject)";
-            const totalForSubject = subjectTotals.get(a.courseId) || 0;
-            const w = Number(a.weighting);
+            const shareValue = getAssignmentShareValue(a, subjectTotals);
+            const priority = (a.priority || "").toLowerCase();
 
-            let shareText = "";
-            if (Number.isFinite(a.weighting) && totalForSubject > 0) {
-                const share = (a.weighting / totalForSubject) * 100;
-                shareText = share.toFixed(1) + "%";
-            }
+            const shareText = shareValue === null ? "" : `${shareValue.toFixed(1)}%`;
 
             tr.innerHTML = `
                 <td>${courseName}</td>
                 <td>${a.task}</td>
-                <td>${a.priority}</td>
-                <td>${a.status}</td>
+                <td><span class="assignment-priority-pill is-${priority || "unknown"}">${priorityLabel(a.priority)}</span></td>
+                <td>${statusLabel(normalizeAssignmentStatus(a))}</td>
                 <td>${formatDueDate(a.dueDate)}</td>
                 <td>${formatWeight(a.weighting)}</td>
                 <td>${shareText}</td>
             `;
 
             assignmentsBody.appendChild(tr);
+        });
+
+        updateClearFiltersButton();
+    }
+
+    function renderAssignmentReminders() {
+        if (!assignmentRemindersListEl) return;
+
+        const today = getTodayAtNoon();
+        const subjects = loadSubjects();
+        const subjectNameById = new Map(subjects.map(s => [s.id, s.name]));
+
+        const reminders = loadAssignments()
+            .map((assignment) => ({
+                ...assignment,
+                dueDateObj: parseISODate(assignment.dueDate)
+            }))
+            .filter((assignment) => {
+                if (!assignment || !assignment.dueDateObj || !isReminderAssignmentIncomplete(assignment)) return false;
+
+                const daysUntil = getDaysUntil(assignment.dueDateObj, today);
+                return daysUntil < 0 || daysUntil <= 14 || (isHighPriorityAssignment(assignment) && daysUntil <= 30);
+            })
+            .sort((a, b) => {
+                const aDaysUntil = getDaysUntil(a.dueDateObj, today);
+                const bDaysUntil = getDaysUntil(b.dueDateObj, today);
+                const toneDiff = priorityRankByTone(getReminderTone(b, bDaysUntil)) - priorityRankByTone(getReminderTone(a, aDaysUntil));
+                if (toneDiff !== 0) return toneDiff;
+
+                const dueDateDiff = a.dueDateObj - b.dueDateObj;
+                if (dueDateDiff !== 0) return dueDateDiff;
+
+                const prioDiff = priorityRank(b.priority) - priorityRank(a.priority);
+                if (prioDiff !== 0) return prioDiff;
+
+                return (b.createdAt || 0) - (a.createdAt || 0);
+            })
+            .slice(0, ASSIGNMENT_REMINDERS_LIMIT);
+
+        assignmentRemindersListEl.innerHTML = "";
+
+        if (!reminders.length) {
+            if (!assignmentReminderEmptyTemplate) return;
+            assignmentRemindersListEl.appendChild(
+                assignmentReminderEmptyTemplate.content.firstElementChild.cloneNode(true)
+            );
+            return;
+        }
+
+        reminders.forEach((assignment) => {
+            if (!assignmentReminderItemTemplate) return;
+
+            const item = assignmentReminderItemTemplate.content.firstElementChild.cloneNode(true);
+            const linkEl = item.querySelector(".assignment-reminder-link");
+            const daysValueEl = item.querySelector(".assignment-reminder-days-value");
+            const daysLabelEl = item.querySelector(".assignment-reminder-days-label");
+            const taskEl = item.querySelector(".assignment-reminder-task");
+            const subjectEl = item.querySelector(".assignment-reminder-subject");
+            const metaEl = item.querySelector(".assignment-reminder-meta");
+            const daysUntil = getDaysUntil(assignment.dueDateObj, today);
+            const tone = getReminderTone(assignment, daysUntil);
+
+            item.classList.add(`is-${tone}`);
+            if (linkEl) {
+                linkEl.dataset.assignmentId = assignment.id;
+                linkEl.setAttribute(
+                    "aria-label",
+                    `${assignment.task || "Assignment"}, due in ${daysUntil} ${daysUntil === 1 ? "day" : "days"}`
+                );
+            }
+            if (daysValueEl) daysValueEl.textContent = formatReminderBadge(daysUntil);
+            if (daysLabelEl) daysLabelEl.textContent = "";
+            if (taskEl) taskEl.textContent = (assignment.task || "").trim() || "Assignment";
+            if (subjectEl) subjectEl.textContent = subjectNameById.get(assignment.courseId) || "Unknown subject";
+            if (metaEl) {
+                metaEl.textContent = `${priorityLabel(assignment.priority)} priority - due ${formatDueDate(assignment.dueDate)}`;
+            }
+
+            assignmentRemindersListEl.appendChild(item);
         });
     }
 
@@ -473,7 +737,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         assignmentModalTitle.textContent = "ADD ASSIGNMENT";
         setButtonLabel(confirmAssignmentBtn, "Add");
         deleteAssignmentBtn.classList.add("hidden");
-        assignmentStatusText.textContent = "";
+        showAssignmentStatus("");
 
         assignmentTask.value = "";
         assignmentDesc.value = "";
@@ -499,7 +763,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         assignmentModalTitle.textContent = "EDIT ASSIGNMENT";
         setButtonLabel(confirmAssignmentBtn, "Save");
         deleteAssignmentBtn.classList.remove("hidden");
-        assignmentStatusText.textContent = "";
+        showAssignmentStatus("");
 
         assignmentCourse.value = a.courseId || "";
         assignmentTask.value = a.task || "";
@@ -515,7 +779,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function closeAssignmentModal() {
         assignmentModal.classList.add("hidden");
-        assignmentStatusText.textContent = "";
+        showAssignmentStatus("");
         backdrop.classList.add("hidden");
     }
 
@@ -550,32 +814,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function addAssignment() {
         if (assignmentCourse.disabled) {
-            window.alert("Add a subject first.");
+            showAssignmentStatus("Add a subject first.", "negative");
             return;
         }
 
         const missingFields = getMissingRequiredAssignmentFields();
         if (missingFields.length === 1) {
-            window.alert(`You must enter a ${missingFields[0]} before saving this assignment.`);
+            showAssignmentStatus(`You must enter a ${missingFields[0]} before saving this assignment.`, "negative");
             return;
         }
 
         if (missingFields.length > 1) {
-            window.alert(`You must enter the following before saving this assignment: ${missingFields.join(", ")}.`);
+            showAssignmentStatus(`You must enter the following before saving this assignment: ${missingFields.join(", ")}.`, "negative");
             return;
         }
 
         const task = assignmentTask.value.trim();
         const desc = assignmentDesc.value.trim();
         if (wordCount(desc) > 500) {
-            assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
+            showAssignmentStatus("Description exceeds 500 words. Please enter less characters.", "negative");
             return;
         }
         
         const weightRaw = assignmentWeight.value.trim();
         const weighting = weightRaw === "" ?  null : Number(weightRaw);
         if (weighting !== null && !Number.isFinite(weighting)) {
-            assignmentStatusText.textContent = "Weighting must be a number.";
+            showAssignmentStatus("Weighting must be a number.", "negative");
             return;
         }
 
@@ -584,10 +848,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const remaining = Math.max(0, 100 - currentSubjectTotal);
 
             if (remaining === 0) {
-                window.alert(`This subject already has 100% allocated. No more assignments can be added.`);
+                showAssignmentStatus("This subject already has 100% allocated. No more assignments can be added.", "negative");
                 return;
             } else if (currentSubjectTotal + weighting > 100) {
-                window.alert(`This subject already has ${currentSubjectTotal}% allocated. You can only add up to ${remaining}% more.`);
+                showAssignmentStatus(`This subject already has ${currentSubjectTotal}% allocated. You can only add up to ${remaining}% more.`, "negative");
                 return;
             }
         }
@@ -612,6 +876,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAssignments(assignments);
         refreshAssignmentViews();
         closeAssignmentModal();
+        showToast("Assignment added.", "positive");
     }
 
     function saveAssignmentEdits() {
@@ -619,25 +884,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const missingFields = getMissingRequiredAssignmentFields();
         if (missingFields.length === 1) {
-            window.alert(`You must enter a ${missingFields[0]} before saving this assignment.`);
+            showAssignmentStatus(`You must enter a ${missingFields[0]} before saving this assignment.`, "negative");
             return;
         }
 
         if (missingFields.length > 1) {
-            window.alert(`You must enter the following before saving this assignment: ${missingFields.join(", ")}.`);
+            showAssignmentStatus(`You must enter the following before saving this assignment: ${missingFields.join(", ")}.`, "negative");
             return;
         }
 
         const task = assignmentTask.value.trim();
         const desc = assignmentDesc.value.trim();
         if (wordCount(desc) > 500) {
-            assignmentStatusText.textContent = "Description exceeds 500 words. Please enter less characters.";
+            showAssignmentStatus("Description exceeds 500 words. Please enter less characters.", "negative");
+            return;
         }
         
         const weightRaw = assignmentWeight.value.trim();
         const weighting = weightRaw === "" ? null : Number(weightRaw);
         if (weighting !== null && !Number.isFinite(weighting)) {
-            assignmentStatusText.textContent = "Weighting must be a number.";
+            showAssignmentStatus("Weighting must be a number.", "negative");
             return;
         }
 
@@ -649,7 +915,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (weighting !== null && currentSubjectTotal + weighting > 100) {
             // From my POV, when editing I need to ignore this assignment's current weight,
             // so the user can keep or reduce it without being blocked unfairly.
-            window.alert(`This subject already has ${currentSubjectTotal}% allocated outside this assignment. You can only set this assignment up to ${Math.max(0, 100 - currentSubjectTotal)}%.`);
+            showAssignmentStatus(`This subject already has ${currentSubjectTotal}% allocated outside this assignment. You can only set this assignment up to ${Math.max(0, 100 - currentSubjectTotal)}%.`, "negative");
             return;
         }
 
@@ -668,6 +934,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAssignments(assignments);
         refreshAssignmentViews();
         closeAssignmentModal();
+        showToast("Assignment updated.", "neutral");
     }
 
     function deleteAssignment() {
@@ -676,25 +943,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAssignments(assignments);
         refreshAssignmentViews();
         closeAssignmentModal();
+        showToast("Assignment deleted.", "negative");
     }
 
-    function resetAllAssignments() {
+    async function resetAllAssignments() {
         const assignments = loadAssignments();
         if (!assignments.length) {
-            alert("No assignments to reset.");
+            showToast("No assignments to reset.", "neutral");
             return;
         }
 
-        const confirmed = window.confirm(
-            "Reset all assignments? This will permanently delete every assignment in the table."
-        );
+        const confirmed = await confirmAction({
+            title: "Reset assignments?",
+            message: "This will permanently delete every assignment in the table.",
+            tone: "negative",
+            confirmLabel: "Reset",
+            cancelLabel: "Cancel"
+        });
         if (!confirmed) return;
 
         storage.removeItem(ASSIGNMENTS_KEY);
         editingAssignmentId = null;
+        activeChartFilter = { type: null, value: null };
+        assignmentTableSort = { ...DEFAULT_ASSIGNMENT_SORT };
 
         closeAssignmentModal();
         refreshAssignmentViews();
+        showToast("Assignments reset.", "negative");
     }
 
     function randomInt(min, max) {
@@ -1050,6 +1325,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function refreshAssignmentViews() {
         renderAssignments();
+        renderAssignmentReminders();
         rebuildCarousel();
         renderTotalCourseAssignmentsWidget();
         renderDashboard();
@@ -1059,6 +1335,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderSubjects(loadSubjects());
         populateCourseOptions();
         renderAssignments();
+        renderAssignmentReminders();
         rebuildCarousel();
         renderTotalCourseAssignmentsWidget();
     }
@@ -1085,6 +1362,60 @@ document.addEventListener("DOMContentLoaded", async () => {
         return counts;
         }
 
+    function getPercentageText(count, total) {
+        if (!total) return "0.0%";
+        return `${((count / total) * 100).toFixed(1)}%`;
+    }
+
+    function getClosestUpcomingAssignment(assignments) {
+        const today = getTodayAtNoon();
+
+        return assignments
+            .map((assignment) => ({
+                ...assignment,
+                dueDateObj: parseISODate(assignment.dueDate)
+            }))
+            .filter((assignment) => assignment.dueDateObj && assignment.dueDateObj >= today)
+            .sort((a, b) => {
+                const dueDateDiff = a.dueDateObj - b.dueDateObj;
+                if (dueDateDiff !== 0) return dueDateDiff;
+                return priorityRank(b.priority) - priorityRank(a.priority);
+            })[0] || null;
+    }
+
+    function addChartTooltip(targetEl, details) {
+        if (!targetEl) return;
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "chart-tooltip";
+
+        const title = document.createElement("div");
+        title.className = "chart-tooltip-title";
+        title.textContent = details.label;
+        tooltip.appendChild(title);
+
+        details.lines.forEach((text) => {
+            const line = document.createElement("div");
+            line.className = "chart-tooltip-line";
+            line.textContent = text;
+            tooltip.appendChild(line);
+        });
+
+        targetEl.appendChild(tooltip);
+    }
+
+    function toggleChartFilter(type, value) {
+        const isSameFilter = activeChartFilter.type === type && activeChartFilter.value === value;
+        activeChartFilter = isSameFilter ? { type: null, value: null } : { type, value };
+        renderAssignments();
+        renderTotalCourseAssignmentsWidget();
+        renderDashboard();
+    }
+
+    function isActiveChartFilter(type, value) {
+        return activeChartFilter.type === type && activeChartFilter.value === value;
+    }
+
     function renderTotalCourseAssignmentsWidget() {
         const barsEl = document.getElementById("total-assignments-bars");
         const legendEl = document.getElementById("total-assignments-legend");
@@ -1094,6 +1425,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const subjects = loadSubjects();
         const assignments = loadAssignments();
         const counts = countAssignmentsBySubject(assignments);
+        const totalAssignments = assignments.length;
 
         // build rows (keep only subjects that exist)
         const rows = subjects.map((s, idx) => ({
@@ -1123,6 +1455,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const row = document.createElement("div");
             row.className = "bar-row";
+            row.dataset.chartFilterType = "subject";
+            row.dataset.chartFilterValue = r.id;
+            row.setAttribute("role", "button");
+            row.setAttribute("tabindex", "0");
+            row.setAttribute("aria-label", `Filter assignments by ${r.name}`);
+            row.classList.toggle("active-chart-filter", isActiveChartFilter("subject", r.id));
 
             row.innerHTML = `
             <div class="bar-label">${r.name}</div>
@@ -1137,6 +1475,24 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fill = row.querySelector(".bar-fill");
             fill.style.width = `${pct}%`;
             fill.style.background = r.colour;
+
+            const subjectAssignments = assignments.filter((assignment) => assignment.courseId === r.id);
+            const nextAssignment = getClosestUpcomingAssignment(subjectAssignments);
+            addChartTooltip(row, {
+                label: r.name,
+                lines: [
+                    `${getPercentageText(r.count, totalAssignments)} of total course assignments`,
+                    `Next: ${nextAssignment?.task || "No upcoming assignment"}`,
+                    `Due: ${nextAssignment ? formatDueDate(nextAssignment.dueDate) : "N/A"}`
+                ]
+            });
+
+            row.addEventListener("click", () => toggleChartFilter("subject", r.id));
+            row.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                toggleChartFilter("subject", r.id);
+            });
 
             barsEl.appendChild(row);
 
@@ -1227,7 +1583,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     return "#7f8c8d";
     }
 
-    function createVerticalBarChart({ title, countsMap, colourFn, labelFn }) {
+    function dashboardTooltipNote(filterType, key) {
+    if (filterType === "status") {
+        if (key === "not-started") return "Worth starting soon.";
+        if (key === "in-progress") return "Keep the momentum going.";
+        if (key === "completed") return "Done and dusted.";
+    }
+
+    if (filterType === "priority") {
+        if (key === "low") return "Low pressure, still worth tracking.";
+        if (key === "medium") return "Keep this on your radar.";
+        if (key === "high") return "Needs attention soon.";
+    }
+
+    return "";
+    }
+
+    function createVerticalBarChart({ title, countsMap, colourFn, labelFn, filterType = null, assignments = [], assignmentFilterFn = null }) {
     const wrapper = document.createElement("div");
     wrapper.className = "vchart";
 
@@ -1239,6 +1611,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     entries.forEach(([key, val]) => {
         const col = document.createElement("div");
+        col.className = "vbar-column";
         col.style.display = "flex";
         col.style.flexDirection = "column";
         col.style.alignItems = "center";
@@ -1246,6 +1619,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const bar = document.createElement("div");
         bar.className = "vbar";
+        if (filterType) {
+            bar.classList.toggle("active-chart-filter", isActiveChartFilter(filterType, key));
+            bar.dataset.chartFilterType = filterType;
+            bar.dataset.chartFilterValue = key;
+            bar.setAttribute("role", "button");
+            bar.setAttribute("tabindex", "0");
+            bar.setAttribute("aria-label", `Filter assignments by ${labelFn(key)}`);
+        }
 
         const fill = document.createElement("div");
         fill.className = "vbar-fill";
@@ -1258,13 +1639,31 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         bar.appendChild(fill);
         bar.appendChild(count);
-
-        const lbl = document.createElement("div");
-        lbl.className = "vbar-label";
-        lbl.textContent = labelFn(key);
-
         col.appendChild(bar);
-        col.appendChild(lbl);
+
+        const matchingAssignments = typeof assignmentFilterFn === "function"
+            ? assignments.filter((assignment) => assignmentFilterFn(assignment, key))
+            : [];
+        const nextAssignment = getClosestUpcomingAssignment(matchingAssignments);
+        addChartTooltip(col, {
+            label: labelFn(key),
+            lines: [
+                `${getPercentageText(val, assignments.length)} of total assignments`,
+                dashboardTooltipNote(filterType, key),
+                `Next: ${nextAssignment?.task || "No upcoming assignment"}`,
+                `Due: ${nextAssignment ? formatDueDate(nextAssignment.dueDate) : "N/A"}`
+            ].filter(Boolean)
+        });
+
+        if (filterType) {
+            col.addEventListener("click", () => toggleChartFilter(filterType, key));
+            col.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                toggleChartFilter(filterType, key);
+            });
+        }
+
         plot.appendChild(col);
     });
 
@@ -1324,7 +1723,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             title: "Status",
             countsMap: counts,
             colourFn: coloursForStatus,
-            labelFn: (k) => (k === "other" ? "Other" : statusLabel(k))
+            labelFn: (k) => (k === "other" ? "Other" : statusLabel(k)),
+            filterType: "status",
+            assignments,
+            assignmentFilterFn: (assignment, key) => normalizeAssignmentStatus(assignment) === key
             })
         );
         }
@@ -1343,7 +1745,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             title: "Priority",
             countsMap: counts,
             colourFn: coloursForPriority,
-            labelFn: (k) => (k === "other" ? "Other" : priorityLabel(k))
+            labelFn: (k) => (k === "other" ? "Other" : priorityLabel(k)),
+            filterType: "priority",
+            assignments,
+            assignmentFilterFn: (assignment, key) => (assignment?.priority || "").toLowerCase() === key
             })
         );
         }
@@ -1480,9 +1885,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     addAssignmentBtn.addEventListener("click", openAssignmentModalAdd);
     cancelAssignmentBtn.addEventListener("click", closeAssignmentModal);
     deleteAssignmentBtn.addEventListener("click", deleteAssignment);
-    assignmentsSort.addEventListener("change", renderAssignments);
-    assignmentsFilter.addEventListener("change", renderAssignments);
-    resetAssignmentsBtn?.addEventListener("click", resetAllAssignments);
+    assignmentSortBtns.forEach((btn) => {
+        btn.addEventListener("click", () => toggleAssignmentSort(btn.dataset.assignmentSort));
+    });
+    clearFiltersBtn?.addEventListener("click", clearAssignmentFilters);
+    resetAssignmentsBtn?.addEventListener("click", () => {
+        resetAllAssignments().catch((error) => {
+            console.error("Failed to reset assignments:", error);
+            showToast("Could not reset assignments right now.", "negative");
+        });
+    });
 
     confirmAssignmentBtn.addEventListener("click", () => {
         if (editingAssignmentId) saveAssignmentEdits();
@@ -1491,8 +1903,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     assignmentsBody.addEventListener("click", (e) => {
         const tr = e.target.closest("tr");
-        if (!tr) return;
+        if (!tr?.dataset.assignmentId) return;
         openAssignmentModalEdit(tr.dataset.assignmentId);
+    });
+
+    assignmentRemindersListEl?.addEventListener("click", (e) => {
+        const btn = e.target.closest(".assignment-reminder-link");
+        if (!btn?.dataset.assignmentId) return;
+        openAssignmentModalEdit(btn.dataset.assignmentId);
     });
 
     backdrop.addEventListener("click", () => {

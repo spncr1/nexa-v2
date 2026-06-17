@@ -34,10 +34,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const assignmentsDueMoreEl = document.getElementById("assignments-due-more");
     const assignmentDueItemTemplate = document.getElementById("assignment-due-item-template");
     const assignmentDueEmptyTemplate = document.getElementById("assignment-due-empty-template");
-    const upcomingAssignmentsListEl = document.getElementById("upcoming-assignments-list");
-    const upcomingAssignmentItemTemplate = document.getElementById("upcoming-assignment-item-template");
-    const upcomingAssignmentEmptyTemplate = document.getElementById("upcoming-assignment-empty-template");
-    const upcomingAssignmentsWidget = document.querySelector(".upcoming-assignments-widget");
     const calendarMonthLabelEl = document.getElementById("calendar-month-label");
     const calendarDaysEl = document.getElementById("calendar-days");
     const calendarPrevMonthBtn = document.getElementById("calendar-prev-month");
@@ -62,7 +58,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const DEFAULT_USER_NAME = "Student";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
     const ASSIGNMENTS_PREVIEW_LIMIT = 2;
-    const UPCOMING_ASSIGNMENTS_LIMIT = 3;
 
     const STATUS_MS = 1500;
     let statusTimer = null;
@@ -258,10 +253,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const today = new Date();
         today.setHours(12, 0, 0, 0);
         return today;
-    }
-
-    function getDaysUntil(targetDate, fromDate) {
-        return Math.round((targetDate - fromDate) / 86400000);
     }
 
     function getAssignmentDetailsHref(assignmentId) {
@@ -467,81 +458,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    function renderUpcomingAssignmentsWidget() {
-        if (!upcomingAssignmentsListEl) return;
-
-        // This is designed to stay tied to the real upcoming due dates synced with the date they are given when created in the assignments page (or when randomly generated from system settings)
-        const today = getTodayAtNoon();
-        const subjectsMap = loadSubjectsMap();
-
-        const upcomingAssignments = loadAssignments()
-            .map((assignment) => ({
-                ...assignment,
-                dueDateObj: parseISODate(assignment.dueDate)
-            }))
-            .filter((assignment) =>
-                assignment &&
-                typeof assignment.task === "string" &&
-                assignment.dueDateObj &&
-                assignment.dueDateObj >= today
-            )
-            .sort((a, b) => {
-                const dueDateDiff = a.dueDateObj - b.dueDateObj;
-                if (dueDateDiff !== 0) return dueDateDiff;
-
-                const prioDiff = priorityRank(b.priority) - priorityRank(a.priority);
-                if (prioDiff !== 0) return prioDiff;
-
-                return (b.createdAt || 0) - (a.createdAt || 0);
-            })
-            .slice(0, UPCOMING_ASSIGNMENTS_LIMIT);
-
-        upcomingAssignmentsListEl.innerHTML = "";
-
-        if (!upcomingAssignments.length) {
-            if (!upcomingAssignmentEmptyTemplate) return;
-            upcomingAssignmentsListEl.appendChild(
-                upcomingAssignmentEmptyTemplate.content.firstElementChild.cloneNode(true)
-            );
-            updateHomeOverflowHints();
-            return;
-        }
-
-        upcomingAssignments.forEach((assignment) => {
-            if (!upcomingAssignmentItemTemplate) return;
-
-            const item = upcomingAssignmentItemTemplate.content.firstElementChild.cloneNode(true);
-            const linkEl = item.querySelector(".upcoming-assignment-link");
-            const dueInLabelEl = item.querySelector(".upcoming-assignment-prefix");
-            const daysValueEl = item.querySelector(".upcoming-assignment-days-value");
-            const daysLabelEl = item.querySelector(".upcoming-assignment-days-label");
-            const taskEl = item.querySelector(".upcoming-assignment-task");
-            const subjectEl = item.querySelector(".upcoming-assignment-subject");
-            const dueDateEl = item.querySelector(".upcoming-assignment-due-date");
-            const daysUntil = getDaysUntil(assignment.dueDateObj, today);
-
-            if (linkEl) {
-                // Clicking an upcoming card should take the user straight to the exact assignment it came from
-                linkEl.href = getAssignmentDetailsHref(assignment.id);
-                linkEl.classList.toggle("is-urgent", daysUntil <= 3);
-                linkEl.setAttribute(
-                    "aria-label",
-                    `${assignment.task || "Assignment"}, due ${formatFullDate(assignment.dueDateObj)}`
-                );
-            }
-
-            // Structured such that it reads like a stacked mini "big day countdown" counter:
-            if (daysValueEl) daysValueEl.textContent = String(daysUntil);
-            if (daysLabelEl) daysLabelEl.textContent = daysUntil === 1 ? "DAY" : "DAYS";
-            if (taskEl) taskEl.textContent = assignment.task.trim() || "Assignment";
-            if (subjectEl) subjectEl.textContent = subjectsMap.get(assignment.courseId) || "Unknown subject";
-
-            upcomingAssignmentsListEl.appendChild(item);
-        });
-
-        updateHomeOverflowHints();
-    }
-
     function updateHomeOverflowHints() {
         // I want this to match the working subjects list behaviour:
         // only show the fade if the inner list actually has content hidden below.
@@ -550,10 +466,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             todayTasksCard.classList.toggle("has-more", tasksCanScroll);
         }
 
-        if (upcomingAssignmentsWidget && upcomingAssignmentsListEl) {
-            const upcomingCanScroll = upcomingAssignmentsListEl.scrollHeight > upcomingAssignmentsListEl.clientHeight + 1;
-            upcomingAssignmentsWidget.classList.toggle("has-more", upcomingCanScroll);
-        }
     }
 
     /* helper functions for dates */
@@ -578,7 +490,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         renderTasksForSelectedDate(); // keeps tasks synced with the displayed date
         renderAssignmentsDueForSelectedDate();
-        renderUpcomingAssignmentsWidget();
         renderCalendarWidget();
     }
 
@@ -636,7 +547,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         notesInput.value = "";
         prioritySelect.value = "medium";
         if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = "not-started";
-        statusEl.textContent = "";
+        showInlineStatus("");
         titleInput.focus(); // subtle UX improvement
     }
 
@@ -658,7 +569,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Simple input validation so far
         if (!title) {
-            alert("Title is required.");
+            showInlineStatus("Title is required.", "negative");
             return;
         }
 
@@ -686,7 +597,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAllTasks(tasksByDate);
         renderTasksForSelectedDate();
 
-        showStatus("Task added successfully.", { closeAfter: true });
+        showStatus("Task added.", { closeAfter: true, tone: "positive" });
     }
 
     /* TASK INFO LOADER */
@@ -718,7 +629,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     /* TASK EDITS + SAVES */
     function saveEdits() {
         const title = titleInput.value.trim();
-        if (!title) { alert("Title is required."); return; }
+        if (!title) {
+            showInlineStatus("Title is required.", "negative");
+            return;
+        }
 
         const tasksByDate = loadAllTasks();
         const key = dateKey(selectedDate);
@@ -737,7 +651,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAllTasks(tasksByDate);
         renderTasksForSelectedDate();
 
-        showStatus("Task updated.", { closeAfter: true });
+        showStatus("Task updated.", { closeAfter: true, tone: "neutral" });
     }
 
     function deleteTask() {
@@ -752,7 +666,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAllTasks(tasksByDate);
         renderTasksForSelectedDate();
 
-        showStatus("Task deleted.", { closeAfter: true });
+        showStatus("Task deleted.", { closeAfter: true, tone: "negative" });
     }
 
     function toggleTaskCompletion(taskId) {
@@ -774,17 +688,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     function clearStatus() {
         if (statusTimer) clearTimeout(statusTimer);
         statusTimer = null;
-        statusEl.textContent = "";
+        showInlineStatus("");
     }
 
-    function showStatus(message, { closeAfter = false} = {}) {
-        statusEl.textContent = message;
+    function showInlineStatus(message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.notice(statusEl, message, { tone });
+            return;
+        }
 
-        if (statusTimer) clearTimeout(statusTimer);
-        statusTimer = setTimeout(() => {
-            clearStatus();
-            if (closeAfter) closeModal();
-        }, STATUS_MS);
+        statusEl.textContent = message;
+    }
+
+    function showStatus(message, { closeAfter = false, tone = "neutral" } = {}) {
+        if (closeAfter) {
+            closeModal();
+        }
+
+        if (window.NexaFeedback) {
+            window.NexaFeedback.toast(message, { tone });
+            return;
+        }
+
+        showInlineStatus(message, tone);
     }
 
     /* SORT */
@@ -1128,7 +1054,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     taskListEl?.addEventListener("scroll", updateHomeOverflowHints);
-    upcomingAssignmentsListEl?.addEventListener("scroll", updateHomeOverflowHints);
     window.addEventListener("resize", updateHomeOverflowHints);
 
     renderUserName();

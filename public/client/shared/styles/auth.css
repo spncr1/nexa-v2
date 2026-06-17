@@ -48,21 +48,22 @@ html, body {
 .auth-status {
     width: min(100%, 380px);
     margin: 0 auto 18px;
-    padding: 0;
+    padding: 11px 14px;
+    border-radius: 12px;
     text-align: center;
     font-family: "Noto Sans", sans-serif;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     line-height: 1.4;
     box-sizing: border-box;
 }
 
 .auth-status.success {
-    color: #39c35e;
+    color: #2fa84f;
 }
 
 .auth-status.error {
-    color: #ed5959;
+    color: #d44c4c;
 }
 
 .auth-form {

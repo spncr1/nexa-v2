@@ -1,13 +1,111 @@
+<%- include("./feedback") %>
+
 <div id="settings-backdrop" class="hidden" aria-hidden="true"></div>
 
-<div id="system-settings-modal" class="hidden" role="dialog" aria-modal="true" aria-label="System Settings">
+<div id="profile-settings-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-label="Profile Settings">
+    <button type="button" class="settings-close-btn" aria-label="Close profile settings"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
     <div class="settings-layout">
         <aside class="settings-sidebar">
             <ul class="settings-sidebar-list">
-                <li><button type="button" class="settings-nav" data-tab="general">General</button></li>
-                <li><button type="button" class="settings-nav" data-tab="account">Account</button></li>
-                <li><button type="button" class="settings-nav" data-tab="study">Study</button></li>
-                <li><button type="button" class="settings-nav" data-tab="customise">Customise</button></li>
+                <li><button type="button" class="settings-nav" data-settings-target="profile" data-tab="profile">Profile</button></li>
+                <li><button type="button" class="settings-nav" data-settings-target="profile" data-tab="security">Security</button></li>
+                <li><button type="button" class="settings-nav" data-settings-target="profile" data-tab="account">Account</button></li>
+            </ul>
+        </aside>
+
+        <div class="settings-content">
+            <div class="settings-header">
+                <img class="settings-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
+                <h3 class="settings-title">PROFILE SETTINGS</h3>
+                <div id="profile-settings-subtitle" class="settings-subtitle">Profile</div>
+            </div>
+
+            <div class="settings-body">
+                <div class="settings-panel" data-settings-panel="profile" data-panel="profile">
+                    <div class="profile-avatar-row">
+                        <div id="profile-avatar-preview" class="profile-avatar-preview" aria-hidden="true">
+                            <img class="app-icon profile-avatar-fallback" src="/client/shared/assets/Icons/profile.svg" alt="">
+                        </div>
+                        <div class="profile-avatar-controls">
+                            <label class="setting-file-btn" for="profile-avatar-input">Change picture</label>
+                            <input id="profile-avatar-input" class="hidden" type="file" accept="image/*">
+                            <button type="button" id="remove-avatar-btn" class="setting-action-btn neutral"><span class="ui-btn-label">Remove</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Name</div>
+                        <input type="text" id="account-name-input" class="setting-account-input">
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Age</div>
+                        <input type="number" id="account-age-input" class="setting-account-input" min="13" max="120" inputmode="numeric">
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Semester</div>
+                        <input type="text" id="account-semester-input" class="setting-account-input">
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Email</div>
+                        <input type="email" id="account-email-input" class="setting-account-input">
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Save profile details</div>
+                        <button type="button" id="save-profile-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" data-settings-panel="profile" data-panel="security">
+                    <div class="setting-row">
+                        <div class="setting-labels">Current password</div>
+                        <input type="password" id="current-password-input" class="setting-account-input" autocomplete="current-password">
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">New password</div>
+                        <input type="password" id="new-password-input" class="setting-account-input" autocomplete="new-password">
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Confirm password</div>
+                        <input type="password" id="confirm-password-input" class="setting-account-input" autocomplete="new-password">
+                    </div>
+
+                    <p id="password-settings-status" class="task-status"></p>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Change password</div>
+                        <button type="button" id="change-password-btn" class="setting-action-btn success"><span class="ui-btn-label">Update</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" data-settings-panel="profile" data-panel="account">
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Delete account?</div>
+                            <div class="setting-desc">Permanently removes this account and saved app data.</div>
+                        </div>
+                        <button type="button" id="delete-account-btn" class="setting-action-btn danger"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="system-settings-modal" class="settings-modal hidden" role="dialog" aria-modal="true" aria-label="System Settings">
+    <button type="button" class="settings-close-btn" aria-label="Close system settings"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
+    <div class="settings-layout">
+        <aside class="settings-sidebar">
+            <ul class="settings-sidebar-list">
+                <li><button type="button" class="settings-nav" data-settings-target="system" data-tab="appearance">Appearance</button></li>
+                <li><button type="button" class="settings-nav" data-settings-target="system" data-tab="preferences">Preferences</button></li>
+                <li><button type="button" class="settings-nav" data-settings-target="system" data-tab="data">Data</button></li>
+                <li><button type="button" class="settings-nav" data-settings-target="system" data-tab="about">About</button></li>
             </ul>
         </aside>
 
@@ -15,76 +113,15 @@
             <div class="settings-header">
                 <img class="settings-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 class="settings-title">SYSTEM SETTINGS</h3>
-                <div id="settings-subtitle" class="settings-subtitle">General</div>
+                <div id="system-settings-subtitle" class="settings-subtitle">Appearance</div>
             </div>
 
             <div class="settings-body">
-                <div class="settings-panel" data-panel="general">
+                <div class="settings-panel" data-settings-panel="system" data-panel="appearance">
                     <div class="setting-row">
                         <div>
-                            <div class="setting-labels">Reset App Data?</div>
-                        </div>
-                        <button type="button" id="reset-app-data-btn" class="setting-action-btn danger"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Load Demo Data?</div>
-                        </div>
-                        <button type="button" id="load-demo-data-btn" class="setting-action-btn success"><span class="ui-btn-label">Load</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
-                    </div>
-                </div>
-
-                <div class="settings-panel hidden" data-panel="account">
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Name</div>
-                        </div>
-                        <input type="text" id="account-name-input" class="setting-account-input">
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Email</div>
-                        </div>
-                        <input type="text" id="account-email-input" class="setting-account-input">
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Save account details</div>
-                        </div>
-                        <button type="button" id="save-account-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Delete account?</div>
-                        </div>
-                        <button type="button" id="delete-account-btn" class="setting-action-btn danger"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
-                    </div>
-                </div>
-
-                <div class="settings-panel hidden" data-panel="study">
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Semester label</div>
-                        </div>
-                        <input type="text" id="account-semester-input" class="setting-account-input">
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Save study details</div>
-                        </div>
-                        <button type="button" id="save-study-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
-                    </div>
-                </div>
-
-                <div class="settings-panel hidden" data-panel="customise">
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Theme</div>
+                            <div class="setting-labels">Theme mode</div>
+                            <div class="setting-desc">Switch directly between light and dark.</div>
                         </div>
 
                         <button type="button" id="theme-switch" aria-label="Switch to dark mode" aria-pressed="false">
@@ -93,12 +130,95 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="settings-panel hidden" data-settings-panel="system" data-panel="preferences">
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Notifications</div>
+                            <div class="setting-desc">Store reminder preferences for future notification support.</div>
+                        </div>
+                        <label class="settings-toggle"><input type="checkbox" data-system-pref="notifications"><span></span></label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Accessibility</div>
+                            <div class="setting-desc">Prefer calmer motion and visual effects.</div>
+                        </div>
+                        <label class="settings-toggle"><input type="checkbox" data-system-pref="reducedMotion"><span></span></label>
+                    </div>
+
+                    <div class="setting-row">
+                        <div class="setting-labels">Language</div>
+                        <select id="language-pref-select" class="setting-account-input" data-system-pref="language">
+                            <option value="en-AU">English (AU)</option>
+                            <option value="en-US">English (US)</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Privacy preferences</div>
+                            <div class="setting-desc">Keep activity details private by default.</div>
+                        </div>
+                        <label class="settings-toggle"><input type="checkbox" data-system-pref="privateActivity"><span></span></label>
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" data-settings-panel="system" data-panel="data">
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Reset app data?</div>
+                            <div class="setting-desc">Clears tasks, subjects, assignments, profile fields, and preferences.</div>
+                        </div>
+                        <button type="button" id="reset-app-data-btn" class="setting-action-btn danger"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Load demo data?</div>
+                            <div class="setting-desc">Populate the app with sample study data.</div>
+                        </div>
+                        <button type="button" id="load-demo-data-btn" class="setting-action-btn success"><span class="ui-btn-label">Load</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
+                    </div>
+                </div>
+
+                <div class="settings-panel hidden" data-settings-panel="system" data-panel="about">
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">Help</div>
+                            <div class="setting-desc">Coming soon...</div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row">
+                        <div>
+                            <div class="setting-labels">About Nexa</div>
+                            <div class="setting-desc">Version 1.0</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="app-shell-actions">
-    <button id="system-settings-btn" class="app-shell-action-btn" aria-label="System settings"><img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true"></button>
-    <button id="logout-btn" class="app-shell-action-btn" aria-label="Log out"><img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true"></button>
+<div class="settings-navbar-actions" aria-label="Account controls">
+    <button id="profile-settings-btn" class="settings-navbar-button settings-navbar-profile-button" type="button" aria-label="Profile settings" data-tooltip="Profile">
+        <span class="settings-navbar-icon-hover">
+            <span id="settings-navbar-profile-avatar" class="settings-navbar-profile-avatar">
+                <img class="app-icon" src="/client/shared/assets/Icons/profile.svg" alt="" aria-hidden="true">
+            </span>
+        </span>
+    </button>
+    <button id="system-settings-btn" class="settings-navbar-button" type="button" aria-label="System settings" data-tooltip="System Settings">
+        <span class="settings-navbar-icon-hover">
+            <img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true">
+        </span>
+    </button>
+    <button id="logout-btn" class="settings-navbar-button" type="button" aria-label="Log out" data-tooltip="Log Out">
+        <span class="settings-navbar-icon-hover">
+            <img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true">
+        </span>
+    </button>
 </div>

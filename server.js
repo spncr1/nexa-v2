@@ -33,12 +33,14 @@ const {
     resetPasswordWithAuthToken,
     saveUserAppState,
     testDatabaseConnection,
-    updateUserById
+    updateUserById,
+    updateUserPasswordById
 } = require('./db')
 const {
     validateAccountInput,
     validateForgotPasswordInput,
     validateLoginInput,
+    validatePassword,
     validatePasswordResetInput,
     validateRegistrationInput
 } = require('./auth-validation')
@@ -593,6 +595,63 @@ app.patch('/api/me', checkAuthenticatedApi, async (req, res) => {
     } catch (error) {
         console.error('Failed to update user account:', formatDbError(error))
         res.status(500).json({ error: 'Could not update account right now' })
+    }
+})
+
+app.patch('/api/me/password', checkAuthenticatedApi, async (req, res) => {
+    try {
+        const currentPassword = String(req.body?.currentPassword || '')
+        const newPassword = String(req.body?.newPassword || '')
+        const confirmPassword = String(req.body?.confirmPassword || '')
+        const errors = {}
+
+        if (!currentPassword) {
+            errors.currentPassword = 'Current password is required.'
+        }
+
+        const passwordError = validatePassword(newPassword)
+        if (passwordError) {
+            errors.newPassword = passwordError
+        }
+
+        if (!confirmPassword) {
+            errors.confirmPassword = 'Confirm your new password.'
+        } else if (newPassword !== confirmPassword) {
+            errors.confirmPassword = 'Passwords do not match.'
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(422).json({
+                error: Object.values(errors)[0],
+                errors
+            })
+        }
+
+        const passwordMatches = await bcrypt.compare(currentPassword, req.user.password)
+        if (!passwordMatches) {
+            return res.status(401).json({
+                error: 'Current password is incorrect.',
+                errors: { currentPassword: 'Current password is incorrect.' }
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        const updatedUser = await updateUserPasswordById(req.user.id, hashedPassword)
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' })
+        }
+
+        req.login(updatedUser, (loginError) => {
+            if (loginError) {
+                console.error('Failed to refresh session user after password change:', formatDbError(loginError))
+                return res.status(500).json({ error: 'Could not refresh session right now' })
+            }
+
+            return res.json({ success: true })
+        })
+    } catch (error) {
+        console.error('Failed to update user password:', formatDbError(error))
+        res.status(500).json({ error: 'Could not update password right now' })
     }
 })
 

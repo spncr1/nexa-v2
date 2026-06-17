@@ -117,37 +117,13 @@
                     <!-- any future centred content will go here-->
                 </section>
 
-                <!-- CONTROLS COLUMN -->
-                <aside class="assignments-controls" aria-label="Assignments controls">
-                    <div class="controls-group">
-                        <label class="control-label" for="add-assignment-btn">Add Assignments</label>
-                        <button type="button" class="btn-primary" id="add-assignment-btn"><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
-                    </div>
-
-                    <div class="controls-group">
-                        <label class="control-label" for="assignments-sort">Sort</label>
-                        <select id="assignments-sort" class="control-select">
-                            <option value="dueSoon">Due date (soonest)</option>
-                            <option value="dueLate">Due date (latest)</option>
-                            <option value="weightHigh">Weighting (high -> low)</option>
-                            <option value="weightLow">Weighting (low -> high) </option>
-                            <option value="priority">Priority</option>
-                        </select>
-                    </div>
-
-                    <div class="controls-group">
-                        <label class="control-label" for="assignments-filter">Filter (by priority)</label>
-                        <select id="assignments-filter" class="control-select">
-                            <option value="all">All</option>
-                            <option value="low">Low</option>
-                            <option value="medium">Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                    </div>
-                </aside>
-
                 <!-- RIGHT COLUMN: VISUAL WIDGETS -->
                  <aside class="assignments-widgets" aria-label="Summary widgets">
+                    <div class="widget-card assignment-reminders-widget">
+                        <div class="widget-title">Assignment Reminders</div>
+                        <ul id="assignment-reminders-list" class="assignment-reminders-list"></ul>
+                    </div>
+
                     <div class="widget-card">
                         <div class="widget-title">Total Course Assignments</div>
                         <div class="total-assignments-widget">
@@ -192,20 +168,24 @@
                  <div class="assignments-table-card" aria-label="All Assignments table">
                     <div class="assignments-table-header">
                         <h2 class="table-title">All Assignments <span class="page-subtitle semester-label"></span></h2>
-                        <button class="btn-secondary" id="reset-btn"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button> <!-- would "clear all assignments" be more suitable here? -->
+                        <div class="assignments-table-actions">
+                            <button class="btn-secondary" id="add-assignment-btn" type="button"><span class="ui-btn-label">Add assignment</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
+                            <button class="btn-secondary hidden" id="clear-filters-btn" type="button"><span class="ui-btn-label">Clear filters</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                            <button class="btn-secondary" id="reset-btn"><span class="ui-btn-label">Reset</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button> <!-- would "clear all assignments" be more suitable here? -->
+                        </div>
                     </div>
 
                     <div class="assignments-table-wrap">
                             <table class="assignments-table">
                                 <thead>
                                     <tr>
-                                        <th>Course</th>
-                                        <th>Task</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Due Date</th>
-                                        <th>Weighting (%)</th>
-                                        <th>Share of Subject</th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="course">Course<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="task">Task<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="priority">Priority<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="status">Status<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="dueDate">Due Date<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="weighting">Weighting (%)<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
+                                        <th><button type="button" class="assignment-sort-btn" data-assignment-sort="share">Share of Subject (%)<img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button></th>
                                     </tr>
                                 </thead>
 
@@ -213,8 +193,28 @@
                                 </tbody>
                             </table>
                         </div>
-                </div>
+               </div>
             </section>
+
+            <template id="assignment-reminder-item-template">
+                <li class="assignment-reminder-item">
+                    <button type="button" class="assignment-reminder-link">
+                        <span class="assignment-reminder-countdown">
+                            <span class="assignment-reminder-days-value"></span>
+                            <span class="assignment-reminder-days-label"></span>
+                        </span>
+                        <span class="assignment-reminder-content">
+                            <span class="assignment-reminder-task"></span>
+                            <span class="assignment-reminder-subject"></span>
+                            <span class="assignment-reminder-meta"></span>
+                        </span>
+                    </button>
+                </li>
+            </template>
+
+            <template id="assignment-reminder-empty-template">
+                <li class="assignment-reminder-empty">No upcoming assignment reminders.</li>
+            </template>
 
              <div id="modal-backdrop" class="hidden"></div>
 
@@ -315,6 +315,7 @@
         
         <script src="/client/shared/theme-boot.js"></script>
         <script src="/client/app-storage.js"></script>
+        <script src="/client/shared/feedback.js"></script>
         <script src="/client/shared/settings-modal.js"></script>
         <script src="/client/features/Assignments/assignments.js"></script>
     </body>

@@ -5,59 +5,112 @@ document.addEventListener("DOMContentLoaded", async () => {
     let currentUser = storage.getCurrentUser();
 
     const menuToggle = document.querySelector(".menu-toggle");
+    const profileSettingsBtn = document.getElementById("profile-settings-btn");
     const systemSettingsBtn = document.getElementById("system-settings-btn");
+    const profileSettingsModal = document.getElementById("profile-settings-modal");
     const systemSettingsModal = document.getElementById("system-settings-modal");
     const settingsBackdrop = document.getElementById("settings-backdrop");
+    const settingsCloseBtns = document.querySelectorAll(".settings-close-btn");
     const navButtons = document.querySelectorAll(".settings-nav");
     const panels = document.querySelectorAll(".settings-panel");
-    const subtitle = document.getElementById("settings-subtitle");
+    const profileSubtitle = document.getElementById("profile-settings-subtitle");
+    const systemSubtitle = document.getElementById("system-settings-subtitle");
+    const themeModeSelect = document.getElementById("theme-mode-select");
     const themeSwitch = document.getElementById("theme-switch");
     const resetAppDataBtn = document.getElementById("reset-app-data-btn");
     const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
     const accountNameInput = document.getElementById("account-name-input");
     const accountEmailInput = document.getElementById("account-email-input");
+    const accountAgeInput = document.getElementById("account-age-input");
     const accountSemesterInput = document.getElementById("account-semester-input");
-    const saveAccountBtn = document.getElementById("save-account-btn");
-    const saveStudyBtn = document.getElementById("save-study-btn");
+    const saveProfileBtn = document.getElementById("save-profile-btn");
+    const avatarInput = document.getElementById("profile-avatar-input");
+    const removeAvatarBtn = document.getElementById("remove-avatar-btn");
+    const settingsNavbarProfileAvatar = document.getElementById("settings-navbar-profile-avatar");
+    const profileAvatarPreview = document.getElementById("profile-avatar-preview");
+    const currentPasswordInput = document.getElementById("current-password-input");
+    const newPasswordInput = document.getElementById("new-password-input");
+    const confirmPasswordInput = document.getElementById("confirm-password-input");
+    const changePasswordBtn = document.getElementById("change-password-btn");
+    const passwordSettingsStatus = document.getElementById("password-settings-status");
     const logoutBtn = document.getElementById("logout-btn");
     const deleteAccountBtn = document.getElementById("delete-account-btn");
 
     const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
     const USER_NAME_KEY = "studenthub_user_name";
     const SEMESTER_KEY = "studenthub_semester_label";
-    const APP_DATA_KEYS = ["tasksByDate", "studenthub_subjects", "studenthub_assignments", USER_NAME_KEY, SEMESTER_KEY];
+    const PROFILE_AGE_KEY = "studenthub_profile_age";
+    const PROFILE_AVATAR_KEY = "studenthub_profile_avatar";
+    const SYSTEM_PREFS_KEY = "studenthub_system_preferences";
+    const THEME_MODE_KEY = "studenthub_theme_mode";
+    const APP_DATA_KEYS = [
+        "tasksByDate",
+        "studenthub_subjects",
+        "studenthub_assignments",
+        USER_NAME_KEY,
+        SEMESTER_KEY,
+        PROFILE_AGE_KEY,
+        PROFILE_AVATAR_KEY,
+        SYSTEM_PREFS_KEY,
+        THEME_MODE_KEY,
+        "darkMode"
+    ];
     const DEFAULT_USER_NAME = currentUser?.name || "Student";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
     const mobileNavQuery = window.matchMedia("(max-width: 768px)");
-
-    let settingsStatusEl = null;
-    let settingsStatusTimer = null;
+    const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     /*
       ==========================
-      SHARED APP SHELL
+      NAVIGATION + SETTINGS BUTTONS
       ==========================
     */
 
+    let navTransitionTimer = null;
+
     function setNavCollapsed(isCollapsed) {
+        const wasCollapsed = document.body.classList.contains("nav-collapsed");
+
+        if (navTransitionTimer) window.clearTimeout(navTransitionTimer);
+        document.body.classList.remove("nav-collapsing", "nav-expanding");
+
+        if (wasCollapsed !== isCollapsed) {
+            document.body.classList.add(isCollapsed ? "nav-collapsing" : "nav-expanding");
+            navTransitionTimer = window.setTimeout(() => {
+                document.body.classList.remove("nav-collapsing", "nav-expanding");
+            }, 560);
+        }
+
         document.body.classList.toggle("nav-collapsed", isCollapsed);
         storage.setItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0");
         menuToggle?.setAttribute("aria-expanded", (!isCollapsed).toString());
     }
 
-    function stopCollapsedNavActivation(event) {
+    function handleCollapsedNavActivation(event) {
         if (!document.body.classList.contains("nav-collapsed")) return;
 
-        const target = event.target.closest(".navbar .nav-list a, .navbar .nav-group summary");
-        if (!target) return;
+        const summary = event.target.closest(".navbar .nav-group summary");
+        if (summary) {
+            event.preventDefault();
 
-        event.preventDefault();
-        event.stopPropagation();
+            const navGroup = summary.closest(".nav-group");
+            const firstLink = navGroup?.querySelector(".nav-submenu a[href]");
+            if (!firstLink) return;
+
+            setNavCollapsed(false);
+            window.location.href = firstLink.href;
+            return;
+        }
+
+        const directLink = event.target.closest(".navbar a.nav-item[href]");
+        if (directLink) {
+            setNavCollapsed(false);
+        }
     }
 
     /*
       ==========================
-      SYSTEM SETTINGS MODAL
+      PROFILE + SETTINGS MODALS
       ==========================
     */
 
@@ -71,86 +124,166 @@ document.addEventListener("DOMContentLoaded", async () => {
         return saved && saved.trim() ? saved : DEFAULT_SEMESTER_LABEL;
     }
 
-    function populateAccountInputs() {
+    function loadProfileAge() {
+        const saved = storage.getItem(PROFILE_AGE_KEY);
+        return saved && saved.trim() ? saved : "";
+    }
+
+    function loadAvatar() {
+        const saved = storage.getItem(PROFILE_AVATAR_KEY);
+        return saved && saved.startsWith("data:image/") ? saved : "";
+    }
+
+    function setAvatarPreview(dataUrl) {
+        [settingsNavbarProfileAvatar, profileAvatarPreview].forEach((el) => {
+            if (!el) return;
+            el.classList.toggle("has-image", Boolean(dataUrl));
+            el.style.backgroundImage = dataUrl ? `url("${dataUrl}")` : "";
+        });
+    }
+
+    function populateProfileInputs() {
         if (accountNameInput) accountNameInput.value = loadUserName();
         if (accountEmailInput) accountEmailInput.value = currentUser?.email || "";
+        if (accountAgeInput) accountAgeInput.value = loadProfileAge();
         if (accountSemesterInput) accountSemesterInput.value = loadSemesterLabel();
+        setAvatarPreview(loadAvatar());
     }
 
-    function ensureSettingsStatus() {
-        if (settingsStatusEl) return settingsStatusEl;
-
-        settingsStatusEl = document.createElement("p");
-        settingsStatusEl.className = "settings-status hidden";
-        settingsStatusEl.setAttribute("role", "status");
-        systemSettingsModal?.insertAdjacentElement("afterend", settingsStatusEl);
-
-        return settingsStatusEl;
-    }
-
-    function positionSettingsStatus() {
-        const statusEl = ensureSettingsStatus();
-        if (!systemSettingsModal) return;
-
-        const modalRect = systemSettingsModal.getBoundingClientRect();
-        statusEl.style.left = `${modalRect.left + modalRect.width / 2}px`;
-        statusEl.style.top = `${modalRect.bottom + 12}px`;
-    }
-
-    function clearSettingsStatus() {
-        window.clearTimeout(settingsStatusTimer);
-        settingsStatusTimer = null;
-        if (!settingsStatusEl) return;
-
-        settingsStatusEl.classList.add("hidden");
-        settingsStatusEl.textContent = "";
-    }
-
-    function showSettingsStatus(message) {
-        const statusEl = ensureSettingsStatus();
-
-        statusEl.textContent = message;
-        positionSettingsStatus();
-        statusEl.classList.remove("hidden");
-        window.clearTimeout(settingsStatusTimer);
-        settingsStatusTimer = window.setTimeout(clearSettingsStatus, 2500);
-    }
-
-    function openSystemSettings() {
-        clearSettingsStatus();
-        populateAccountInputs();
-        settingsBackdrop?.classList.remove("hidden");
-        systemSettingsModal?.classList.remove("hidden");
-    }
-
-    function closeSystemSettings() {
-        systemSettingsModal?.classList.add("hidden");
-        settingsBackdrop?.classList.add("hidden");
-        clearSettingsStatus();
-    }
-
-    function setActiveTab(tabKey) {
-        navButtons.forEach((btn) => {
-            btn.classList.toggle("active", btn.dataset.tab === tabKey);
-        });
-
-        panels.forEach((panel) => {
-            panel.classList.toggle("hidden", panel.dataset.panel !== tabKey);
-        });
-
-        if (subtitle) {
-            subtitle.textContent = tabKey.charAt(0).toUpperCase() + tabKey.slice(1);
+    function loadSystemPrefs() {
+        try {
+            const raw = storage.getItem(SYSTEM_PREFS_KEY);
+            const parsed = raw ? JSON.parse(raw) : {};
+            return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (error) {
+            console.warn("Failed to parse system preferences:", error);
+            return {};
         }
     }
 
-    async function saveAccountSettings() {
+    function saveSystemPrefs(prefs) {
+        storage.setItem(SYSTEM_PREFS_KEY, JSON.stringify(prefs && typeof prefs === "object" ? prefs : {}));
+    }
+
+    function populateSystemPreferences() {
+        const prefs = loadSystemPrefs();
+
+        document.querySelectorAll("[data-system-pref]").forEach((control) => {
+            const key = control.dataset.systemPref;
+            if (!key) return;
+
+            if (control.type === "checkbox") {
+                control.checked = Boolean(prefs[key]);
+            } else {
+                control.value = prefs[key] || control.querySelector("option")?.value || "";
+            }
+        });
+    }
+
+    function saveSingleSystemPreference(control) {
+        const key = control.dataset.systemPref;
+        if (!key) return;
+
+        const prefs = loadSystemPrefs();
+        prefs[key] = control.type === "checkbox" ? control.checked : control.value;
+        saveSystemPrefs(prefs);
+        showToast("System preference saved.", "neutral");
+    }
+
+    function showToast(message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.toast(message, { tone });
+            return;
+        }
+
+        window.alert(message);
+    }
+
+    function showInlineNotice(targetEl, message, tone = "neutral") {
+        if (window.NexaFeedback) {
+            window.NexaFeedback.notice(targetEl, message, { tone });
+            return;
+        }
+
+        if (targetEl) targetEl.textContent = message || "";
+    }
+
+    function confirmAction(options) {
+        if (window.NexaFeedback) {
+            return window.NexaFeedback.confirm(options);
+        }
+
+        return Promise.resolve(window.confirm(options.message || options.title || "Are you sure?"));
+    }
+
+    function closeSettingsModals() {
+        profileSettingsModal?.classList.add("hidden");
+        systemSettingsModal?.classList.add("hidden");
+        settingsBackdrop?.classList.add("hidden");
+        document.body.classList.remove("settings-modal-open");
+        showInlineNotice(passwordSettingsStatus, "");
+    }
+
+    function openProfileSettings() {
+        populateProfileInputs();
+        settingsBackdrop?.classList.remove("hidden");
+        profileSettingsModal?.classList.remove("hidden");
+        systemSettingsModal?.classList.add("hidden");
+        document.body.classList.add("settings-modal-open");
+        profileSettingsBtn?.blur();
+        systemSettingsBtn?.blur();
+        setActiveTab("profile", "profile");
+    }
+
+    function openSystemSettings() {
+        populateSystemPreferences();
+        settingsBackdrop?.classList.remove("hidden");
+        systemSettingsModal?.classList.remove("hidden");
+        profileSettingsModal?.classList.add("hidden");
+        document.body.classList.add("settings-modal-open");
+        profileSettingsBtn?.blur();
+        systemSettingsBtn?.blur();
+        setActiveTab("system", "appearance");
+    }
+
+    function setActiveTab(targetKey, tabKey) {
+        navButtons.forEach((btn) => {
+            const matchesTarget = btn.dataset.settingsTarget === targetKey;
+            btn.classList.toggle("active", matchesTarget && btn.dataset.tab === tabKey);
+        });
+
+        panels.forEach((panel) => {
+            const matchesTarget = panel.dataset.settingsPanel === targetKey;
+            panel.classList.toggle("hidden", !matchesTarget || panel.dataset.panel !== tabKey);
+        });
+
+        const subtitle = targetKey === "profile" ? profileSubtitle : systemSubtitle;
+        if (subtitle) {
+            subtitle.textContent = tabKey
+                .split("-")
+                .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                .join(" ");
+        }
+    }
+
+    async function saveProfileSettings() {
         const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
         const emailValue = (accountEmailInput?.value || "").trim().toLowerCase();
+        const ageValue = (accountAgeInput?.value || "").trim();
+        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
 
         if (!emailValue) {
-            window.alert("Email cannot be blank.");
-            populateAccountInputs();
+            showToast("Email cannot be blank.", "negative");
+            populateProfileInputs();
             return;
+        }
+
+        if (ageValue) {
+            const ageNumber = Number(ageValue);
+            if (!Number.isInteger(ageNumber) || ageNumber < 13 || ageNumber > 120) {
+                showToast("Age must be a whole number between 13 and 120.", "negative");
+                return;
+            }
         }
 
         const response = await fetch("/api/me", {
@@ -162,34 +295,68 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!response.ok) {
             const payload = await response.json().catch(() => ({}));
-            window.alert(payload.error || "Could not update account details right now.");
-            populateAccountInputs();
+            showToast(payload.error || "Could not update profile details right now.", "negative");
+            populateProfileInputs();
             return;
         }
 
         currentUser = await response.json();
         storage.setCurrentUser(currentUser);
         storage.setItem(USER_NAME_KEY, nameValue);
-        populateAccountInputs();
+        storage.setItem(SEMESTER_KEY, semesterValue);
+        if (ageValue) {
+            storage.setItem(PROFILE_AGE_KEY, ageValue);
+        } else {
+            storage.removeItem(PROFILE_AGE_KEY);
+        }
+
+        populateProfileInputs();
         window.dispatchEvent(new CustomEvent("nexa:account-updated", {
-            detail: { user: currentUser, name: nameValue, semester: loadSemesterLabel() }
+            detail: { user: currentUser, name: nameValue, semester: semesterValue, age: ageValue }
         }));
-        showSettingsStatus("Account details saved successfully.");
+        showToast("Profile details saved.", "neutral");
     }
 
-    function saveStudySettings() {
-        const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
+    function clearPasswordInputs() {
+        if (currentPasswordInput) currentPasswordInput.value = "";
+        if (newPasswordInput) newPasswordInput.value = "";
+        if (confirmPasswordInput) confirmPasswordInput.value = "";
+    }
 
-        storage.setItem(SEMESTER_KEY, semesterValue);
-        populateAccountInputs();
-        window.dispatchEvent(new CustomEvent("nexa:account-updated", {
-            detail: { user: currentUser, name: loadUserName(), semester: semesterValue }
-        }));
-        showSettingsStatus("Study details saved successfully.");
+    async function changePassword() {
+        const currentPassword = currentPasswordInput?.value || "";
+        const newPassword = newPasswordInput?.value || "";
+        const confirmPassword = confirmPasswordInput?.value || "";
+
+        showInlineNotice(passwordSettingsStatus, "");
+
+        const response = await fetch("/api/me/password", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+        });
+
+        const payload = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            showInlineNotice(passwordSettingsStatus, payload.error || "Could not change password right now.", "negative");
+            return;
+        }
+
+        clearPasswordInputs();
+        showInlineNotice(passwordSettingsStatus, "Password updated.", "positive");
+        showToast("Password updated.", "positive");
     }
 
     async function logoutCurrentUser() {
-        const confirmed = window.confirm("Are you sure you want to log out?");
+        const confirmed = await confirmAction({
+            title: "Log out?",
+            message: "Are you sure you want to log out?",
+            tone: "neutral",
+            confirmLabel: "Log out",
+            cancelLabel: "Cancel"
+        });
         if (!confirmed) return;
 
         const response = await fetch("/logout", {
@@ -198,22 +365,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
 
         if (!response.ok) {
-            window.alert("Could not log out right now.");
+            showToast("Could not log out right now.", "negative");
             return;
         }
 
         window.location.href = "/login";
     }
 
-    function showAccountDeletedNotice() {
-        const notice = document.createElement("div");
-        notice.className = "account-delete-notice";
-        notice.textContent = "Account deleted successfully.";
-        document.body.appendChild(notice);
-    }
-
     async function deleteCurrentUserAccount() {
-        const confirmed = window.confirm("Are you sure you want to delete this account? This cannot be undone.");
+        const confirmed = await confirmAction({
+            title: "Delete account?",
+            message: "This cannot be undone.",
+            tone: "negative",
+            confirmLabel: "Delete",
+            cancelLabel: "Cancel"
+        });
         if (!confirmed) return;
 
         const response = await fetch("/api/me", {
@@ -223,30 +389,70 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!response.ok) {
             const payload = await response.json().catch(() => ({}));
-            window.alert(payload.error || "Could not delete account right now.");
+            showToast(payload.error || "Could not delete account right now.", "negative");
             return;
         }
 
-        showAccountDeletedNotice();
+        showToast("Account deleted.", "negative");
         window.setTimeout(() => {
             window.location.href = "/login";
         }, 900);
     }
 
-    function resetAllAppData() {
-        const confirmed = window.confirm(
-            "Reset all app data? This will permanently delete all saved tasks, subjects, and assignments across the application."
-        );
+    async function resetAllAppData() {
+        const confirmed = await confirmAction({
+            title: "Reset app data?",
+            message: "This will permanently delete saved tasks, subjects, assignments, profile fields, and system preferences.",
+            tone: "negative",
+            confirmLabel: "Reset",
+            cancelLabel: "Cancel"
+        });
         if (!confirmed) return;
 
         APP_DATA_KEYS.forEach((key) => storage.removeItem(key));
-        populateAccountInputs();
+        setDarkMode(false);
+        if (themeModeSelect) themeModeSelect.value = "light";
+        populateProfileInputs();
+        populateSystemPreferences();
         window.dispatchEvent(new CustomEvent("nexa:app-data-reset"));
     }
 
     function requestDemoData() {
         window.dispatchEvent(new CustomEvent("nexa:load-demo-data"));
-        populateAccountInputs();
+        populateProfileInputs();
+    }
+
+    function updateAvatarFromFile(file) {
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            showToast("Choose an image file for your profile picture.", "negative");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.addEventListener("load", () => {
+            const result = typeof reader.result === "string" ? reader.result : "";
+            if (!result.startsWith("data:image/")) {
+                showToast("Could not read that image.", "negative");
+                return;
+            }
+
+            storage.setItem(PROFILE_AVATAR_KEY, result);
+            setAvatarPreview(result);
+            showToast("Profile picture updated.", "positive");
+        });
+        reader.addEventListener("error", () => {
+            showToast("Could not read that image.", "negative");
+        });
+        reader.readAsDataURL(file);
+    }
+
+    function removeAvatar() {
+        storage.removeItem(PROFILE_AVATAR_KEY);
+        if (avatarInput) avatarInput.value = "";
+        setAvatarPreview("");
+        showToast("Profile picture removed.", "neutral");
     }
 
     /*
@@ -255,20 +461,46 @@ document.addEventListener("DOMContentLoaded", async () => {
       ==========================
     */
 
-    function setDarkMode(isOn) {
+    function setDarkMode(isOn, { persistLegacy = true } = {}) {
         document.body.classList.toggle("dark-mode", isOn);
-        storage.setItem("darkMode", isOn ? "1" : "0");
+        if (persistLegacy) {
+            storage.setItem("darkMode", isOn ? "1" : "0");
+        }
         document.cookie = `nexa_dark_mode=${isOn ? "1" : "0"}; path=/; max-age=31536000; SameSite=Lax`;
         themeSwitch?.setAttribute("aria-pressed", isOn.toString());
         themeSwitch?.setAttribute("aria-label", isOn ? "Switch to light mode" : "Switch to dark mode");
     }
 
+    function resolveThemeMode(mode) {
+        if (mode === "dark") return true;
+        if (mode === "light") return false;
+        return darkThemeQuery.matches;
+    }
+
+    function setThemeMode(mode) {
+        const nextMode = ["system", "light", "dark"].includes(mode) ? mode : "system";
+        storage.setItem(THEME_MODE_KEY, nextMode);
+        if (themeModeSelect) themeModeSelect.value = nextMode;
+        setDarkMode(resolveThemeMode(nextMode), { persistLegacy: nextMode !== "system" });
+    }
+
     function initialiseThemeSetting() {
-        const savedDarkMode = storage.getItem("darkMode") === "1";
-        setDarkMode(savedDarkMode);
+        const savedMode = storage.getItem(THEME_MODE_KEY);
+        const legacyMode = storage.getItem("darkMode") === "1" ? "dark" : "light";
+        setThemeMode(savedMode || legacyMode);
 
         themeSwitch?.addEventListener("click", () => {
-            setDarkMode(!document.body.classList.contains("dark-mode"));
+            setThemeMode(document.body.classList.contains("dark-mode") ? "light" : "dark");
+        });
+
+        themeModeSelect?.addEventListener("change", () => {
+            setThemeMode(themeModeSelect.value);
+        });
+
+        darkThemeQuery.addEventListener("change", () => {
+            if (storage.getItem(THEME_MODE_KEY) === "system") {
+                setDarkMode(darkThemeQuery.matches, { persistLegacy: false });
+            }
         });
     }
 
@@ -280,54 +512,67 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    document.querySelector(".navbar .nav-list")?.addEventListener("click", stopCollapsedNavActivation, true);
-    document.querySelector(".navbar .nav-list")?.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-            stopCollapsedNavActivation(event);
-        }
-    }, true);
+    document.querySelector(".navbar")?.addEventListener("click", handleCollapsedNavActivation);
 
+    profileSettingsBtn?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        openProfileSettings();
+    });
     systemSettingsBtn?.addEventListener("click", (event) => {
         event.stopPropagation();
         openSystemSettings();
     });
-    settingsBackdrop?.addEventListener("click", closeSystemSettings);
+    settingsBackdrop?.addEventListener("click", closeSettingsModals);
+    settingsCloseBtns.forEach((btn) => {
+        btn.addEventListener("click", closeSettingsModals);
+    });
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeSystemSettings();
+        if (event.key === "Escape") closeSettingsModals();
     });
-    window.addEventListener("resize", () => {
-        if (settingsStatusEl && !settingsStatusEl.classList.contains("hidden")) {
-            positionSettingsStatus();
-        }
-    });
-
     navButtons.forEach((btn) => {
-        btn.addEventListener("click", () => setActiveTab(btn.dataset.tab));
+        btn.addEventListener("click", () => setActiveTab(btn.dataset.settingsTarget, btn.dataset.tab));
     });
 
-    resetAppDataBtn?.addEventListener("click", resetAllAppData);
-    loadDemoDataBtn?.addEventListener("click", requestDemoData);
-    saveAccountBtn?.addEventListener("click", () => {
-        saveAccountSettings().catch((error) => {
-            console.error("Failed to save account settings:", error);
-            window.alert("Could not update account details right now.");
+    resetAppDataBtn?.addEventListener("click", () => {
+        resetAllAppData().catch((error) => {
+            console.error("Failed to reset app data:", error);
+            showToast("Could not reset app data right now.", "negative");
         });
     });
-    saveStudyBtn?.addEventListener("click", saveStudySettings);
+    loadDemoDataBtn?.addEventListener("click", requestDemoData);
+    saveProfileBtn?.addEventListener("click", () => {
+        saveProfileSettings().catch((error) => {
+            console.error("Failed to save profile settings:", error);
+            showToast("Could not update profile details right now.", "negative");
+        });
+    });
+    avatarInput?.addEventListener("change", () => updateAvatarFromFile(avatarInput.files?.[0]));
+    removeAvatarBtn?.addEventListener("click", removeAvatar);
+    changePasswordBtn?.addEventListener("click", () => {
+        changePassword().catch((error) => {
+            console.error("Failed to change password:", error);
+            showInlineNotice(passwordSettingsStatus, "Could not change password right now.", "negative");
+        });
+    });
     logoutBtn?.addEventListener("click", () => {
         logoutCurrentUser().catch((error) => {
             console.error("Failed to log out:", error);
-            window.alert("Could not log out right now.");
+            showToast("Could not log out right now.", "negative");
         });
     });
     deleteAccountBtn?.addEventListener("click", () => {
         deleteCurrentUserAccount().catch((error) => {
             console.error("Failed to delete account:", error);
-            window.alert("Could not delete account right now.");
+            showToast("Could not delete account right now.", "negative");
         });
     });
+    document.querySelectorAll("[data-system-pref]").forEach((control) => {
+        control.addEventListener("change", () => saveSingleSystemPreference(control));
+    });
 
-    setActiveTab("general");
+    setActiveTab("profile", "profile");
+    setActiveTab("system", "appearance");
     initialiseThemeSetting();
-    populateAccountInputs();
+    populateProfileInputs();
+    populateSystemPreferences();
 });
