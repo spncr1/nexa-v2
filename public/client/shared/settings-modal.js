@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     ];
     const DEFAULT_USER_NAME = currentUser?.name || "Student";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
-    const mobileNavQuery = window.matchMedia("(max-width: 768px)");
+    const mobileNavQuery = window.matchMedia("(max-width: 600px)");
     const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     /*
@@ -69,6 +69,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     let navTransitionTimer = null;
 
     function setNavCollapsed(isCollapsed) {
+        if (mobileNavQuery.matches) {
+            setMobileNavOpen(false);
+            document.body.classList.remove("nav-collapsed", "nav-collapsing", "nav-expanding");
+            menuToggle?.setAttribute("aria-expanded", "false");
+            return;
+        }
+
         const wasCollapsed = document.body.classList.contains("nav-collapsed");
 
         if (navTransitionTimer) window.clearTimeout(navTransitionTimer);
@@ -86,7 +93,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         menuToggle?.setAttribute("aria-expanded", (!isCollapsed).toString());
     }
 
+    function setMobileNavOpen(isOpen) {
+        document.body.classList.toggle("mobile-nav-open", isOpen);
+        menuToggle?.setAttribute("aria-expanded", isOpen.toString());
+    }
+
+    function syncNavigationMode() {
+        if (mobileNavQuery.matches) {
+            document.body.classList.remove("nav-collapsed", "nav-collapsing", "nav-expanding");
+            setMobileNavOpen(false);
+            return;
+        }
+
+        setMobileNavOpen(false);
+        setNavCollapsed(storage.getItem(NAV_COLLAPSED_KEY) === "1");
+    }
+
     function handleCollapsedNavActivation(event) {
+        if (mobileNavQuery.matches) return;
         if (!document.body.classList.contains("nav-collapsed")) return;
 
         const summary = event.target.closest(".navbar .nav-group summary");
@@ -105,6 +129,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         const directLink = event.target.closest(".navbar a.nav-item[href]");
         if (directLink) {
             setNavCollapsed(false);
+        }
+    }
+
+    function handleMobileNavActivation(event) {
+        if (!mobileNavQuery.matches) return;
+
+        const navLink = event.target.closest(".navbar a[href]");
+        if (navLink) {
+            setMobileNavOpen(false);
         }
     }
 
@@ -505,14 +538,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (menuToggle) {
-        const savedCollapsed = storage.getItem(NAV_COLLAPSED_KEY) === "1";
-        setNavCollapsed(mobileNavQuery.matches ? true : savedCollapsed);
+        syncNavigationMode();
         menuToggle.addEventListener("click", () => {
+            if (mobileNavQuery.matches) {
+                setMobileNavOpen(!document.body.classList.contains("mobile-nav-open"));
+                return;
+            }
+
             setNavCollapsed(!document.body.classList.contains("nav-collapsed"));
         });
     }
 
     document.querySelector(".navbar")?.addEventListener("click", handleCollapsedNavActivation);
+    document.querySelector(".navbar")?.addEventListener("click", handleMobileNavActivation);
+
+    if (typeof mobileNavQuery.addEventListener === "function") {
+        mobileNavQuery.addEventListener("change", syncNavigationMode);
+    } else if (typeof mobileNavQuery.addListener === "function") {
+        mobileNavQuery.addListener(syncNavigationMode);
+    }
 
     profileSettingsBtn?.addEventListener("click", (event) => {
         event.stopPropagation();

@@ -129,6 +129,29 @@ body.dark-mode .settings-modal {
     color: var(--color-text);
 }
 
+@media (max-width: 600px) {
+    body.dark-mode .navbar {
+        background: var(--color-bg);
+        border-right-color: transparent;
+        border-bottom-color: rgba(255, 255, 255, 0.18);
+    }
+
+    body.dark-mode .nav-brand {
+        border-bottom-color: transparent;
+    }
+
+    body.dark-mode.mobile-nav-open .navbar {
+        box-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.24);
+    }
+
+    body.dark-mode .settings-navbar-actions,
+    body.dark-mode.nav-collapsed .settings-navbar-actions {
+        background: rgba(27, 27, 32, 0.96);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.34);
+    }
+}
+
 body.dark-mode .nexa-toast-region,
 body.dark-mode .nexa-confirm-dialog {
     background: #141416;

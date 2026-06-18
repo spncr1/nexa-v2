@@ -1107,11 +1107,12 @@ body.settings-modal-open .settings-navbar-icon-hover {
     .settings-sidebar-list {
         display: flex;
         flex-wrap: wrap;
+        align-items: flex-start;
     }
 
     .settings-nav {
         width: auto;
-        flex: 1 1 auto;
+        flex: 0 0 auto;
         text-align: center;
     }
 
@@ -1129,5 +1130,467 @@ body.settings-modal-open .settings-navbar-icon-hover {
 
     .settings-toggle {
         margin-left: 10px;
+    }
+
+    #system-settings-modal .setting-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+    }
+
+    #system-settings-modal .setting-labels,
+    #system-settings-modal .setting-desc {
+        margin-left: 0;
+    }
+
+    #profile-settings-modal .settings-panel[data-panel="account"] .setting-labels,
+    #profile-settings-modal .settings-panel[data-panel="account"] .setting-desc {
+        margin-left: 0;
+    }
+
+    #system-settings-modal .setting-labels {
+        font-size: 0.95rem;
+        line-height: 1.15;
+    }
+
+    #system-settings-modal .setting-desc {
+        font-size: 0.78rem;
+        line-height: 1.32;
+    }
+
+    #system-settings-modal .setting-row {
+        margin-top: 0.7rem;
+    }
+
+    #system-settings-modal .settings-toggle {
+        width: 2.65rem;
+        height: 1.5rem;
+        margin: 0;
+        flex: 0 0 auto;
+    }
+
+    #system-settings-modal .settings-toggle span::before {
+        width: 1.14rem;
+        height: 1.14rem;
+        left: 0.18rem;
+        top: 0.18rem;
+    }
+
+    #system-settings-modal .settings-toggle input:checked + span::before {
+        transform: translateX(1.15rem);
+    }
+
+    #system-settings-modal .settings-panel[data-panel="data"] .setting-row,
+    #profile-settings-modal .settings-panel[data-panel="account"] .setting-row {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: start;
+        gap: 8px;
+    }
+
+    #system-settings-modal .settings-panel[data-panel="data"] .setting-action-btn,
+    #profile-settings-modal .settings-panel[data-panel="account"] .setting-action-btn {
+        width: auto;
+        min-width: 4.25rem;
+        max-width: 4.75rem;
+        min-height: 2rem;
+        margin: 0;
+        padding: 0.4rem 0.6rem;
+        gap: 0.35rem;
+        font-size: 0.78rem;
+        flex: 0 0 auto;
+    }
+
+    #system-settings-modal .setting-account-input {
+        width: min(10rem, 42vw);
+        margin: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    html,
+    body {
+        width: 100%;
+    }
+
+    body {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        min-height: 100vh;
+        text-align: center;
+    }
+
+    .navbar,
+    body.nav-collapsed .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1900;
+        width: 100% !important;
+        align-self: auto;
+        padding: 0.75rem clamp(0.875rem, 4vw, 1.25rem) !important;
+        border-right: 0;
+        border-bottom: 1px solid #ddd;
+        background: var(--color-bg);
+        box-sizing: border-box;
+        overflow: visible;
+        transition: none;
+    }
+
+    body.mobile-nav-open .navbar {
+        position: relative;
+        top: auto;
+    }
+
+    .nav-brand,
+    body.nav-collapsed .nav-brand {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 2.75rem;
+        align-items: center;
+        justify-content: stretch;
+        justify-items: stretch;
+        gap: clamp(0.75rem, 3vw, 1rem);
+        min-height: 2.75rem;
+        padding: 0;
+        border-bottom: 0;
+    }
+
+    .nav-brand-main,
+    body.nav-collapsed .nav-brand-main {
+        display: flex;
+        opacity: 1;
+        transform: none;
+        width: auto;
+    }
+
+    .nav-logo {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .nav-title {
+        font-size: clamp(1.45rem, 7vw, 1.9rem);
+    }
+
+    .menu-toggle,
+    body.nav-collapsed .menu-toggle {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+        width: 2.75rem;
+        height: 2.75rem;
+        margin: 0;
+        transform: none;
+    }
+
+    .menu-toggle .app-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .navbar .nav-list,
+    body.nav-collapsed .navbar .nav-list {
+        display: grid;
+        align-items: stretch;
+        gap: 0.45rem;
+        max-height: 0;
+        margin-top: 0;
+        padding-top: 0;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-0.35rem);
+        transition: max-height 0.24s ease, opacity 0.18s ease, transform 0.18s ease, padding-top 0.18s ease;
+    }
+
+    body.mobile-nav-open .navbar .nav-list {
+        max-height: 90rem;
+        padding-top: 0.75rem;
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+        overflow-y: visible;
+    }
+
+    .navbar .nav-submenu,
+    body.nav-collapsed .navbar .nav-submenu {
+        display: flex;
+        gap: 0.35rem;
+        padding: 0.35rem 0 0.2rem 2.1rem;
+        font-size: 0.92rem;
+    }
+
+    .navbar a,
+    .nav-group summary,
+    body.nav-collapsed .navbar a,
+    body.nav-collapsed .nav-group summary {
+        display: flex;
+        width: 100%;
+        min-height: 2.35rem;
+        height: auto;
+        justify-content: flex-start;
+        place-items: initial;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.98rem;
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+    }
+
+    body.nav-collapsed .navbar a::before,
+    body.nav-collapsed .navbar a::after,
+    body.nav-collapsed .nav-group summary::before,
+    body.nav-collapsed .nav-group summary::after {
+        display: none;
+    }
+
+    .nav-item-label,
+    .nav-summary-label,
+    .nav-chevron,
+    body.nav-collapsed .nav-item-label,
+    body.nav-collapsed .nav-summary-label,
+    body.nav-collapsed .nav-chevron {
+        display: inline-flex;
+    }
+
+    .nav-summary-main,
+    body.nav-collapsed .nav-summary-main {
+        display: inline-flex;
+        place-items: initial;
+        align-items: center;
+        gap: 0.65rem;
+        min-width: 0;
+    }
+
+    .nav-item-icon,
+    .nav-summary-icon,
+    body.nav-collapsed .nav-item-icon,
+    body.nav-collapsed .nav-summary-icon {
+        width: 1.45rem;
+        height: 1.45rem;
+        transform: none;
+    }
+
+    .nav-chevron,
+    body.nav-collapsed .nav-chevron {
+        width: 0.9rem;
+        height: 0.9rem;
+        margin-left: auto;
+    }
+
+    body.nav-collapsed .nav-group[open] .nav-submenu {
+        display: flex;
+    }
+
+    .content {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0;
+        margin: 0 !important;
+        padding: clamp(0.875rem, 4vw, 1.25rem) !important;
+        padding-bottom: calc(5.75rem + env(safe-area-inset-bottom, 0px)) !important;
+        box-sizing: border-box;
+        overflow-x: clip;
+    }
+
+    .settings-modal {
+        width: min(86vw, 27rem);
+        max-height: min(74vh, 32rem);
+        border-radius: 0.7rem;
+    }
+
+    .settings-close-btn {
+        top: 0.65rem;
+        right: 0.7rem;
+        width: 1.9rem;
+        height: 1.9rem;
+        border-radius: 0.45rem;
+    }
+
+    .settings-close-btn .app-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .settings-sidebar {
+        padding: 0.75rem 3rem 0.75rem 0.75rem;
+    }
+
+    .settings-sidebar-list {
+        gap: 0.45rem;
+    }
+
+    .settings-nav {
+        padding: 0.45rem 0.6rem;
+        font-size: 0.78rem;
+        min-height: 2.15rem;
+    }
+
+    .settings-header {
+        padding: 0.85rem 2.75rem 0.75rem 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .settings-brand-logo {
+        width: 1.8rem;
+        height: 1.8rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .settings-title {
+        font-size: 0.9rem;
+    }
+
+    .settings-subtitle {
+        font-size: 0.76rem;
+    }
+
+    .settings-content {
+        padding-bottom: 0.85rem;
+    }
+
+    .settings-body {
+        padding: 0 0.75rem;
+    }
+
+    .setting-row,
+    .profile-avatar-row {
+        margin: 0.65rem 0 0;
+    }
+
+    .setting-labels {
+        font-size: 0.9rem;
+        line-height: 1.15;
+    }
+
+    .setting-desc {
+        font-size: 0.72rem;
+        line-height: 1.3;
+    }
+
+    #system-settings-modal .setting-row {
+        gap: 0.65rem;
+    }
+
+    #theme-switch {
+        width: 2.1rem;
+        height: 2.1rem;
+        margin: 0;
+        flex: 0 0 auto;
+    }
+
+    #theme-switch img {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .settings-toggle {
+        width: 2.45rem;
+        height: 1.35rem;
+        margin: 0;
+        flex: 0 0 auto;
+    }
+
+    .settings-toggle span::before {
+        width: 1.05rem;
+        height: 1.05rem;
+        left: 0.15rem;
+        top: 0.15rem;
+    }
+
+    .settings-toggle input:checked + span::before {
+        transform: translateX(1.1rem);
+    }
+
+    .profile-avatar-preview {
+        width: 4rem;
+        height: 4rem;
+    }
+
+    .profile-avatar-preview .app-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .setting-account-input {
+        width: 100%;
+        margin: 0;
+    }
+
+    #system-settings-modal .settings-panel[data-panel="preferences"] .setting-row,
+    #system-settings-modal .settings-panel[data-panel="appearance"] .setting-row {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    #system-settings-modal .settings-panel[data-panel="preferences"] .setting-row > div,
+    #system-settings-modal .settings-panel[data-panel="appearance"] .setting-row > div {
+        min-width: 0;
+    }
+
+    .settings-navbar-actions,
+    body.nav-collapsed .settings-navbar-actions {
+        left: 50%;
+        right: auto;
+        bottom: max(0.9rem, env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        flex-direction: row;
+        gap: 0.45rem;
+        max-width: calc(100vw - 2rem);
+        padding: 0.25rem;
+        border-radius: 0.75rem;
+        background: rgba(245, 245, 245, 0.96);
+        box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.16);
+        transition: none;
+    }
+
+    .settings-navbar-button {
+        width: 2.65rem;
+        height: 2.65rem;
+    }
+
+    .settings-navbar-icon-hover {
+        width: 2.35rem;
+        height: 2.35rem;
+    }
+
+    .settings-navbar-button .app-icon {
+        width: 1.65rem;
+        height: 1.65rem;
+    }
+
+    .settings-navbar-profile-avatar {
+        width: 1.65rem;
+        height: 1.65rem;
+    }
+
+    .settings-navbar-button::after,
+    body.nav-collapsed .settings-navbar-button::after {
+        left: 50%;
+        right: auto;
+        bottom: calc(100% + 0.65rem);
+        transform: translateX(-50%) translateY(0.25rem);
+        max-width: min(8.75rem, calc(100vw - 2rem));
+    }
+
+    .settings-navbar-button::before,
+    body.nav-collapsed .settings-navbar-button::before {
+        left: 50%;
+        bottom: calc(100% + 0.4rem);
+        transform: translateX(-50%) translateY(0.25rem) rotate(45deg);
+    }
+
+    .settings-navbar-button:hover::after,
+    .settings-navbar-button:focus-visible::after,
+    body.nav-collapsed .settings-navbar-button:hover::after,
+    body.nav-collapsed .settings-navbar-button:focus-visible::after {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .settings-navbar-button:hover::before,
+    .settings-navbar-button:focus-visible::before,
+    body.nav-collapsed .settings-navbar-button:hover::before,
+    body.nav-collapsed .settings-navbar-button:focus-visible::before {
+        transform: translateX(-50%) translateY(0) rotate(45deg);
     }
 }
