@@ -3,7 +3,7 @@ A student-focused web application designed to centralise assignment tracking, ta
 
 My motivation behind building this project was to address how overwhelming managing academic work across multiple disconnected productivity platforms can be. Rather than splitting workflows across different apps, I wanted to create a cleaner, more structured interface that makes it easier to track assignments, organise smaller tasks, and visualise day-to-day workload more effectively. The project has also become a way for me to explore how a practical student-facing tool can evolve from a frontend-driven application initially, into a more complete, full-stack system.
 
-*Live version: https://nexa-v1.vercel.app/*
+*Live version: https://nexa-next.vercel.app/*
 
 ---
 

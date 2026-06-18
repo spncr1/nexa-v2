@@ -95,7 +95,10 @@
             </div>
             
             <hr>
-            <h2>Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
+            <section class="welcome-panel" aria-label="Welcome summary">
+                <h2>Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
+                <p id="welcome-carousel-copy" class="welcome-carousel-copy"></p>
+            </section>
 
             <!-- Today's Tasks & Assignments Due dashboard cards -->
             <div class="dashboard-cards">
@@ -163,17 +166,18 @@
             </template>
 
             <template id="assignment-due-empty-template">
-                <li class="assignment-due-empty">No assignments due on this date.</li>
+                <li class="assignment-due-empty empty-state-reveal">No deadlines here. Enjoy the breathing room.</li>
             </template>
 
             <template id="task-empty-template">
-                <li class="task-empty">No tasks to show yet.</li>
+                <li class="task-empty empty-state-reveal">Nothing planned here yet. Let's give the day some shape.</li>
             </template>
 
              <div id="modal-backdrop" class="hidden"></div>
 
              <!-- ADD TASK MODAL -->
              <div id="add-task-modal" class="hidden" role="dialog" aria-modal="true">
+                <button type="button" id="close-task-modal-btn" class="settings-close-btn" aria-label="Close task modal"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
                 <img class="modal-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 id="task-modal-title" align="center">ADD TASK</h3>
                 <!-- Title -->

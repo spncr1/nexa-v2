@@ -18,12 +18,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const weekViewEl = document.getElementById("tasks-week-view");
     const monthViewEl = document.getElementById("tasks-month-view");
 
-    const weekHeaderEl = document.getElementById("tasks-week-header");
-    const weekBodyEl = document.getElementById("tasks-week-body");
-    const weekTimeRailEl = document.getElementById("tasks-week-time-rail");
-    const weekSlotTemplate = document.getElementById("week-slot-template");
+    const weekSummaryEl = document.getElementById("tasks-week-summary");
+    const weekBoardEl = document.getElementById("tasks-week-board");
 
     const monthDaysEl = document.getElementById("tasks-month-days");
+    const monthSummaryEl = document.getElementById("tasks-month-summary");
+    const monthTbdLaneEl = document.getElementById("tasks-month-tbd-lane");
     const monthBodyEl = document.getElementById("tasks-month-body");
     const monthTimeRailEl = document.getElementById("tasks-month-time-rail");
     const selectedDateLabelEl = document.getElementById("tasks-selected-date-label");
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const timeInput = document.getElementById("task-time");
     const statusEl = document.getElementById("task-status");
     const cancelBtn = document.getElementById("cancel-task-btn");
+    const closeTaskModalBtn = document.getElementById("close-task-modal-btn");
     const deleteBtn = document.getElementById("delete-task-btn");
     const confirmBtn = document.getElementById("confirm-task-btn");
 
@@ -48,7 +49,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     let editingTaskId = null;
     let modalDateKey = "";
     let modalHour = null;
-    let dragPayload = null;
+    let monthDragPayload = null;
+    const weekDayFilters = new Map();
+    const FILTER_OPTIONS = [
+        { value: "all", label: "All" },
+        { value: "active", label: "Active" },
+        { value: "completed", label: "Done" },
+        { value: "high", label: "High" },
+        { value: "medium", label: "Med" },
+        { value: "low", label: "Low" }
+    ];
 
     function atNoon(value) {
         const d = value instanceof Date ? new Date(value) : new Date(value);
@@ -102,6 +112,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
     }
 
+    function formatTimeForDisplay(value) {
+        const normalized = normalizeTimeInput(value);
+        if (!normalized) return null;
+
+        const [hourStr, minuteStr] = normalized.split(":");
+        const hour = Number(hourStr);
+        const suffix = hour < 12 ? "AM" : "PM";
+        const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+        return `${displayHour}:${minuteStr} ${suffix}`;
+    }
+
     function parseHourFromTimeInput(value) {
         const normalized = normalizeTimeInput(value);
         if (!normalized) return null;
@@ -134,11 +155,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         return null;
-    }
-
-    function quarterIndexFromMinute(minute) {
-        if (!Number.isInteger(minute) || minute < 0 || minute > 59) return 0;
-        return Math.floor(minute / 15);
     }
 
     function formatMonthDayWithWeekday(dateObj) {
@@ -214,164 +230,380 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    function buildWeekSlots(weekDates) {
-        if (!weekBodyEl || !weekSlotTemplate) return;
-        weekBodyEl.innerHTML = "";
-
-        for (let hour = 0; hour < 24; hour += 1) {
-            for (let dayIndex = 0; dayIndex < 7; dayIndex += 1) {
-                const slot = weekSlotTemplate.content.firstElementChild.cloneNode(true);
-                const slotDate = weekDates[dayIndex];
-
-                slot.dataset.hour = String(hour);
-                slot.dataset.dayIndex = String(dayIndex);
-                slot.dataset.dateKey = dateKey(slotDate);
-
-                const addBtn = slot.querySelector(".slot-add-btn");
-                addBtn.setAttribute("aria-label", `Add task at ${hourLabel(hour)} on ${slotDate.toDateString()}`);
-                addBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    openAddModal(slot.dataset.dateKey, hour);
-                });
-
-                const quarterEls = slot.querySelectorAll(".slot-quarter");
-                quarterEls.forEach((quarterEl) => {
-                    quarterEl.addEventListener("dragover", (e) => {
-                        e.preventDefault();
-                    });
-
-                    quarterEl.addEventListener("drop", (e) => {
-                        e.preventDefault();
-                        if (!dragPayload) return;
-                        const quarterIndex = Number(quarterEl.dataset.quarter);
-                        moveTaskToSlot(
-                            dragPayload,
-                            slot.dataset.dateKey,
-                            Number(slot.dataset.hour),
-                            quarterIndex * 15
-                        );
-                        dragPayload = null;
-                    });
-                });
-
-                weekBodyEl.appendChild(slot);
-            }
-        }
+    function toLabel(value) {
+        return String(value || "")
+            .replaceAll("-", " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase());
     }
 
-    function renderWeekHeader(weekDates) {
-        if (!weekHeaderEl) return;
+    function priorityLabel(priority) {
+        return toLabel(priority || "medium");
+    }
+
+    function statusLabel(task) {
+        return toLabel(normalizeTaskStatus(task));
+    }
+
+    function taskHasTime(task) {
+        return getTaskTimeParts(task) !== null;
+    }
+
+    function getTaskSortTime(task) {
+        const time = getTaskTimeParts(task);
+        if (!time) return Number.MAX_SAFE_INTEGER;
+        return time.hour * 60 + time.minute;
+    }
+
+    function sortTasksForBoard(tasks) {
+        return [...tasks].sort((a, b) => {
+            const timeDiff = getTaskSortTime(a) - getTaskSortTime(b);
+            if (timeDiff !== 0) return timeDiff;
+            const statusDiff = (normalizeTaskStatus(a) === "completed" ? 1 : 0) - (normalizeTaskStatus(b) === "completed" ? 1 : 0);
+            if (statusDiff !== 0) return statusDiff;
+            return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
+        });
+    }
+
+    function filterTasks(tasks, filterValue) {
+        if (filterValue === "active") {
+            return tasks.filter((task) => normalizeTaskStatus(task) !== "completed");
+        }
+
+        if (filterValue === "completed") {
+            return tasks.filter((task) => normalizeTaskStatus(task) === "completed");
+        }
+
+        if (["high", "medium", "low"].includes(filterValue)) {
+            return tasks.filter((task) => (task.priority || "medium").toLowerCase() === filterValue);
+        }
+
+        return tasks;
+    }
+
+    function getTaskBreakdown(tasks) {
+        return tasks.reduce((summary, task) => {
+            const status = normalizeTaskStatus(task);
+            const priority = (task.priority || "medium").toLowerCase();
+
+            summary.total += 1;
+            if (status === "completed") {
+                summary.completed += 1;
+            } else {
+                summary.active += 1;
+            }
+
+            if (taskHasTime(task)) {
+                summary.timed += 1;
+            } else {
+                summary.unscheduled += 1;
+            }
+
+            if (priority === "high") summary.high += 1;
+            if (priority === "medium") summary.medium += 1;
+            if (priority === "low") summary.low += 1;
+
+            return summary;
+        }, {
+            total: 0,
+            active: 0,
+            completed: 0,
+            timed: 0,
+            unscheduled: 0,
+            high: 0,
+            medium: 0,
+            low: 0
+        });
+    }
+
+    function createSummaryMetric(label, value, tone = "") {
+        const metric = document.createElement("div");
+        metric.className = tone ? `tasks-summary-metric ${tone}` : "tasks-summary-metric";
+
+        const valueEl = document.createElement("strong");
+        valueEl.textContent = String(value);
+
+        const labelEl = document.createElement("span");
+        labelEl.textContent = label;
+
+        metric.appendChild(valueEl);
+        metric.appendChild(labelEl);
+        return metric;
+    }
+
+    function createSummaryGroup(label, metrics, tone = "") {
+        const group = document.createElement("div");
+        group.className = tone ? `tasks-summary-group ${tone}` : "tasks-summary-group";
+
+        const labelEl = document.createElement("span");
+        labelEl.className = "tasks-summary-group-label";
+        labelEl.textContent = label;
+
+        const metricsEl = document.createElement("div");
+        metricsEl.className = "tasks-summary-group-metrics";
+        metrics.forEach((metric) => metricsEl.appendChild(metric));
+
+        group.appendChild(labelEl);
+        group.appendChild(metricsEl);
+        return group;
+    }
+
+    function renderSummary(targetEl, title, tasks) {
+        if (!targetEl) return;
+        const summary = getTaskBreakdown(tasks);
+
+        targetEl.innerHTML = "";
+
+        const heading = document.createElement("div");
+        heading.className = "tasks-summary-heading";
+
+        const titleEl = document.createElement("h3");
+        titleEl.textContent = title;
+
+        const helper = document.createElement("p");
+        helper.textContent = summary.total
+            ? `${summary.active} active, ${summary.completed} completed`
+            : "No tasks in this view yet";
+
+        heading.appendChild(titleEl);
+        heading.appendChild(helper);
+
+        const metrics = document.createElement("div");
+        metrics.className = "tasks-summary-metrics";
+        metrics.appendChild(createSummaryGroup("Total", [
+            createSummaryMetric("Total", summary.total, "is-total")
+        ], "is-total-group"));
+        metrics.appendChild(createSummaryGroup("Status", [
+            createSummaryMetric("Active", summary.active),
+            createSummaryMetric("Completed", summary.completed)
+        ]));
+        metrics.appendChild(createSummaryGroup("Scheduling", [
+            createSummaryMetric("Scheduled", summary.timed),
+            createSummaryMetric("Unscheduled", summary.unscheduled)
+        ]));
+        metrics.appendChild(createSummaryGroup("Priority", [
+            createSummaryMetric("High", summary.high, "priority-high"),
+            createSummaryMetric("Medium", summary.medium, "priority-medium"),
+            createSummaryMetric("Low", summary.low, "priority-low")
+        ]));
+
+        targetEl.appendChild(heading);
+        targetEl.appendChild(metrics);
+    }
+
+    function createTaskCard(task, key) {
+        const status = normalizeTaskStatus(task);
+        const priority = (task.priority || "medium").toLowerCase();
+        const time = getTaskTimeParts(task);
+
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = `task-card priority-${priority} status-${status}`;
+        if (status === "completed") {
+            card.classList.add("is-completed");
+        }
+        card.setAttribute("aria-label", `Edit ${task.title || "task"}`);
+
+        const title = document.createElement("span");
+        title.className = "task-card-title";
+        title.textContent = task.title || "Task";
+
+        const meta = document.createElement("span");
+        meta.className = "task-card-meta";
+        meta.textContent = `${time ? formatTimeForDisplay(time.normalized) : "No time"} - ${priorityLabel(priority)} - ${statusLabel(task)}`;
+
+        card.appendChild(title);
+        card.appendChild(meta);
+        card.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openEditModal(key, task.id);
+        });
+
+        return card;
+    }
+
+    function createMonthTaskCard(task, key) {
+        const card = createTaskCard(task, key);
+        card.classList.add("month-draggable-task");
+        card.draggable = true;
+
+        card.addEventListener("dragstart", (e) => {
+            monthDragPayload = {
+                taskId: task.id,
+                fromDateKey: key
+            };
+            card.classList.add("is-dragging");
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", String(task.id));
+        });
+
+        card.addEventListener("dragend", () => {
+            monthDragPayload = null;
+            card.classList.remove("is-dragging");
+        });
+
+        return card;
+    }
+
+    function createFilterControls(key) {
+        const filters = document.createElement("div");
+        filters.className = "tasks-day-filters";
+        filters.setAttribute("aria-label", "Filter tasks");
+
+        const currentFilter = weekDayFilters.get(key) || "all";
+        FILTER_OPTIONS.forEach((option) => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "tasks-filter-btn";
+            button.textContent = option.label;
+            button.dataset.filter = option.value;
+            button.setAttribute("aria-pressed", (option.value === currentFilter).toString());
+            if (option.value === currentFilter) {
+                button.classList.add("active");
+            }
+
+            button.addEventListener("click", () => {
+                weekDayFilters.set(key, option.value);
+                renderWeekView();
+            });
+
+            filters.appendChild(button);
+        });
+
+        return filters;
+    }
+
+    function createEmptyDayMessage(filterValue) {
+        const empty = document.createElement("p");
+        empty.className = "tasks-day-empty";
+        empty.textContent = filterValue === "all"
+            ? "Nothing scheduled."
+            : "No tasks to show.";
+        return empty;
+    }
+
+    function renderWeekView() {
+        if (!weekBoardEl) return;
+        const weekDates = getWeekDates(activeDate);
         const today = atNoon(new Date());
         const taskMap = getWeekTaskMap(weekDates);
 
-        weekHeaderEl.innerHTML = "";
+        weekBoardEl.innerHTML = "";
+        renderSummary(weekSummaryEl, "This week", weekDates.flatMap((date) => taskMap.get(dateKey(date)) || []));
+
         weekDates.forEach((date) => {
             const key = dateKey(date);
-            const tasks = taskMap.get(key) || [];
-            const tbd = tasks.filter((task) => !Number.isInteger(task.scheduledHour));
+            const tasks = sortTasksForBoard(taskMap.get(key) || []);
+            const currentFilter = weekDayFilters.get(key) || "all";
+            const visibleTasks = filterTasks(tasks, currentFilter);
 
-            const cell = document.createElement("div");
-            cell.className = "week-day-header";
+            const column = document.createElement("article");
+            column.className = "tasks-day-column";
             if (sameDay(date, today)) {
-                cell.classList.add("today");
+                column.classList.add("today");
             }
 
-            const weekday = document.createElement("div");
-            weekday.className = "weekday-name";
+            const header = document.createElement("div");
+            header.className = "tasks-day-header";
+
+            const titleWrap = document.createElement("div");
+            titleWrap.className = "tasks-day-title-wrap";
+
+            const weekday = document.createElement("span");
+            weekday.className = "tasks-day-name";
             weekday.textContent = date.toLocaleDateString("en-AU", { weekday: "short" });
 
-            const day = document.createElement("div");
-            day.className = "weekday-date";
-            day.textContent = date.getDate();
+            const day = document.createElement("strong");
+            day.className = "tasks-day-date";
+            day.textContent = date.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
 
-            const tbdWrap = document.createElement("div");
-            tbdWrap.className = "tbd-chip-wrap";
+            titleWrap.appendChild(weekday);
+            titleWrap.appendChild(day);
 
-            if (tbd.length) {
-                tbd.slice(0, 2).forEach((task) => {
-                    const status = normalizeTaskStatus(task);
-                    const chip = document.createElement("button");
-                    chip.type = "button";
-                    chip.className = `tbd-chip status-${status}`;
-                    if (status === "completed") {
-                        chip.classList.add("is-completed");
-                    }
-                    chip.textContent = task.title || "Task";
-                    chip.draggable = true;
-                    chip.addEventListener("click", () => openEditModal(key, task.id));
-                    chip.addEventListener("dragstart", () => {
-                        dragPayload = {
-                            taskId: task.id,
-                            fromDateKey: key
-                        };
-                    });
-                    tbdWrap.appendChild(chip);
+            const count = document.createElement("span");
+            count.className = "tasks-day-count";
+            count.textContent = `${tasks.length} task${tasks.length === 1 ? "" : "s"}`;
+
+            header.appendChild(titleWrap);
+            header.appendChild(count);
+
+            const tools = document.createElement("div");
+            tools.className = "tasks-day-tools";
+
+            const addBtn = document.createElement("button");
+            addBtn.type = "button";
+            addBtn.className = "tasks-day-add-btn";
+            addBtn.setAttribute("aria-label", `Add task on ${date.toDateString()}`);
+            addBtn.innerHTML = `<span>Add</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true">`;
+            addBtn.addEventListener("click", () => openAddModal(key, null));
+
+            tools.appendChild(addBtn);
+            tools.appendChild(createFilterControls(key));
+
+            const list = document.createElement("div");
+            list.className = "tasks-day-list";
+            if (visibleTasks.length) {
+                visibleTasks.forEach((task) => {
+                    list.appendChild(createTaskCard(task, key));
                 });
-
-                if (tbd.length > 2) {
-                    const more = document.createElement("div");
-                    more.className = "tbd-more";
-                    more.textContent = `+${tbd.length - 2} more`;
-                    tbdWrap.appendChild(more);
-                }
+            } else {
+                list.appendChild(createEmptyDayMessage(currentFilter));
             }
 
-            cell.appendChild(weekday);
-            cell.appendChild(day);
-            cell.appendChild(tbdWrap);
-            weekHeaderEl.appendChild(cell);
+            column.appendChild(header);
+            column.appendChild(tools);
+            column.appendChild(list);
+            weekBoardEl.appendChild(column);
         });
     }
 
-    function renderWeekTimedTasks(weekDates) {
-        const taskMap = getWeekTaskMap(weekDates);
+    function getMonthTasks(monthDate) {
+        const tasks = [];
+        const year = monthDate.getFullYear();
+        const month = monthDate.getMonth();
+        const lastDay = new Date(year, month + 1, 0).getDate();
 
-        weekDates.forEach((date) => {
-            const key = dateKey(date);
-            const tasks = taskMap.get(key) || [];
-            const timedTasks = tasks
-                .map((task) => ({ task, time: getTaskTimeParts(task) }))
-                .filter((entry) => entry.time !== null)
-                .sort((a, b) => (a.time.hour - b.time.hour) || (a.time.minute - b.time.minute) || ((a.task.createdAt || 0) - (b.task.createdAt || 0)));
+        for (let day = 1; day <= lastDay; day += 1) {
+            tasks.push(...getTasksForDate(dateKey(atNoon(new Date(year, month, day)))));
+        }
 
-            timedTasks.forEach(({ task, time }) => {
-                const status = normalizeTaskStatus(task);
-                const selector = `.week-slot[data-date-key="${key}"][data-hour="${time.hour}"]`;
-                const slot = weekBodyEl.querySelector(selector);
-                if (!slot) return;
-                const quarterIndex = quarterIndexFromMinute(time.minute);
-                const lane = slot.querySelector(`.slot-quarter[data-quarter="${quarterIndex}"]`);
-                if (!lane) return;
-
-                const card = document.createElement("button");
-                card.type = "button";
-                card.className = `task-card priority-${(task.priority || "medium").toLowerCase()} status-${status}`;
-                if (status === "completed") {
-                    card.classList.add("is-completed");
-                }
-                card.textContent = task.title || "Task";
-                card.title = `${task.title || "Task"}\n${time.normalized}`;
-                card.dataset.timeLabel = time.normalized;
-                card.draggable = true;
-                card.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    openEditModal(key, task.id);
-                });
-                card.addEventListener("dragstart", () => {
-                    dragPayload = {
-                        taskId: task.id,
-                        fromDateKey: key
-                    };
-                });
-
-                lane.appendChild(card);
-            });
-        });
+        return tasks;
     }
 
-    function moveTaskToSlot(payload, toDateKey, toHour, toMinute) {
-        if (!payload || !payload.taskId || !Number.isInteger(toHour)) return;
-        const safeMinute = Number.isInteger(toMinute) ? Math.min(59, Math.max(0, toMinute)) : 0;
+    function renderMonthSummary() {
+        renderSummary(monthSummaryEl, "This month", getMonthTasks(atNoon(activeDate)));
+    }
+
+    function setMonthDropState(el, isActive) {
+        if (!el) return;
+        el.classList.toggle("is-drop-target", isActive);
+    }
+
+    function enableMonthDropTarget(el, onDrop) {
+        if (!el) return;
+
+        el.ondragover = (e) => {
+            if (!monthDragPayload) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            setMonthDropState(el, true);
+        };
+
+        el.ondragleave = (e) => {
+            if (e.currentTarget.contains(e.relatedTarget)) return;
+            setMonthDropState(el, false);
+        };
+
+        el.ondrop = (e) => {
+            if (!monthDragPayload) return;
+            e.preventDefault();
+            setMonthDropState(el, false);
+            onDrop(monthDragPayload);
+            monthDragPayload = null;
+        };
+    }
+
+    function moveMonthTask(payload, toDateKey, targetHour = null) {
+        if (!payload?.taskId || !payload?.fromDateKey || !toDateKey) return;
 
         const tasksByDate = loadAllTasks();
         const fromList = Array.isArray(tasksByDate[payload.fromDateKey]) ? tasksByDate[payload.fromDateKey] : [];
@@ -379,26 +611,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (fromIndex === -1) return;
 
         const [task] = fromList.splice(fromIndex, 1);
-        task.scheduledHour = toHour;
-        task.scheduledMinute = safeMinute;
-        task.scheduledTime = `${String(toHour).padStart(2, "0")}:${String(safeMinute).padStart(2, "0")}`;
+        const hasHour = Number.isInteger(targetHour);
+        task.scheduledHour = hasHour ? targetHour : null;
+        task.scheduledMinute = hasHour ? 0 : null;
+        task.scheduledTime = hasHour ? hourToTimeInput(targetHour) : null;
         task.updatedAt = Date.now();
 
         if (!Array.isArray(tasksByDate[toDateKey])) {
             tasksByDate[toDateKey] = [];
         }
 
-        tasksByDate[toDateKey].push(task);
-        tasksByDate[payload.fromDateKey] = fromList;
+        if (payload.fromDateKey === toDateKey) {
+            fromList.push(task);
+            tasksByDate[toDateKey] = fromList;
+        } else {
+            tasksByDate[payload.fromDateKey] = fromList;
+            tasksByDate[toDateKey].push(task);
+        }
+
         saveAllTasks(tasksByDate);
         refreshCalendarViews();
-    }
-
-    function renderWeekView() {
-        const weekDates = getWeekDates(activeDate);
-        buildWeekSlots(weekDates);
-        renderWeekHeader(weekDates);
-        renderWeekTimedTasks(weekDates);
+        showTaskToast(hasHour ? `Task scheduled for ${hourLabel(targetHour)}.` : "Task moved to Time TBD.", "neutral");
     }
 
     function renderMonthGrid() {
@@ -466,13 +699,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tasks = getTasksForDate(key);
 
         monthBodyEl.innerHTML = "";
+        if (monthTimeRailEl) {
+            monthTimeRailEl.innerHTML = "";
 
-        const tbd = tasks.filter((task) => !Number.isInteger(task.scheduledHour));
+            for (let hour = 0; hour < 24; hour += 1) {
+                const label = document.createElement("div");
+                label.className = "time-label";
+                label.textContent = hourLabel(hour);
+                monthTimeRailEl.appendChild(label);
+            }
+        }
+
+        const tbd = sortTasksForBoard(tasks.filter((task) => !taskHasTime(task)));
+        if (monthTbdLaneEl) {
+            monthTbdLaneEl.innerHTML = "";
+
+            const label = document.createElement("div");
+            label.className = "month-tbd-label";
+            label.textContent = "Time TBD";
+            monthTbdLaneEl.appendChild(label);
+
+            const chips = document.createElement("div");
+            chips.className = "month-tbd-chips";
+            if (tbd.length) {
+                tbd.forEach((task) => {
+                    chips.appendChild(createMonthTaskCard(task, key));
+                });
+            } else {
+                const empty = document.createElement("p");
+                empty.className = "month-tbd-empty";
+                empty.textContent = "No unscheduled tasks.";
+                chips.appendChild(empty);
+            }
+            monthTbdLaneEl.appendChild(chips);
+            enableMonthDropTarget(monthTbdLaneEl, (payload) => moveMonthTask(payload, key, null));
+        }
 
         for (let hour = 0; hour < 24; hour += 1) {
             const slot = document.createElement("div");
             slot.className = "month-slot";
             slot.dataset.hour = String(hour);
+            enableMonthDropTarget(slot, (payload) => moveMonthTask(payload, key, hour));
 
             const timedTasks = tasks
                 .map((task) => ({ task, time: getTaskTimeParts(task) }))
@@ -480,49 +747,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 .sort((a, b) => (a.time.minute - b.time.minute) || ((a.task.createdAt || 0) - (b.task.createdAt || 0)));
 
             timedTasks.forEach(({ task, time }) => {
-                const status = normalizeTaskStatus(task);
-                const card = document.createElement("button");
-                card.type = "button";
-                card.className = `task-card priority-${(task.priority || "medium").toLowerCase()} status-${status}`;
-                if (status === "completed") {
-                    card.classList.add("is-completed");
-                }
-                card.textContent = task.title || "Task";
-                card.dataset.timeLabel = time.normalized;
-                card.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    openEditModal(key, task.id);
-                });
+                const card = createMonthTaskCard(task, key);
+                card.dataset.timeLabel = formatTimeForDisplay(time.normalized);
                 slot.appendChild(card);
             });
 
             monthBodyEl.appendChild(slot);
-        }
-
-        if (tbd.length) {
-            const tbdRow = document.createElement("div");
-            tbdRow.className = "month-tbd-row";
-            const label = document.createElement("div");
-            label.className = "month-tbd-label";
-            label.textContent = "Time TBD";
-            tbdRow.appendChild(label);
-
-            const chips = document.createElement("div");
-            chips.className = "month-tbd-chips";
-            tbd.forEach((task) => {
-                const status = normalizeTaskStatus(task);
-                const chip = document.createElement("button");
-                chip.type = "button";
-                chip.className = `tbd-chip status-${status}`;
-                if (status === "completed") {
-                    chip.classList.add("is-completed");
-                }
-                chip.textContent = task.title || "Task";
-                chip.addEventListener("click", () => openEditModal(key, task.id));
-                chips.appendChild(chip);
-            });
-            tbdRow.appendChild(chips);
-            monthBodyEl.prepend(tbdRow);
         }
     }
 
@@ -569,6 +799,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function refreshCalendarViews() {
         renderWeekView();
         renderMonthGrid();
+        renderMonthSummary();
         renderMonthAgenda();
         updateSelectedDateLabel();
         updateRangeLabel();
@@ -583,6 +814,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             activeDate.setMonth(activeDate.getMonth() + direction);
             activeDate = atNoon(activeDate);
             renderMonthGrid();
+            renderMonthSummary();
         }
 
         updateRangeLabel();
@@ -630,7 +862,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const dateObj = dateFromKey(modalDateKey);
-        const selectedTime = normalizeTimeInput(timeInput ? timeInput.value : "");
+        const selectedTime = formatTimeForDisplay(timeInput ? timeInput.value : "");
         if (selectedTime) {
             scheduleContextEl.textContent = `Scheduled: ${dateObj.toLocaleDateString("en-AU", {
                 weekday: "long",
@@ -668,7 +900,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         notesInput.value = "";
         prioritySelect.value = "medium";
         if (taskWorkflowStatusSelect) taskWorkflowStatusSelect.value = "not-started";
-        timeInput.value = hourToTimeInput(targetHour);
+        timeInput.value = Number.isInteger(targetHour) ? hourToTimeInput(targetHour) : "";
         showInlineStatus("");
 
         setModalContext();
@@ -1037,6 +1269,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         cancelBtn.addEventListener("click", closeTaskModal);
     }
 
+    if (closeTaskModalBtn) {
+        closeTaskModalBtn.addEventListener("click", closeTaskModal);
+    }
+
     if (confirmBtn) {
         confirmBtn.addEventListener("click", upsertTask);
     }
@@ -1069,7 +1305,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     window.addEventListener("nexa:load-demo-data", loadDemoTasksData);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
-    renderTimeRail(weekTimeRailEl);
     renderTimeRail(monthTimeRailEl);
     refreshCalendarViews();
     setViewMode("week");

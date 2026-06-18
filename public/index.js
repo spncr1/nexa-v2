@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const taskWorkflowStatusSelect = document.getElementById("task-workflow-status");
 
     const cancelBtn = document.getElementById("cancel-task-btn");
+    const closeTaskModalBtn = document.getElementById("close-task-modal-btn");
     const confirmBtn = document.getElementById("confirm-task-btn");
     const deleteBtn = document.getElementById("delete-task-btn");
 
@@ -38,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const calendarDaysEl = document.getElementById("calendar-days");
     const calendarPrevMonthBtn = document.getElementById("calendar-prev-month");
     const calendarNextMonthBtn = document.getElementById("calendar-next-month");
+    const welcomeCarouselCopyEl = document.getElementById("welcome-carousel-copy");
 
     const sortSelect = document.getElementById("sort-select");
     let currentSortMode = storage.getItem("taskSortMode") || "createdNewOld"; // load saved sort mode (default: createdNewOld)
@@ -60,7 +62,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     const ASSIGNMENTS_PREVIEW_LIMIT = 2;
 
     const STATUS_MS = 1500;
+    const WELCOME_PHRASE_MS = 5200;
     let statusTimer = null;
+
+    // Homepage welcome carousel copy. Keep this short, calm, and purpose-aligned.
+    const WELCOME_PHRASES = [
+        "Everything in one place.",
+        "Start with what matters.",
+        "A clearer view of the week.",
+        "Your workload, laid out.",
+        "Keep the day simple.",
+        "Plan the next thing.",
+        "Today, made easier.",
+        "One place to get oriented."
+    ];
 
     function loadUserName() {
         const saved = storage.getItem(USER_NAME_KEY);
@@ -77,6 +92,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (el) {
             el.textContent = loadUserName();
         }
+    }
+
+    function renderWelcomePhraseCarousel() {
+        if (!welcomeCarouselCopyEl || !WELCOME_PHRASES.length) return;
+
+        let phraseIndex = 0;
+        const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+        welcomeCarouselCopyEl.textContent = WELCOME_PHRASES[phraseIndex];
+
+        if (reduceMotion || WELCOME_PHRASES.length === 1) return;
+
+        window.setInterval(() => {
+            phraseIndex = (phraseIndex + 1) % WELCOME_PHRASES.length;
+            welcomeCarouselCopyEl.classList.add("is-changing");
+
+            window.setTimeout(() => {
+                welcomeCarouselCopyEl.textContent = WELCOME_PHRASES[phraseIndex];
+                welcomeCarouselCopyEl.classList.remove("is-changing");
+            }, 220);
+        }, WELCOME_PHRASE_MS);
     }
 
     function renderSemesterLabel() {
@@ -981,6 +1016,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     addTaskBtn.addEventListener("click", openModal);
     deleteBtn.addEventListener("click", deleteTask);
     cancelBtn.addEventListener("click", closeModal);
+    closeTaskModalBtn?.addEventListener("click", closeModal);
     todayBtn.addEventListener("click", goToToday);
     previousBtn.addEventListener("click", () => changeDay(-1));
     nextBtn.addEventListener("click", () => changeDay(+1));
@@ -1057,6 +1093,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.addEventListener("resize", updateHomeOverflowHints);
 
     renderUserName();
+    renderWelcomePhraseCarousel();
     renderSemesterLabel();
     renderDate(); // IMPORTANT: when the date changes, the tasks need to be re-rendered to avoid confusion
 });

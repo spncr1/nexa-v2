@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const subjectStatus = document.getElementById("subject-status");
 
     const cancelSubjectBtn = document.getElementById("cancel-subject-btn");
+    const closeSubjectModalBtn = document.getElementById("close-subject-modal-btn");
     const confirmSubjectBtn = document.getElementById("confirm-subject-btn");
     const deleteSubjectBtn = document.getElementById("delete-subject-btn");
 
@@ -24,6 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const assignmentModal = document.getElementById("add-assignment-modal");
     const assignmentModalTitle = document.getElementById("assignment-modal-title");
+    const closeAssignmentModalBtn = document.getElementById("close-assignment-modal-btn");
 
     const assignmentCourse = document.getElementById("assignment-course");
     const assignmentTask = document.getElementById("assignment-task");
@@ -38,6 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const deleteAssignmentBtn = document.getElementById("delete-assignment-btn");
     const confirmAssignmentBtn = document.getElementById("confirm-assignment-btn");
     const viewAssignmentModal = document.getElementById("view-assignment-modal");
+    const closeViewAssignmentModalBtn = document.getElementById("close-view-assignment-modal-btn");
     const viewAssignmentTitle = document.getElementById("view-assignment-title");
     const viewAssignmentDesc = document.getElementById("view-assignment-desc");
 
@@ -64,6 +67,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const PIE_ASSIGNMENT_LABEL_MAX = 12;
     const ASSIGNMENT_REMINDERS_LIMIT = 3;
     const DEFAULT_ASSIGNMENT_SORT = { key: "dueDate", direction: "asc" };
+    const EMPTY_COPY = {
+        assignments: "Add your first assignment and start seeing the workload.",
+        subjects: "Add a subject and give your work a home.",
+        subjectDropdown: "Add a subject first to give this assignment a home.",
+        filter: "Nothing in this view. Clear the filter to widen the picture.",
+        description: "No extra notes yet. Add the useful bits."
+    };
     let activeChartFilter = { type: null, value: null };
     let assignmentTableSort = { ...DEFAULT_ASSIGNMENT_SORT };
 
@@ -167,7 +177,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!subjects.length) {
             const li = document.createElement("li");
-            li.textContent = "No subjects yet.";
+            li.className = "assignments-soft-empty empty-state-reveal";
+            li.textContent = EMPTY_COPY.subjects;
             subjectsListEl.appendChild(li);
             return;
         }
@@ -486,7 +497,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!subjects.length) {
             const opt = document.createElement("option");
             opt.value = "";
-            opt.textContent = "No subjects yet (add one first)";
+            opt.textContent = EMPTY_COPY.subjectDropdown;
             assignmentCourse.appendChild(opt);
             assignmentCourse.disabled = true;
             return;
@@ -619,7 +630,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             tr.className = "assignments-empty-row";
             const td = document.createElement("td");
             td.colSpan = 7;
-            td.textContent = allAssignments.length ? "No assignments match this filter." : "No assignments yet.";
+            td.className = "empty-state-reveal";
+            td.textContent = allAssignments.length ? EMPTY_COPY.filter : EMPTY_COPY.assignments;
             tr.appendChild(td);
             assignmentsBody.appendChild(tr);
             updateClearFiltersButton();
@@ -787,7 +799,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!viewAssignmentModal || !viewAssignmentTitle || !viewAssignmentDesc) return;
 
         const taskName = (assignment?.task || "").trim() || "Assignment";
-        const description = (assignment?.description || "").trim() || "No task description added yet.";
+        const description = (assignment?.description || "").trim() || EMPTY_COPY.description;
 
         viewAssignmentTitle.textContent = taskName;
         viewAssignmentDesc.textContent = description;
@@ -1161,7 +1173,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const validAssignments = (assignmentsForSubject || []).filter(a => a && typeof a.task === "string");
         if (!validAssignments.length) {
             const msg = document.createElement("div");
-            msg.textContent = "No assignments yet.";
+            msg.className = "assignments-soft-empty empty-state-reveal";
+            msg.textContent = EMPTY_COPY.assignments;
             msg.style.fontSize = "12px";
             msg.style.opacity = "0.8";
             wrapper.appendChild(msg);
@@ -1278,7 +1291,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjectEl.textContent = "";
 
         if (!carouselSubjects.length) {
-            slideEl.textContent = "No assignments yet.";
+            slideEl.innerHTML = "";
+            const msg = document.createElement("div");
+            msg.className = "assignments-soft-empty empty-state-reveal";
+            msg.textContent = EMPTY_COPY.assignments;
+            slideEl.appendChild(msg);
             return;
         }
 
@@ -1443,7 +1460,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         legendEl.innerHTML = "";
 
         if (!rows.length) {
-            barsEl.textContent = "No subjects yet.";
+            barsEl.innerHTML = "";
+            const msg = document.createElement("div");
+            msg.className = "assignments-soft-empty empty-state-reveal";
+            msg.textContent = EMPTY_COPY.subjects;
+            barsEl.appendChild(msg);
             return;
         }
 
@@ -1716,7 +1737,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         // if truly nothing exists, show a simple message
         const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
         if (total === 0) {
-        slideEl.textContent = "No assignments yet.";
+        const msg = document.createElement("div");
+        msg.className = "assignments-soft-empty empty-state-reveal";
+        msg.textContent = EMPTY_COPY.assignments;
+        slideEl.appendChild(msg);
         } else {
         slideEl.appendChild(
             createVerticalBarChart({
@@ -1738,7 +1762,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         // if truly nothing exists, show a simple message
         const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
         if (total === 0) {
-        slideEl.textContent = "No assignments yet.";
+        const msg = document.createElement("div");
+        msg.className = "assignments-soft-empty empty-state-reveal";
+        msg.textContent = EMPTY_COPY.assignments;
+        slideEl.appendChild(msg);
         } else {
         slideEl.appendChild(
             createVerticalBarChart({
@@ -1847,6 +1874,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Wiring up the events (subjects)
     addSubjectBtn.addEventListener("click", openSubjectModal);
     cancelSubjectBtn.addEventListener("click", closeSubjectModal);
+    closeSubjectModalBtn?.addEventListener("click", closeSubjectModal);
     subjectBackdrop.addEventListener("click", closeSubjectModal);
     deleteSubjectBtn.addEventListener("click", deleteSubject);
 
@@ -1884,6 +1912,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Wiring up the events (assignments)
     addAssignmentBtn.addEventListener("click", openAssignmentModalAdd);
     cancelAssignmentBtn.addEventListener("click", closeAssignmentModal);
+    closeAssignmentModalBtn?.addEventListener("click", closeAssignmentModal);
+    closeViewAssignmentModalBtn?.addEventListener("click", closeViewAssignmentModal);
     deleteAssignmentBtn.addEventListener("click", deleteAssignment);
     assignmentSortBtns.forEach((btn) => {
         btn.addEventListener("click", () => toggleAssignmentSort(btn.dataset.assignmentSort));

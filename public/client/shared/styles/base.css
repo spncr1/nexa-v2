@@ -325,6 +325,14 @@ body.nav-collapsing .navbar {
     height: 16px;
 }
 
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled,
+[aria-disabled="true"] {
+    cursor: not-allowed;
+}
+
 .setting-action-btn {
     margin-right: 10px;
     border: 1px solid transparent;
@@ -578,16 +586,22 @@ body.nav-collapsed .menu-toggle {
 */
 
 .settings-navbar-actions {
+    --settings-nav-expanded-center: calc((var(--nav-width, 220px) + 32px) / 2);
+    --settings-nav-collapsed-center: 46px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: row;
+    width: max-content;
+    max-width: var(--nav-width, 220px);
+    box-sizing: border-box;
     gap: 10px;
     position: fixed;
     bottom: 50px;
+    right: auto;
     background: rgb(245, 245, 245);
     border-radius: 8px;
-    left: calc((var(--nav-width, 220px) + 32px) / 2);
+    left: var(--settings-nav-expanded-center);
     transform: translateX(-50%);
     transition: left 0.5s ease, gap 0.5s ease, bottom 0.5s ease, transform 0.5s ease;
     z-index: 2000;
@@ -600,7 +614,7 @@ body.nav-collapsing .settings-navbar-actions {
 }
 
 body.nav-collapsed .settings-navbar-actions {
-    left: 46px;
+    left: var(--settings-nav-collapsed-center);
     transform: translateX(-50%);
     flex-direction: column;
     gap: 8px;

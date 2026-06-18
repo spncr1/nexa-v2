@@ -49,10 +49,20 @@
     --color-task-week-header-dark: rgba(60, 130, 220, 0.6);
     --color-task-week-today-dark: rgba(77, 159, 255, 0.26);
     --color-task-tbd-hover: rgb(185, 210, 245);
+
+    /* Task priority card fills */
+    --color-priority-high: #f1b5ae;
+    --color-priority-high-border: #c85d54;
     --color-priority-medium: #c0d4f5;
-    --color-priority--dark: #88aee0;
-    --color-priority-low: #b8d8f7;
-    --color-priority-low-dark: #7aaee8;
+    --color-priority-medium-border: #5f8fce;
+    --color-priority-low: #c6e4dc;
+    --color-priority-low-border: #66a99a;
+    --color-priority-high-dark: #d8847d;
+    --color-priority-high-border-dark: #ffaaa2;
+    --color-priority-medium-dark: #88aee0;
+    --color-priority-medium-border-dark: #b8d4ff;
+    --color-priority-low-dark: #79b6aa;
+    --color-priority-low-border-dark: #b7e5dc;
     --color-tile-dark: #2d3a5a;
     --color-tile-border-dark: #1e2a4a;
 

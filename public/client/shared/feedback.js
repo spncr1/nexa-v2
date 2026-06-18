@@ -19,6 +19,7 @@
             dialog: document.getElementById("nexa-confirm-dialog"),
             title: document.getElementById("nexa-confirm-title"),
             message: document.getElementById("nexa-confirm-message"),
+            closeBtn: document.getElementById("nexa-confirm-close"),
             cancelBtn: document.getElementById("nexa-confirm-cancel"),
             acceptBtn: document.getElementById("nexa-confirm-accept")
         };
@@ -66,11 +67,12 @@
     function closeConfirm(result) {
         if (!activeConfirm) return;
 
-        const { backdrop, dialog, acceptBtn, cancelBtn } = getConfirmElements();
+        const { backdrop, dialog, acceptBtn, cancelBtn, closeBtn } = getConfirmElements();
         backdrop?.classList.add("hidden");
         dialog?.classList.add("hidden");
         acceptBtn?.removeEventListener("click", activeConfirm.accept);
         cancelBtn?.removeEventListener("click", activeConfirm.cancel);
+        closeBtn?.removeEventListener("click", activeConfirm.cancel);
         backdrop?.removeEventListener("click", activeConfirm.cancel);
         document.removeEventListener("keydown", activeConfirm.keydown);
 
@@ -80,9 +82,9 @@
     }
 
     function confirm(options = {}) {
-        const { backdrop, dialog, title, message, cancelBtn, acceptBtn } = getConfirmElements();
+        const { backdrop, dialog, title, message, closeBtn, cancelBtn, acceptBtn } = getConfirmElements();
 
-        if (!backdrop || !dialog || !title || !message || !cancelBtn || !acceptBtn) {
+        if (!backdrop || !dialog || !title || !message || !closeBtn || !cancelBtn || !acceptBtn) {
             return Promise.resolve(window.confirm(options.message || options.title || "Are you sure?"));
         }
 
@@ -115,6 +117,7 @@
 
             acceptBtn.addEventListener("click", activeConfirm.accept);
             cancelBtn.addEventListener("click", activeConfirm.cancel);
+            closeBtn.addEventListener("click", activeConfirm.cancel);
             backdrop.addEventListener("click", activeConfirm.cancel);
             document.addEventListener("keydown", activeConfirm.keydown);
         });

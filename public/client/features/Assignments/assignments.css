@@ -214,6 +214,34 @@ h2 {
     width: 100%;
 }
 
+.assignments-soft-empty {
+    width: 100%;
+    padding: 10px 8px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    color: rgba(17, 17, 17, 0.74);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.empty-state-reveal {
+    animation: empty-state-reveal 0.24s ease both;
+}
+
+@keyframes empty-state-reveal {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
 #subjects-list .subject-item {
     background: rgba(255, 255, 255, 0.6);
     border: var(--color-border) 2px solid;
@@ -589,7 +617,7 @@ h2 {
 }
 
 .pie-slice {
-    cursor: pointer;
+    cursor: zoom-in;
     stroke: #ffffff;
     stroke-width: 2;
     transition: transform 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease;
@@ -844,16 +872,17 @@ h2 {
     background: rgba(255, 255, 255, 0.62);
     color: #111;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 400;
     text-align: center;
 }
 
 .assignments-empty-row td {
     text-align: center;
     padding: 18px 12px;
-    font-weight: 800;
+    font-weight: 400;
     color: #333;
     background: rgba(255, 255, 255, 0.96);
+    line-height: 1.35;
 }
 
 /* ===== Total Course Assignments widget ===== */
@@ -1015,6 +1044,12 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .empty-state-reveal {
+        animation: none;
+    }
 }
 
 /* Vertical bar chart */

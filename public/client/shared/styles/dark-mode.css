@@ -299,6 +299,15 @@ body.dark-mode .calendar-day-tooltip-subject {
     color: var(--color-text);
 }
 
+body.dark-mode .welcome-carousel-copy {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+body.dark-mode .task-empty,
+body.dark-mode .assignment-due-empty {
+    color: rgba(255, 255, 255, 0.76);
+}
+
 body.dark-mode .calendar-day.outside-month {
     color: rgba(233, 233, 234, 0.45);
 }
@@ -363,8 +372,32 @@ body.dark-mode .control-select {
 body.dark-mode input,
 body.dark-mode textarea,
 body.dark-mode select {
-    background-color: var(--color-text);
-    border-color: var(--color-tile-dark);
+    background-color: #202024;
+    color: var(--color-text);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+body.dark-mode #add-task-modal input,
+body.dark-mode #add-task-modal textarea,
+body.dark-mode #add-task-modal select,
+body.dark-mode #add-subject-modal input,
+body.dark-mode #add-subject-modal textarea,
+body.dark-mode #add-subject-modal select,
+body.dark-mode #add-assignment-modal input,
+body.dark-mode #add-assignment-modal textarea,
+body.dark-mode #add-assignment-modal select {
+    border-color: rgba(255, 255, 255, 0.22);
+}
+
+body.dark-mode #task-time {
+    background: #202024;
+    color: var(--color-text);
+    border-color: rgba(255, 255, 255, 0.22);
+    color-scheme: dark;
+}
+
+body.dark-mode #task-time::-webkit-calendar-picker-indicator {
+    filter: invert(1);
 }
 
 /*  =========================================
@@ -406,9 +439,13 @@ body.dark-mode .assignment-reminders-widget {
 
 body.dark-mode .assignment-reminder-link,
 body.dark-mode .assignment-reminder-empty {
-    background: rgba(20, 20, 22, 0.78);
+    background: none;
     color: var(--color-text);
     border-color: rgba(255, 255, 255, 0.14);
+}
+
+body.dark-mode .assignments-soft-empty {
+    color: rgba(255, 255, 255, 0.76);
 }
 
 body.dark-mode .assignment-reminders-widget {
@@ -514,7 +551,8 @@ body.dark-mode .assignments-table tbody tr.is-urgent-priority:not(.is-status-com
 }
 
 body.dark-mode .assignments-empty-row td {
-    color: #111;
+    color: var(--color-text);
+    background: #1b1b20;
 }
 
 body.dark-mode .assignments-table-actions .btn-secondary {
@@ -643,36 +681,92 @@ body.dark-mode .tasks-surface {
     border-color: var(--tasks-surface-border);
 }
 
-body.dark-mode .tasks-time-header,
 body.dark-mode .time-label,
-body.dark-mode .week-day-header,
 body.dark-mode .tasks-selected-date-label,
-body.dark-mode .tasks-month-weekdays span {
+body.dark-mode .tasks-month-weekdays span,
+body.dark-mode .tasks-summary-heading h3,
+body.dark-mode .tasks-summary-metric strong,
+body.dark-mode .tasks-day-date,
+body.dark-mode .tasks-day-count,
+body.dark-mode .tasks-day-add-btn,
+body.dark-mode .tasks-filter-btn {
     color: var(--color-text);
 }
 
-body.dark-mode .tasks-time-header,
 body.dark-mode .tasks-time-rail,
 body.dark-mode .time-label,
-body.dark-mode .tasks-week-header,
-body.dark-mode .week-slot,
-body.dark-mode .slot-quarter,
 body.dark-mode .tasks-month-agenda-grid,
-body.dark-mode .month-slot {
+body.dark-mode .tasks-month-tbd-lane,
+body.dark-mode .month-slot,
+body.dark-mode .month-tbd-empty {
     border-color: var(--tasks-grid-line);
 }
 
-body.dark-mode .week-day-header {
-    background: var(--color-task-week-header-dark);
+body.dark-mode .tasks-summary-strip,
+body.dark-mode .tasks-summary-panel,
+body.dark-mode .tasks-month-summary-panel {
+    background: rgba(77, 159, 255, 0.08);
+    border-color: var(--tasks-surface-border);
 }
 
-body.dark-mode .week-day-header.today {
+body.dark-mode .tasks-week-board-wrap::after {
+    background: linear-gradient(to right, rgba(20, 20, 22, 0), rgba(20, 20, 22, 0.72));
+}
+
+body.dark-mode .tasks-summary-heading p,
+body.dark-mode .tasks-summary-group-label,
+body.dark-mode .tasks-summary-metric span,
+body.dark-mode .tasks-day-name,
+body.dark-mode .tasks-day-empty,
+body.dark-mode .month-tbd-empty {
+    color: rgba(233, 233, 234, 0.68);
+}
+
+body.dark-mode .tasks-summary-metric,
+body.dark-mode .tasks-day-column,
+body.dark-mode .tasks-filter-btn {
+    background: #1d1d20;
+    border-color: var(--tasks-grid-line);
+}
+
+body.dark-mode .tasks-summary-metric.priority-high {
+    border-left-color: var(--color-priority-high-border-dark);
+}
+
+body.dark-mode .tasks-summary-metric.priority-medium {
+    border-left-color: var(--color-priority-medium-border-dark);
+}
+
+body.dark-mode .tasks-summary-metric.priority-low {
+    border-left-color: var(--color-priority-low-border-dark);
+}
+
+body.dark-mode .tasks-summary-metric.is-total,
+body.dark-mode .tasks-day-count,
+body.dark-mode .tasks-day-add-btn,
+body.dark-mode .tasks-filter-btn.active,
+body.dark-mode .tasks-filter-btn:hover {
     background: var(--color-task-week-today-dark);
-    border-bottom-color: var(--color-today-dark);
+    border-color: var(--color-today-dark);
+}
+
+body.dark-mode .tasks-day-add-btn .app-icon {
+    filter: invert(1);
+}
+
+body.dark-mode .tasks-day-column.today {
+    border-color: var(--color-today-dark);
+    box-shadow: inset 0 0 0 1px rgba(90, 170, 255, 0.35);
+}
+
+body.dark-mode .tasks-day-empty {
+    border-color: var(--tasks-grid-line);
 }
 
 body.dark-mode .tasks-month-calendar,
-body.dark-mode .tasks-month-agenda {
+body.dark-mode .tasks-month-agenda,
+body.dark-mode .tasks-month-summary-panel,
+body.dark-mode .tasks-month-tbd-lane {
     border-color: var(--tasks-surface-border);
 }
 
@@ -701,15 +795,18 @@ body.dark-mode .task-card {
 }
 
 body.dark-mode .task-card.priority-high {
-    background: #d8837c;
+    background: var(--color-priority-high-dark);
+    border-left-color: var(--color-priority-high-border-dark);
 }
 
 body.dark-mode .task-card.priority-medium {
     background: var(--color-priority-medium-dark);
+    border-left-color: var(--color-priority-medium-border-dark);
 }
 
 body.dark-mode .task-card.priority-low {
     background: var(--color-priority-low-dark);
+    border-left-color: var(--color-priority-low-border-dark);
 }
 
 body.dark-mode .task-card.is-completed {

@@ -102,10 +102,46 @@ h2 {
     margin: 32px 0 0;
 }
 
-.home-overview + hr + h2 {
+.welcome-panel {
     max-width: var(--home-center-width);
     margin: 32px auto 0;
     text-align: center;
+}
+
+.welcome-panel h2 {
+    margin: 0;
+}
+
+.welcome-carousel-copy {
+    margin: 8px 0 0;
+    font-family: "Noto Sans";
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(17, 17, 17, 0.72);
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.welcome-carousel-copy.is-changing {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+.empty-state-reveal {
+    animation: empty-state-reveal 0.24s ease both;
+}
+
+@keyframes empty-state-reveal {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* DASHBOARD CARDS STYLING */
@@ -331,6 +367,12 @@ h2 {
 
 #task-list .task-empty {
     text-align: center;
+}
+
+.assignment-due-empty {
+    text-align: center;
+    font-weight: 400;
+    color: rgba(17, 17, 17, 0.74);
 }
 
 /* TODAY'S TASKS (ADD TASK) STYLING */
@@ -922,6 +964,15 @@ h2 {
         font-size: 24px;
     }
 
+    .welcome-panel {
+        margin-top: 24px;
+        padding-inline: 12px;
+    }
+
+    .welcome-carousel-copy {
+        font-size: 15px;
+    }
+
     #task-list,
     #assignments-due-list {
         max-height: none;
@@ -997,6 +1048,16 @@ h2 {
 
     .modal-actions {
         flex-wrap: wrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .welcome-carousel-copy {
+        transition: none;
+    }
+
+    .empty-state-reveal {
+        animation: none;
     }
 }
 

@@ -97,54 +97,45 @@
                 </div>
             </section>
 
-            <section id="tasks-week-view" class="tasks-surface" aria-label="Weekly tasks schedule">
-                <div class="tasks-grid-shell">
-                    <div class="tasks-week-header-row">
-                        <div class="tasks-time-header">TIME</div>
-                        <div id="tasks-week-header" class="tasks-week-header"></div>
-                    </div>
-
-                    <div class="tasks-week-body-row">
-                        <div id="tasks-week-time-rail" class="tasks-time-rail" aria-hidden="true"></div>
-                        <div id="tasks-week-body" class="tasks-week-body"></div>
-                    </div>
+            <section id="tasks-week-view" class="tasks-surface" aria-label="Weekly tasks dashboard">
+                <div id="tasks-week-summary" class="tasks-summary-strip" aria-label="Weekly task summary"></div>
+                <div class="tasks-week-board-wrap">
+                    <div id="tasks-week-board" class="tasks-week-board" aria-label="Weekly task board"></div>
                 </div>
             </section>
 
-            <template id="week-slot-template">
-                <div class="week-slot">
-                    <button type="button" class="slot-add-btn" aria-label="Add task"><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
-                    <div class="slot-quarter-grid">
-                        <div class="slot-quarter" data-quarter="0"></div>
-                        <div class="slot-quarter" data-quarter="1"></div>
-                        <div class="slot-quarter" data-quarter="2"></div>
-                        <div class="slot-quarter" data-quarter="3"></div>
-                    </div>
-                </div>
-            </template>
-
             <section id="tasks-month-view" class="tasks-surface hidden" aria-label="Monthly tasks schedule">
                 <div class="tasks-month-layout">
-                    <div class="tasks-month-calendar">
-                        <div class="tasks-month-weekdays" aria-hidden="true">
-                            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    <div class="tasks-month-main">
+                        <div class="tasks-month-calendar">
+                            <div class="tasks-month-weekdays" aria-hidden="true">
+                                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                            </div>
+                            <div id="tasks-month-days" class="tasks-month-days" role="grid" aria-label="Month"></div>
                         </div>
-                        <div id="tasks-month-days" class="tasks-month-days" role="grid" aria-label="Month"></div>
+
+                        <div class="tasks-month-agenda">
+                            <h3 id="tasks-selected-date-label" class="tasks-selected-date-label">Selected date</h3>
+                            <div class="tasks-month-planner-grid">
+                                <aside id="tasks-month-tbd-lane" class="tasks-month-tbd-lane" aria-label="Unscheduled tasks"></aside>
+                                <div class="tasks-month-agenda-grid">
+                                    <div id="tasks-month-time-rail" class="tasks-time-rail" aria-hidden="true"></div>
+                                    <div id="tasks-month-body" class="tasks-month-body"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="tasks-month-agenda">
-                        <h3 id="tasks-selected-date-label" class="tasks-selected-date-label">Selected date</h3>
-                        <div class="tasks-month-agenda-grid">
-                            <div id="tasks-month-time-rail" class="tasks-time-rail" aria-hidden="true"></div>
-                            <div id="tasks-month-body" class="tasks-month-body"></div>
-                        </div>
-                    </div>
+                    <aside class="tasks-month-sidebar" aria-label="Monthly task breakdown">
+                        <div id="tasks-month-summary" class="tasks-month-summary tasks-month-summary-panel" aria-label="Monthly task summary"></div>
+                    </aside>
                 </div>
             </section>
 
             <div id="modal-backdrop" class="hidden"></div>
 
             <div id="add-task-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add task">
+                <button type="button" id="close-task-modal-btn" class="settings-close-btn" aria-label="Close task modal"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
                 <img class="modal-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 id="task-modal-title" align="center">ADD TASK</h3>
 

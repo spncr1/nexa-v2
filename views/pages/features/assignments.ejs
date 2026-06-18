@@ -213,7 +213,7 @@
             </template>
 
             <template id="assignment-reminder-empty-template">
-                <li class="assignment-reminder-empty">No upcoming assignment reminders.</li>
+                <li class="assignment-reminder-empty empty-state-reveal">Nothing urgent right now. You're in the clear.</li>
             </template>
 
              <div id="modal-backdrop" class="hidden"></div>
@@ -223,6 +223,7 @@
 
               <!-- ADD SUBJECT MODAL -->
                <div id="add-subject-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add Subject">
+                <button type="button" id="close-subject-modal-btn" class="settings-close-btn" aria-label="Close subject modal"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
                 <img class="modal-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 id="subject-modal-title" align="center">ADD SUBJECT</h3>
 
@@ -241,6 +242,7 @@
                </div>
                <!-- ADD/EDIT ASSIGNMENT MODAL -->
                <div id="add-assignment-modal" class="hidden" role="dialog" aria-modal="true" aria-label="Add Assignment">
+                <button type="button" id="close-assignment-modal-btn" class="settings-close-btn" aria-label="Close assignment modal"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
                 <img class="modal-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 id="assignment-modal-title" align="center">ADD ASSIGNMENT</h3>
 
@@ -305,6 +307,7 @@
 
                <!-- VIEW ASSIGNMENT MODAL (read-only) -->
                <div id="view-assignment-modal" class="hidden" role="dialog" aria-modal="true" aria-label="View Assignment">
+                <button type="button" id="close-view-assignment-modal-btn" class="settings-close-btn" aria-label="Close assignment details"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
                 <img class="modal-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
                 <h3 id="view-assignment-title" align="center">ASSIGNMENT</h3>
                 <p id="view-assignment-desc" class="view-assignment-desc"></p>
