@@ -14,11 +14,6 @@
 @import url("/client/shared/styles/components.css");
 
 :root {
-    --bg: var(--color-bg);
-    --text: var(--color-text);
-    --panel: var(--color-panel);
-    --border: var(--color-border);
-    --surface: var(--color-surface);
     --nav-width: 220px;
     --content-max: 1280px;
     --content-pad: 24px;
@@ -57,14 +52,14 @@ ul {
 
 /* ----- HEADERS STYLING ----- */
 h1 {
-    color: black;
+    color: var(--color-text-heading);
     font-family: "Manrope";
     font-size: 36px;
     font-weight: 700;
 }
 
 h2 {
-    color: black;
+    color: var(--color-text-heading);
     font-family: "Manrope";
     font-size: 28px;
     font-weight: 600;
@@ -72,51 +67,6 @@ h2 {
 
 /* UTIL */
 .hidden { display: none; }
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 25px;
-    margin-right: 10px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: #cfcfcf;
-    border-radius: 999px;
-    transition: 0.2s ease;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
-}
-
-.slider::before {
-    content: "";
-    position: absolute;
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    top: 3px;
-    background: #fff;
-    border-radius: 50%;
-    transition: 0.2s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-.switch input:checked + .slider {
-    background: var(--color-primary-active);
-}
-
-.switch input:checked + .slider::before {
-    transform: translateX(17px);
-}
 
 /* 
   =======================
@@ -154,7 +104,7 @@ h2 {
 .subjects-panel { position: relative; }
 
 .subjects-panel {
-    border: 2px solid var(--color-border);
+    border: 2px solid var(--color-border-interactive);
     background-color: var(--color-panel);
     border-radius: 10px;
     padding: 14px 12px;
@@ -165,7 +115,7 @@ h2 {
     flex-direction: column;
     gap: 10px;
     overflow: hidden;
-    box-shadow: 0 20px 44px rgba(77, 159, 255, 0.16);
+    box-shadow: 0 20px 44px var(--color-accent-primary-shadow-lg);
 }
 
 .subjects-panel.has-more::after {
@@ -219,7 +169,7 @@ h2 {
     padding: 10px 8px;
     box-sizing: border-box;
     border-radius: 8px;
-    color: rgba(17, 17, 17, 0.74);
+    color: var(--color-text-muted-strong);
     font-size: 13px;
     font-weight: 400;
     line-height: 1.35;
@@ -243,8 +193,8 @@ h2 {
 }
 
 #subjects-list .subject-item {
-    background: rgba(255, 255, 255, 0.6);
-    border: var(--color-border) 2px solid;
+    background: var(--color-surface-panel-subtle);
+    border: var(--color-border-interactive) 2px solid;
     border-radius: 8px;
     padding: 10px 12px;
     display: block;
@@ -253,14 +203,14 @@ h2 {
     font-family: "Noto Sans";
     font-size: 14px;
     font-weight: 700;
-    color: #111;
+    color: var(--color-text-strong);
     cursor: pointer;
     box-sizing: border-box;
     width: 100%;
 }
 
 #subjects-list .subject-item.active {
-    border-color: #111;
+    border-color: var(--color-border-active);
     font-weight: 800;
 }
 
@@ -276,7 +226,7 @@ h2 {
 
 /* Left column */
 .assignments-table-card {
-    border: 2px solid var(--color-border);
+    border: 2px solid var(--color-border-interactive);
     background-color: var(--color-panel);
     border-radius: 10px;
     padding: 14px 12px;
@@ -288,7 +238,7 @@ h2 {
     box-sizing: border-box;
     margin-top: 0;
     overflow: visible;
-    box-shadow: 0 22px 48px rgba(77, 159, 255, 0.18);
+    box-shadow: 0 22px 48px var(--color-accent-primary-shadow-xl);
 }
 
 .assignments-table-header {
@@ -309,21 +259,21 @@ h2 {
 .assignments-table-actions .btn-secondary {
     min-height: 38px;
     padding: 8px 12px;
-    border: 1px solid rgba(23, 38, 68, 0.18);
+    border: 1px solid var(--color-border-panel);
     border-radius: 8px;
-    background: rgba(21, 31, 53, 0.86);
-    color: #ffffff;
-    box-shadow: 0 12px 26px rgba(15, 20, 32, 0.16);
+    background: var(--color-surface-control);
+    color: var(--color-text-inverse);
+    box-shadow: 0 12px 26px var(--color-shadow-panel);
     transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
 }
 
 .assignments-table-actions .btn-secondary:hover,
 .assignments-table-actions .btn-secondary:focus-visible {
-    background: rgba(31, 46, 77, 0.92);
-    border-color: rgba(88, 132, 198, 0.42);
+    background: var(--color-surface-control-hover);
+    border-color: var(--color-chart-ring);
     transform: translateY(-1px);
     filter: brightness(1.02);
-    box-shadow: 0 16px 30px rgba(15, 20, 32, 0.2);
+    box-shadow: 0 16px 30px var(--color-shadow-panel-strong);
 }
 
 .assignments-table-actions .btn-secondary .app-icon {
@@ -333,25 +283,25 @@ h2 {
 }
 
 .assignments-table-actions #add-assignment-btn {
-    background: rgba(51, 150, 88, 0.92);
-    border-color: rgba(34, 113, 64, 0.52);
+    background: var(--color-action-confirm-bg);
+    border-color: var(--color-action-confirm-border);
 }
 
 .assignments-table-actions #add-assignment-btn:hover,
 .assignments-table-actions #add-assignment-btn:focus-visible {
-    background: rgba(43, 133, 76, 0.98);
-    border-color: rgba(25, 97, 54, 0.66);
+    background: var(--color-action-confirm-bg-hover);
+    border-color: var(--color-action-confirm-border-hover);
 }
 
 .assignments-table-actions #reset-btn {
-    background: rgba(188, 74, 92, 0.96);
-    border-color: rgba(139, 31, 51, 0.58);
+    background: var(--color-action-destructive-bg);
+    border-color: var(--color-action-destructive-border);
 }
 
 .assignments-table-actions #reset-btn:hover,
 .assignments-table-actions #reset-btn:focus-visible {
-    background: rgba(172, 52, 72, 0.98);
-    border-color: rgba(120, 18, 38, 0.72);
+    background: var(--color-action-destructive-bg-hover);
+    border-color: var(--color-action-destructive-border-hover);
 }
 
 .table-title {
@@ -369,15 +319,15 @@ h2 {
 .assignments-table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(244, 248, 255, 0.94);
+    background: var(--color-table-surface);
     font-family: "Manrope";
 }
 
 /* ALL ASSIGNMENTS table header */
 .assignments-table th {
     background: var(--color-table-header);
-    border-right: 1px solid rgba(0,0,0,0.12);
-    border-bottom: 1px solid rgba(0,0,0,0.12);
+    border-right: 1px solid var(--color-border-table);
+    border-bottom: 1px solid var(--color-border-table);
     padding: 0;
     text-align: left;
     font-size: 16px;
@@ -409,7 +359,7 @@ h2 {
 .assignment-sort-btn:hover,
 .assignment-sort-btn:focus-visible,
 .assignment-sort-btn.is-active {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--color-table-sort-hover);
 }
 
 .assignment-sort-btn .app-icon {
@@ -430,14 +380,14 @@ h2 {
 
 /* ALL ASSIGNMENTS table body (elements) */
 .assignments-table td {
-    background: rgba(255, 255, 255, 0.92);
-    border-right: 1px solid rgba(0,0,0,0.12);
-    border-bottom: 1px solid rgba(0,0,0,0.12);
+    background: var(--color-table-cell);
+    border-right: 1px solid var(--color-border-table);
+    border-bottom: 1px solid var(--color-border-table);
     padding: 10px 12px;
     text-align: left;
     font-size: 14px;
     font-weight: 600;
-    color: #111;
+    color: var(--color-table-text);
     cursor: pointer;
     position: sticky;
     top: 0;
@@ -445,8 +395,8 @@ h2 {
 }
 
 .assignments-table tbody tr {
-    --assignment-row-accent: rgba(95, 132, 179, 0.55);
-    --assignment-row-bg: rgba(255, 255, 255, 0.92);
+    --assignment-row-accent: var(--color-status-row-accent);
+    --assignment-row-bg: var(--color-status-row-bg);
     position: relative;
 }
 
@@ -459,39 +409,39 @@ h2 {
 }
 
 .assignments-table tbody tr.is-status-completed {
-    --assignment-row-accent: #2ecc71;
-    --assignment-row-bg: rgba(46, 204, 113, 0.16);
+    --assignment-row-accent: var(--color-status-complete);
+    --assignment-row-bg: var(--color-status-complete-soft);
 }
 
 .assignments-table tbody tr.is-status-completed td {
-    color: rgba(17, 17, 17, 0.74);
+    color: var(--color-table-muted-text);
 }
 
 .assignments-table tbody tr.is-status-in-progress {
-    --assignment-row-accent: #f1c40f;
-    --assignment-row-bg: rgba(241, 196, 15, 0.14);
+    --assignment-row-accent: var(--color-status-progress);
+    --assignment-row-bg: var(--color-status-progress-soft);
 }
 
 .assignments-table tbody tr.is-status-not-started {
-    --assignment-row-accent: #e74c3c;
-    --assignment-row-bg: rgba(231, 76, 60, 0.1);
+    --assignment-row-accent: var(--color-status-danger);
+    --assignment-row-bg: var(--color-status-danger-soft);
 }
 
 .assignments-table tbody tr.is-overdue {
-    --assignment-row-accent: #d63f3f;
-    --assignment-row-bg: rgba(214, 63, 63, 0.2);
+    --assignment-row-accent: var(--color-status-overdue);
+    --assignment-row-bg: var(--color-status-overdue-soft);
 }
 
 .assignments-table tbody tr.is-due-soon {
-    box-shadow: inset 0 0 0 1px rgba(231, 76, 60, 0.22);
+    box-shadow: inset 0 0 0 1px var(--color-status-danger-ring-soft);
 }
 
 .assignments-table tbody tr.is-overdue {
-    box-shadow: inset 0 0 0 1px rgba(214, 63, 63, 0.34);
+    box-shadow: inset 0 0 0 1px var(--color-status-overdue-ring);
 }
 
 .assignments-table tbody tr.is-urgent-priority:not(.is-status-completed):not(.is-overdue) {
-    box-shadow: inset 0 0 0 1px rgba(231, 76, 60, 0.22);
+    box-shadow: inset 0 0 0 1px var(--color-status-danger-ring-soft);
 }
 
 /* 
@@ -515,27 +465,27 @@ h2 {
 }
 
 .assignment-priority-pill.is-low {
-    background: rgba(46, 204, 113, 0.18);
-    border-color: rgba(34, 139, 73, 0.28);
-    color: #16653a;
+    background: var(--color-status-complete-pill);
+    border-color: var(--color-status-complete-border);
+    color: var(--color-status-complete-text);
 }
 
 .assignment-priority-pill.is-medium {
-    background: rgba(241, 196, 15, 0.18);
-    border-color: rgba(181, 145, 18, 0.28);
-    color: #7b6504;
+    background: var(--color-status-progress-pill);
+    border-color: var(--color-status-progress-border);
+    color: var(--color-status-progress-text);
 }
 
 .assignment-priority-pill.is-high {
-    background: rgba(231, 76, 60, 0.18);
-    border-color: rgba(166, 49, 36, 0.3);
-    color: #8f2418;
+    background: var(--color-status-danger-pill);
+    border-color: var(--color-status-danger-border);
+    color: var(--color-status-danger-text);
 }
 
 .assignment-priority-pill.is-unknown {
-    background: rgba(95, 132, 179, 0.14);
-    border-color: rgba(95, 132, 179, 0.22);
-    color: #29456f;
+    background: var(--color-status-unknown-soft);
+    border-color: var(--color-status-unknown-border);
+    color: var(--color-status-unknown-text);
 }
 
 /* Middle column */
@@ -551,8 +501,8 @@ h2 {
 
 /* Controls row / Main widget (pie chart) */
 .weighting-carousel {
-    border: 2px solid #ddd;
-    background: #fff;
+    border: 2px solid var(--color-border-standard);
+    background: var(--color-surface);
     border-radius: 10px;
     padding: 8px 16px 14px;
     width: 100%;
@@ -564,7 +514,7 @@ h2 {
     align-content: start;
     row-gap: 20px;
     overflow: visible;
-    box-shadow: 0 20px 44px rgba(77, 159, 255, 0.12);
+    box-shadow: 0 20px 44px var(--color-accent-primary-shadow-md);
 }
 
 .weighting-carousel .carousel-header h3, .weighting-carousel .carousel-content, .weighting-carousel .carousel-dots {
@@ -618,6 +568,7 @@ h2 {
 
 .pie-slice {
     cursor: zoom-in;
+    /* intentional: chart colours, not tokenised */
     stroke: #ffffff;
     stroke-width: 2;
     transition: transform 0.15s ease, filter 0.15s ease, stroke-width 0.15s ease;
@@ -634,33 +585,12 @@ h2 {
 .pie-label {
     font-size: 9px;
     font-weight: 700;
+    /* intentional: chart colours, not tokenised */
     fill: black;
     stroke: rgba(0, 0, 0, 0.55);
     stroke-width: 0.6;
     paint-order: stroke fill;
     pointer-events: none;
-}
-
-.pie-breakdown {
-    margin-top: 6px;
-    display: grid;
-    gap: 4px;
-    text-align: left;
-    font-size: 11px;
-    line-height: 1.3;
-    max-width: 280px;
-}
-
-.pie-breakdown-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.pie-breakdown-task {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 .carousel-nav {
@@ -690,6 +620,7 @@ h2 {
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    /* intentional: chart colours, not tokenised */
     background: #222;
     opacity: 0.3;
 }
@@ -717,14 +648,14 @@ h2 {
 }
 
 .widget-card {
-    border: 1px solid #ddd;
-    background: #fff;
+    border: 1px solid var(--color-border-standard);
+    background: var(--color-surface);
     border-radius: 12px;
     text-align: left;
     min-height: 150px;
     padding: 12px;
     box-sizing: border-box;
-    box-shadow: 0 18px 38px rgba(77, 159, 255, 0.1);
+    box-shadow: 0 18px 38px var(--color-accent-primary-shadow-sm);
 }
 
 .widget-title {
@@ -738,8 +669,8 @@ h2 {
 .assignment-reminders-widget {
     min-height: 0;
     padding: 10px 10px 12px;
-    background: rgba(255, 255, 255, 0.72);
-    box-shadow: 0 18px 38px rgba(236, 143, 40, 0.14);
+    background: var(--color-reminder-bg);
+    box-shadow: 0 18px 38px var(--color-reminder-shadow);
 }
 
 .assignment-reminders-list {
@@ -763,11 +694,11 @@ h2 {
     width: 100%;
     min-height: 48px;
     padding: 7px 9px;
-    border: 1px solid rgba(0, 0, 0, 0.12);
-    border-left: 4px solid rgba(95, 132, 179, 0.65);
+    border: 1px solid var(--color-reminder-item-border);
+    border-left: 4px solid var(--color-reminder-item-accent);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.78);
-    color: #111;
+    background: var(--color-reminder-item-bg);
+    color: var(--color-text-strong);
     cursor: pointer;
     box-sizing: border-box;
     text-align: left;
@@ -789,8 +720,8 @@ h2 {
     min-height: 24px;
     padding: 4px 7px;
     border-radius: 999px;
-    background: rgba(95, 132, 179, 0.18);
-    color: #111;
+    background: var(--color-reminder-countdown-bg);
+    color: var(--color-text-strong);
     line-height: 1;
     box-sizing: border-box;
 }
@@ -837,40 +768,50 @@ h2 {
 }
 
 .assignment-reminder-item.is-critical .assignment-reminder-link {
-    border-left-color: #d63f3f;
-    background: rgba(216, 63, 63, 0.13);
+    border-left-color: var(--color-reminder-critical);
+    background: var(--color-reminder-critical-soft);
 }
 
 .assignment-reminder-item.is-critical .assignment-reminder-countdown {
-    background: rgba(216, 63, 63, 0.22);
-    color: #8e1919;
+    background: var(--color-reminder-critical-fill);
+    color: var(--color-reminder-critical-text);
 }
 
 .assignment-reminder-item.is-important .assignment-reminder-link {
-    border-left-color: #ec8f28;
-    background: rgba(236, 143, 40, 0.14);
+    border-left-color: var(--color-reminder-important);
+    background: var(--color-reminder-important-soft);
 }
 
 .assignment-reminder-item.is-important .assignment-reminder-countdown {
-    background: rgba(236, 143, 40, 0.24);
-    color: #8a4a09;
+    background: var(--color-reminder-important-fill);
+    color: var(--color-reminder-important-text);
 }
 
 .assignment-reminder-item.is-watch .assignment-reminder-link {
-    border-left-color: #e4c33f;
-    background: rgba(228, 195, 63, 0.15);
+    border-left-color: var(--color-reminder-watch);
+    background: var(--color-reminder-watch-soft);
 }
 
 .assignment-reminder-item.is-watch .assignment-reminder-countdown {
-    background: rgba(228, 195, 63, 0.27);
-    color: #6a5605;
+    background: var(--color-reminder-watch-fill);
+    color: var(--color-reminder-watch-text);
+}
+
+.assignment-reminder-item.is-neutral .assignment-reminder-link {
+    border-left-color: var(--color-reminder-neutral);
+    background: var(--color-reminder-neutral-soft);
+}
+
+.assignment-reminder-item.is-neutral .assignment-reminder-countdown {
+    background: var(--color-reminder-neutral-fill);
+    color: var(--color-reminder-neutral-text);
 }
 
 .assignment-reminder-empty {
     padding: 10px 8px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.62);
-    color: #111;
+    background: var(--color-reminder-empty-bg);
+    color: var(--color-text-strong);
     font-size: 13px;
     font-weight: 400;
     text-align: center;
@@ -880,12 +821,13 @@ h2 {
     text-align: center;
     padding: 18px 12px;
     font-weight: 400;
-    color: #333;
-    background: rgba(255, 255, 255, 0.96);
+    color: var(--color-table-empty-text);
+    background: var(--color-table-empty-bg);
     line-height: 1.35;
 }
 
 /* ===== Total Course Assignments widget ===== */
+/* intentional: chart colours in this widget are not tokenised */
 
 .total-assignments-widget .bars {
   display: flex;
@@ -1053,6 +995,7 @@ h2 {
 }
 
 /* Vertical bar chart */
+/* intentional: chart colours in this widget are not tokenised */
 .vchart {
   display: grid;
   grid-template-rows: 1fr auto auto;
@@ -1135,10 +1078,6 @@ h2 {
   font-size: 12px;
 }
 
-.vbar-label {
-  display: none;
-}
-
 .vchart-legend {
   display: flex;
   justify-content: center;
@@ -1174,8 +1113,9 @@ h2 {
   width: max-content;
   max-width: 220px;
   padding: 8px 10px;
-  border: 1px solid var(--color-dark-border);
+  border: 1px solid var(--color-border-tooltip);
   border-radius: 10px;
+  /* intentional: chart colours, not tokenised */
   background: #fff;
   color: #fff;
   font-size: 11px;
@@ -1222,6 +1162,7 @@ h2 {
   width: 6px;
   height: 6px;
   border-radius: 999px;
+  /* intentional: chart colours, not tokenised */
   background: rgba(0,0,0,0.25);
 }
 
@@ -1267,7 +1208,7 @@ h2 {
 #subject-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--color-overlay-backdrop);
     z-index: 900;
 }
 
@@ -1276,8 +1217,8 @@ h2 {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-surface-modal);
+    border: 1px solid var(--color-border-modal);
     border-radius: 12px;
     padding: 16px;
     width: min(420px, 90vw);
@@ -1303,7 +1244,7 @@ h2 {
     font-family: "Noto Sans";
     font-size: 14px;
     padding: 10px 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     border-radius: 8px;
 }
 
@@ -1314,7 +1255,7 @@ h2 {
     margin: 0;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
 }
 
@@ -1323,7 +1264,7 @@ h2 {
     max-width: 100%;
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
 }
 
@@ -1347,7 +1288,7 @@ button, input, select, textarea { font-family: inherit; }
 #modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.35);
+    background: var(--color-overlay-backdrop);
     z-index: 850;
 }
 
@@ -1357,8 +1298,8 @@ button, input, select, textarea { font-family: inherit; }
     left: 50%;
     transform: translate(-50%, -50%);
     width: min(520px, 92vw);
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-surface-modal);
+    border: 1px solid var(--color-border-modal);
     border-radius: 12px;
     padding: 16px;
     z-index: 900;
@@ -1386,7 +1327,7 @@ button, input, select, textarea { font-family: inherit; }
     margin: 0;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
 }
 
@@ -1395,7 +1336,7 @@ button, input, select, textarea { font-family: inherit; }
     max-width: 100%;
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
 }
 
@@ -1411,8 +1352,8 @@ button, input, select, textarea { font-family: inherit; }
     left: 50%;
     transform: translate(-50%, -50%);
     width: min(460px, 92vw);
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--color-surface-modal);
+    border: 1px solid var(--color-border-modal);
     border-radius: 12px;
     padding: 16px;
     z-index: 900;
@@ -1424,7 +1365,7 @@ button, input, select, textarea { font-family: inherit; }
     font-family: "Noto Sans";
     font-size: 14px;
     line-height: 1.45;
-    color: #111;
+    color: var(--color-text-strong);
     white-space: pre-wrap;
     word-break: break-word;
 }

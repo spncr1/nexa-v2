@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const day = dateObj.getDate();
         const month = dateObj.toLocaleDateString("en-AU", { month: "short" });
         const weekday = dateObj.toLocaleDateString("en-AU", { weekday: "short" });
-        return `${day} ${month} (${weekday})`;
+        return `${weekday}, ${day} ${month}`;
     }
 
     function formatMonthYear(dateObj) {

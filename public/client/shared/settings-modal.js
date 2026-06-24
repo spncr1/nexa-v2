@@ -22,9 +22,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const accountNameInput = document.getElementById("account-name-input");
     const accountEmailInput = document.getElementById("account-email-input");
     const accountAgeInput = document.getElementById("account-age-input");
+    const accountLocationInput = document.getElementById("account-location-input");
+    const accountUniversityInput = document.getElementById("account-university-input");
+    const accountDegreeInput = document.getElementById("account-degree-input");
     const accountSemesterInput = document.getElementById("account-semester-input");
+    const yearLevelButtons = document.querySelectorAll(".year-level-option");
     const saveProfileBtn = document.getElementById("save-profile-btn");
     const avatarInput = document.getElementById("profile-avatar-input");
+    const uploadAvatarBtn = document.getElementById("upload-avatar-btn");
     const removeAvatarBtn = document.getElementById("remove-avatar-btn");
     const settingsNavbarProfileAvatar = document.getElementById("settings-navbar-profile-avatar");
     const profileAvatarPreview = document.getElementById("profile-avatar-preview");
@@ -37,9 +42,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     const deleteAccountBtn = document.getElementById("delete-account-btn");
 
     const NAV_COLLAPSED_KEY = "studenthub_nav_collapsed";
+    const NAV_GROUPS_KEY = "studenthub_nav_group_state";
     const USER_NAME_KEY = "studenthub_user_name";
     const SEMESTER_KEY = "studenthub_semester_label";
     const PROFILE_AGE_KEY = "studenthub_profile_age";
+    const PROFILE_LOCATION_KEY = "studenthub_profile_location";
+    const PROFILE_UNIVERSITY_KEY = "studenthub_profile_university";
+    const PROFILE_DEGREE_KEY = "studenthub_profile_degree";
+    const PROFILE_YEAR_LEVEL_KEY = "studenthub_profile_year_level";
     const PROFILE_AVATAR_KEY = "studenthub_profile_avatar";
     const SYSTEM_PREFS_KEY = "studenthub_system_preferences";
     const THEME_MODE_KEY = "studenthub_theme_mode";
@@ -50,13 +60,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         USER_NAME_KEY,
         SEMESTER_KEY,
         PROFILE_AGE_KEY,
+        PROFILE_LOCATION_KEY,
+        PROFILE_UNIVERSITY_KEY,
+        PROFILE_DEGREE_KEY,
+        PROFILE_YEAR_LEVEL_KEY,
         PROFILE_AVATAR_KEY,
         SYSTEM_PREFS_KEY,
         THEME_MODE_KEY,
+        NAV_GROUPS_KEY,
         "darkMode"
     ];
     const DEFAULT_USER_NAME = currentUser?.name || "Student";
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
+    const DEFAULT_YEAR_LEVEL = "N/A";
+    const ALLOWED_AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
     const mobileNavQuery = window.matchMedia("(max-width: 600px)");
     const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -67,6 +84,51 @@ document.addEventListener("DOMContentLoaded", async () => {
     */
 
     let navTransitionTimer = null;
+    let syncingNavGroups = false;
+
+    function getNavGroupKey(navGroup) {
+        return navGroup?.querySelector("summary")?.getAttribute("aria-label") || "";
+    }
+
+    function loadNavGroupState() {
+        try {
+            const parsed = JSON.parse(storage.getItem(NAV_GROUPS_KEY) || "{}");
+            return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function saveNavGroupState(navGroup) {
+        const key = getNavGroupKey(navGroup);
+        if (!key) return;
+
+        const state = loadNavGroupState();
+        state[key] = navGroup.open;
+        storage.setItem(NAV_GROUPS_KEY, JSON.stringify(state));
+    }
+
+    function initialiseNavGroups() {
+        const navGroups = document.querySelectorAll(".navbar .nav-group");
+        if (!navGroups.length) return;
+
+        const state = loadNavGroupState();
+        syncingNavGroups = true;
+        navGroups.forEach((navGroup) => {
+            const key = getNavGroupKey(navGroup);
+            if (Object.prototype.hasOwnProperty.call(state, key)) {
+                navGroup.open = Boolean(state[key]);
+            }
+        });
+        syncingNavGroups = false;
+
+        navGroups.forEach((navGroup) => {
+            navGroup.addEventListener("toggle", () => {
+                if (syncingNavGroups) return;
+                saveNavGroupState(navGroup);
+            });
+        });
+    }
 
     function setNavCollapsed(isCollapsed) {
         if (mobileNavQuery.matches) {
@@ -162,9 +224,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         return saved && saved.trim() ? saved : "";
     }
 
+    function loadProfileLocation() {
+        const saved = storage.getItem(PROFILE_LOCATION_KEY);
+        return saved && saved.trim() ? saved : "";
+    }
+
+    function loadProfileUniversity() {
+        const saved = storage.getItem(PROFILE_UNIVERSITY_KEY);
+        return saved && saved.trim() ? saved : "";
+    }
+
+    function loadProfileDegree() {
+        const saved = storage.getItem(PROFILE_DEGREE_KEY);
+        return saved && saved.trim() ? saved : "";
+    }
+
+    function loadProfileYearLevel() {
+        const saved = storage.getItem(PROFILE_YEAR_LEVEL_KEY);
+        return saved && saved.trim() ? saved : DEFAULT_YEAR_LEVEL;
+    }
+
     function loadAvatar() {
         const saved = storage.getItem(PROFILE_AVATAR_KEY);
-        return saved && saved.startsWith("data:image/") ? saved : "";
+        return saved && Array.from(ALLOWED_AVATAR_TYPES).some((type) => saved.startsWith(`data:${type};`)) ? saved : "";
     }
 
     function setAvatarPreview(dataUrl) {
@@ -175,11 +257,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    function setYearLevel(value) {
+        const nextValue = value || DEFAULT_YEAR_LEVEL;
+        yearLevelButtons.forEach((btn) => {
+            const isActive = btn.dataset.yearLevel === nextValue;
+            btn.classList.toggle("active", isActive);
+            btn.setAttribute("aria-pressed", isActive.toString());
+        });
+    }
+
+    function getSelectedYearLevel() {
+        return document.querySelector(".year-level-option.active")?.dataset.yearLevel || DEFAULT_YEAR_LEVEL;
+    }
+
     function populateProfileInputs() {
         if (accountNameInput) accountNameInput.value = loadUserName();
         if (accountEmailInput) accountEmailInput.value = currentUser?.email || "";
         if (accountAgeInput) accountAgeInput.value = loadProfileAge();
+        if (accountLocationInput) accountLocationInput.value = loadProfileLocation();
+        if (accountUniversityInput) accountUniversityInput.value = loadProfileUniversity();
+        if (accountDegreeInput) accountDegreeInput.value = loadProfileDegree();
         if (accountSemesterInput) accountSemesterInput.value = loadSemesterLabel();
+        setYearLevel(loadProfileYearLevel());
         setAvatarPreview(loadAvatar());
     }
 
@@ -303,6 +402,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nameValue = (accountNameInput?.value || "").trim() || DEFAULT_USER_NAME;
         const emailValue = (accountEmailInput?.value || "").trim().toLowerCase();
         const ageValue = (accountAgeInput?.value || "").trim();
+        const locationValue = (accountLocationInput?.value || "").trim();
+        const universityValue = (accountUniversityInput?.value || "").trim();
+        const degreeValue = (accountDegreeInput?.value || "").trim();
+        const yearLevelValue = getSelectedYearLevel();
         const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
 
         if (!emailValue) {
@@ -342,10 +445,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             storage.removeItem(PROFILE_AGE_KEY);
         }
+        if (locationValue) {
+            storage.setItem(PROFILE_LOCATION_KEY, locationValue);
+        } else {
+            storage.removeItem(PROFILE_LOCATION_KEY);
+        }
+        if (universityValue) {
+            storage.setItem(PROFILE_UNIVERSITY_KEY, universityValue);
+        } else {
+            storage.removeItem(PROFILE_UNIVERSITY_KEY);
+        }
+        if (degreeValue) {
+            storage.setItem(PROFILE_DEGREE_KEY, degreeValue);
+        } else {
+            storage.removeItem(PROFILE_DEGREE_KEY);
+        }
+        storage.setItem(PROFILE_YEAR_LEVEL_KEY, yearLevelValue || DEFAULT_YEAR_LEVEL);
 
         populateProfileInputs();
         window.dispatchEvent(new CustomEvent("nexa:account-updated", {
-            detail: { user: currentUser, name: nameValue, semester: semesterValue, age: ageValue }
+            detail: {
+                user: currentUser,
+                name: nameValue,
+                semester: semesterValue,
+                age: ageValue,
+                location: locationValue,
+                university: universityValue,
+                degree: degreeValue,
+                yearLevel: yearLevelValue
+            }
         }));
         showToast("Profile details saved.", "neutral");
     }
@@ -458,15 +586,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     function updateAvatarFromFile(file) {
         if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
-            showToast("Choose an image file for your profile picture.", "negative");
+        if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
+            showToast("Use a JPG, PNG, or WebP image for your profile picture.", "negative");
+            if (avatarInput) avatarInput.value = "";
             return;
         }
 
         const reader = new FileReader();
         reader.addEventListener("load", () => {
             const result = typeof reader.result === "string" ? reader.result : "";
-            if (!result.startsWith("data:image/")) {
+            if (!Array.from(ALLOWED_AVATAR_TYPES).some((type) => result.startsWith(`data:${type};`))) {
                 showToast("Could not read that image.", "negative");
                 return;
             }
@@ -538,6 +667,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (menuToggle) {
+        initialiseNavGroups();
         syncNavigationMode();
         menuToggle.addEventListener("click", () => {
             if (mobileNavQuery.matches) {
@@ -591,7 +721,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
     avatarInput?.addEventListener("change", () => updateAvatarFromFile(avatarInput.files?.[0]));
+    uploadAvatarBtn?.addEventListener("click", () => avatarInput?.click());
+    profileAvatarPreview?.addEventListener("click", () => avatarInput?.click());
     removeAvatarBtn?.addEventListener("click", removeAvatar);
+    yearLevelButtons.forEach((btn) => {
+        btn.addEventListener("click", () => setYearLevel(btn.dataset.yearLevel));
+    });
     changePasswordBtn?.addEventListener("click", () => {
         changePassword().catch((error) => {
             console.error("Failed to change password:", error);

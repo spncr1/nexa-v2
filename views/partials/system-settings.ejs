@@ -23,35 +23,70 @@
             <div class="settings-body">
                 <div class="settings-panel" data-settings-panel="profile" data-panel="profile">
                     <div class="profile-avatar-row">
-                        <div id="profile-avatar-preview" class="profile-avatar-preview" aria-hidden="true">
-                            <img class="app-icon profile-avatar-fallback" src="/client/shared/assets/Icons/profile.svg" alt="">
-                        </div>
+                        <button type="button" id="profile-avatar-preview" class="profile-avatar-preview" aria-label="Upload new profile picture">
+                            <img class="app-icon profile-avatar-fallback" src="/client/shared/assets/Icons/profile.svg" alt="" aria-hidden="true">
+                        </button>
                         <div class="profile-avatar-controls">
-                            <label class="setting-file-btn" for="profile-avatar-input">Change picture</label>
-                            <input id="profile-avatar-input" class="hidden" type="file" accept="image/*">
-                            <button type="button" id="remove-avatar-btn" class="setting-action-btn neutral"><span class="ui-btn-label">Remove</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                            <button type="button" id="upload-avatar-btn" class="setting-file-btn"><span class="ui-btn-label">Upload</span><img class="app-icon" src="/client/shared/assets/Icons/upload.svg" alt="" aria-hidden="true"></button>
+                            <input id="profile-avatar-input" class="hidden" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+                            <button type="button" id="remove-avatar-btn" class="setting-action-btn danger"><span class="ui-btn-label">Remove</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
                         </div>
                     </div>
 
-                    <div class="setting-row">
-                        <div class="setting-labels">Name</div>
-                        <input type="text" id="account-name-input" class="setting-account-input">
-                    </div>
+                    <section class="profile-settings-group" aria-labelledby="profile-personal-heading">
+                        <h4 id="profile-personal-heading" class="profile-settings-group-title">Personal information</h4>
 
-                    <div class="setting-row">
-                        <div class="setting-labels">Age</div>
-                        <input type="number" id="account-age-input" class="setting-account-input" min="13" max="120" inputmode="numeric">
-                    </div>
+                        <div class="setting-row">
+                            <div class="setting-labels">Name</div>
+                            <input type="text" id="account-name-input" class="setting-account-input">
+                        </div>
 
-                    <div class="setting-row">
-                        <div class="setting-labels">Semester</div>
-                        <input type="text" id="account-semester-input" class="setting-account-input">
-                    </div>
+                        <div class="setting-row">
+                            <div class="setting-labels">Age</div>
+                            <input type="number" id="account-age-input" class="setting-account-input" min="13" max="120" inputmode="numeric">
+                        </div>
 
-                    <div class="setting-row">
-                        <div class="setting-labels">Email</div>
-                        <input type="email" id="account-email-input" class="setting-account-input">
-                    </div>
+                        <div class="setting-row">
+                            <div class="setting-labels">Email</div>
+                            <input type="email" id="account-email-input" class="setting-account-input">
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-labels">Location</div>
+                            <input type="text" id="account-location-input" class="setting-account-input">
+                        </div>
+                    </section>
+
+                    <section class="profile-settings-group" aria-labelledby="profile-academic-heading">
+                        <h4 id="profile-academic-heading" class="profile-settings-group-title">Academic information</h4>
+
+                        <div class="setting-row">
+                            <div class="setting-labels">University</div>
+                            <input type="text" id="account-university-input" class="setting-account-input">
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-labels">Degree</div>
+                            <input type="text" id="account-degree-input" class="setting-account-input">
+                        </div>
+
+                        <div class="setting-row profile-year-row">
+                            <div class="setting-labels">Year level</div>
+                            <div class="year-level-options" role="group" aria-label="Year level">
+                                <button type="button" class="year-level-option" data-year-level="N/A">N/A</button>
+                                <button type="button" class="year-level-option" data-year-level="1st year">1st year</button>
+                                <button type="button" class="year-level-option" data-year-level="2nd year">2nd year</button>
+                                <button type="button" class="year-level-option" data-year-level="3rd year">3rd year</button>
+                                <button type="button" class="year-level-option" data-year-level="4th year">4th year</button>
+                                <button type="button" class="year-level-option" data-year-level="5th year">5th year</button>
+                            </div>
+                        </div>
+
+                        <div class="setting-row">
+                            <div class="setting-labels">Semester</div>
+                            <input type="text" id="account-semester-input" class="setting-account-input">
+                        </div>
+                    </section>
 
                     <div class="setting-row">
                         <div class="setting-labels">Save profile details</div>

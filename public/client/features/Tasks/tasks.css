@@ -9,9 +9,9 @@
 @import url("/client/shared/styles/components.css");
 
 :root {
-    --tasks-surface: rgb(255, 255, 255);
-    --tasks-surface-border: #ddd;
-    --tasks-grid-line: rgba(0, 0, 0, 0.12);
+    --tasks-surface: var(--color-task-surface);
+    --tasks-surface-border: var(--color-task-surface-border);
+    --tasks-grid-line: var(--color-task-grid-line);
     --tasks-time-col: 68px;
     --tasks-slot-height: 132px;
     --tasks-month-day-height: 56px;
@@ -51,14 +51,14 @@ ul {
 /* NAVBAR */
 
 h1 {
-    color: black;
+    color: var(--color-text-heading);
     font-family: "Manrope";
     font-size: 36px;
     font-weight: 700;
 }
 
 h2 {
-    color: black;
+    color: var(--color-text-heading);
     font-family: "Manrope";
     font-size: 28px;
     font-weight: 600;
@@ -110,8 +110,7 @@ h2 {
 }
 
 /* Week View */
-.tasks-summary-strip,
-.tasks-summary-panel {
+.tasks-summary-strip {
     display: grid;
     grid-template-columns: minmax(150px, 0.5fr) minmax(0, 1.8fr);
     gap: 14px;
@@ -119,8 +118,8 @@ h2 {
     text-align: left;
     min-width: 0;
     max-width: 100%;
-    background: rgba(77, 159, 255, 0.08);
-    border: 1px solid rgba(2, 30, 80, 0.14);
+    background: var(--color-task-summary-bg);
+    border: 1px solid var(--color-task-summary-border);
     border-radius: 8px;
     padding: 12px 14px;
     box-sizing: border-box;
@@ -135,16 +134,11 @@ h2 {
     transform: translateX(-10px);
 }
 
-.tasks-summary-panel {
-    margin-bottom: 12px;
-    grid-template-columns: 1fr;
-}
-
 .tasks-summary-heading h3 {
     margin: 0;
     font-size: 20px;
     font-weight: 800;
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 .tasks-summary-heading {
@@ -156,7 +150,7 @@ h2 {
     font-family: "Noto Sans";
     font-size: 14px;
     font-weight: 700;
-    color: rgba(15, 15, 16, 0.68);
+    color: var(--color-task-summary-copy);
 }
 
 .tasks-summary-metrics {
@@ -165,10 +159,6 @@ h2 {
     gap: 10px;
     min-width: 0;
     align-items: stretch;
-}
-
-.tasks-summary-panel .tasks-summary-metrics {
-    grid-template-columns: 1fr;
 }
 
 .tasks-summary-group {
@@ -185,7 +175,7 @@ h2 {
     font-family: "Noto Sans";
     font-size: 10px;
     font-weight: 900;
-    color: rgba(15, 15, 16, 0.58);
+    color: var(--color-task-summary-label);
     text-transform: uppercase;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -203,19 +193,11 @@ h2 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.tasks-summary-panel .tasks-summary-group-metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.tasks-summary-panel .tasks-summary-group:last-child .tasks-summary-group-metrics {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .tasks-summary-metric {
     min-width: 0;
-    border: 1px solid rgba(2, 30, 80, 0.12);
+    border: 1px solid var(--color-task-grid-line);
     border-radius: 7px;
-    background: rgba(255, 255, 255, 0.72);
+    background: var(--color-task-summary-card-bg);
     padding: 8px 10px;
     display: grid;
     gap: 2px;
@@ -225,7 +207,7 @@ h2 {
     font-size: 18px;
     font-weight: 800;
     line-height: 1;
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 .tasks-summary-metric span {
@@ -233,15 +215,15 @@ h2 {
     font-family: "Noto Sans";
     font-size: 11px;
     font-weight: 800;
-    color: rgba(15, 15, 16, 0.64);
+    color: var(--color-task-summary-metric-copy);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 .tasks-summary-metric.is-total {
-    background: var(--color-primary-subtle);
-    border-color: rgba(2, 30, 80, 0.28);
+    background: var(--color-accent-primary-subtle);
+    border-color: var(--color-border-panel-strong);
 }
 
 .tasks-summary-metric.priority-high {
@@ -271,7 +253,7 @@ h2 {
     width: 36px;
     height: calc(100% - 4px);
     pointer-events: none;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(17, 17, 17, 0.09));
+    background: var(--color-task-scroll-hint);
 }
 
 .tasks-week-board {
@@ -305,9 +287,9 @@ h2 {
 .tasks-day-column {
     min-width: 180px;
     min-height: 520px;
-    border: 1px solid rgba(2, 30, 80, 0.16);
+    border: 1px solid var(--color-border-panel-soft);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.78);
+    background: var(--color-task-column-bg);
     padding: 12px;
     box-sizing: border-box;
     display: grid;
@@ -317,7 +299,7 @@ h2 {
 
 .tasks-day-column.today {
     border-color: var(--color-border-strong);
-    box-shadow: inset 0 0 0 1px rgba(77, 159, 255, 0.45);
+    box-shadow: inset 0 0 0 1px var(--color-accent-primary-ring);
 }
 
 .tasks-day-header {
@@ -336,27 +318,27 @@ h2 {
     font-family: "Noto Sans";
     font-size: 12px;
     font-weight: 800;
-    color: rgba(15, 15, 16, 0.62);
+    color: var(--color-text-muted-soft);
     text-transform: uppercase;
 }
 
 .tasks-day-date {
     font-size: 18px;
     font-weight: 800;
-    color: var(--color-text);
+    color: var(--color-text-primary);
     line-height: 1.1;
 }
 
 .tasks-day-count {
     border-radius: 999px;
-    background: var(--color-primary-subtle);
-    border: 1px solid rgba(2, 30, 80, 0.18);
+    background: var(--color-accent-primary-subtle);
+    border: 1px solid var(--color-task-count-border);
     padding: 4px 8px;
     font-family: "Noto Sans";
     font-size: 11px;
     font-weight: 800;
     white-space: nowrap;
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 .tasks-day-tools {
@@ -367,10 +349,10 @@ h2 {
 .tasks-day-add-btn {
     width: 100%;
     min-height: 34px;
-    border: 1px solid rgba(2, 30, 80, 0.22);
+    border: 1px solid var(--color-task-empty-border);
     border-radius: 7px;
-    background: rgba(77, 159, 255, 0.16);
-    color: var(--color-text);
+    background: var(--color-task-add-bg);
+    color: var(--color-text-primary);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -382,7 +364,7 @@ h2 {
 }
 
 .tasks-day-add-btn:hover {
-    background: var(--color-primary-subtle);
+    background: var(--color-accent-primary-subtle);
 }
 
 .tasks-day-add-btn .app-icon {
@@ -399,10 +381,10 @@ h2 {
 .tasks-filter-btn {
     min-width: 0;
     min-height: 28px;
-    border: 1px solid rgba(2, 30, 80, 0.16);
+    border: 1px solid var(--color-border-panel-soft);
     border-radius: 6px;
-    background: rgba(255, 255, 255, 0.68);
-    color: var(--color-text);
+    background: var(--color-task-filter-bg);
+    color: var(--color-text-primary);
     font-family: "Noto Sans";
     font-size: 10px;
     font-weight: 800;
@@ -412,7 +394,7 @@ h2 {
 
 .tasks-filter-btn:hover,
 .tasks-filter-btn.active {
-    background: var(--color-primary-subtle);
+    background: var(--color-accent-primary-subtle);
     border-color: var(--color-border-focus);
 }
 
@@ -428,13 +410,13 @@ h2 {
 
 .tasks-day-empty {
     margin: 0;
-    border: 1px dashed rgba(2, 30, 80, 0.22);
+    border: 1px dashed var(--color-task-empty-border);
     border-radius: 7px;
     padding: 14px 10px;
     font-family: "Noto Sans";
     font-size: 12px;
     font-weight: 700;
-    color: rgba(15, 15, 16, 0.58);
+    color: var(--color-task-empty-text);
     text-align: center;
 }
 
@@ -442,7 +424,7 @@ h2 {
     position: static;
     width: 100%;
     border-radius: 7px;
-    border: 1px solid rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--color-task-card-border);
     font-size: 12px;
     font-weight: 700;
     text-align: left;
@@ -452,7 +434,7 @@ h2 {
     gap: 5px;
     cursor: pointer;
     line-height: 1.25;
-    color: #111;
+    color: var(--color-task-card-text);
 }
 
 .task-card:hover {
@@ -494,59 +476,28 @@ h2 {
 }
 
 .task-card.priority-high {
-    background: var(--color-priority-high);
+    background: var(--color-priority-high-fill);
     border-left: 4px solid var(--color-priority-high-border);
 }
 
 .task-card.priority-medium {
-    background: var(--color-priority-medium);
+    background: var(--color-priority-medium-fill);
     border-left: 4px solid var(--color-priority-medium-border);
 }
 
 .task-card.priority-low {
-    background: var(--color-priority-low);
+    background: var(--color-priority-low-fill);
     border-left: 4px solid var(--color-priority-low-border);
 }
 
 .task-card.is-completed {
-    background: rgba(210, 216, 228, 0.92);
-    border-left-color: rgba(17, 17, 17, 0.4);
+    background: var(--color-task-complete-bg);
+    border-left-color: var(--color-task-complete-border);
     opacity: 0.78;
 }
 
 .task-card.is-completed .task-card-title {
     text-decoration: line-through;
-}
-
-.tbd-chip {
-    width: 100%;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    border-radius: 6px;
-    background: var(--color-today);
-    font-size: 11px;
-    font-weight: 700;
-    text-align: left;
-    padding: 2px 5px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.tbd-chip:hover {
-    background-color: var(--color-task-tbd-hover);
-}
-
-.tbd-chip.is-completed {
-    opacity: 0.72;
-    text-decoration: line-through;
-}
-
-.tbd-more {
-    font-size: 11px;
-    font-weight: 700;
-    opacity: 0.75;
-    text-align: left;
 }
 
 /* Month view shell */
@@ -567,7 +518,7 @@ h2 {
 .tasks-month-agenda {
     background: var(--color-scroll-fade-start);
     border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-task-month-day-border);
     padding: 10px;
     box-sizing: border-box;
 }
@@ -580,8 +531,8 @@ h2 {
     display: grid;
     gap: 12px;
     text-align: left;
-    background: rgba(77, 159, 255, 0.08);
-    border: 1px solid rgba(2, 30, 80, 0.14);
+    background: var(--color-task-summary-bg);
+    border: 1px solid var(--color-task-summary-border);
     border-radius: 8px;
     padding: 14px;
     box-sizing: border-box;
@@ -647,10 +598,10 @@ h2 {
 }
 
 .tasks-month-day {
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--color-task-month-day-border);
     border-radius: 6px;
     min-height: var(--tasks-month-day-height);
-    background: var(--color-primary-subtle);
+    background: var(--color-accent-primary-subtle);
     font-weight: 700;
     cursor: pointer;
     text-align: left;
@@ -665,8 +616,8 @@ h2 {
 }
 
 .tasks-month-day.today {
-    border-color: black;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.65);
+    border-color: var(--color-task-month-today-border);
+    box-shadow: inset 0 0 0 1px var(--color-task-month-today-ring);
 }
 
 .tasks-month-day.selected {
@@ -727,8 +678,8 @@ h2 {
 
 .tasks-month-tbd-lane.is-drop-target,
 .month-slot.is-drop-target {
-    background: rgba(77, 159, 255, 0.12);
-    box-shadow: inset 0 0 0 2px var(--color-today);
+    background: var(--color-accent-primary-subtle);
+    box-shadow: inset 0 0 0 2px var(--color-calendar-today);
 }
 
 .tasks-month-body {
@@ -775,13 +726,13 @@ h2 {
 .month-tbd-empty {
     margin: 0;
     min-height: 20px;
-    border: 1px dashed rgba(2, 30, 80, 0.24);
+    border: 1px dashed var(--color-task-month-empty-border);
     border-radius: 6px;
     padding: 10px;
     font-family: "Noto Sans";
     font-size: 12px;
     font-weight: 800;
-    color: rgba(15, 15, 16, 0.62);
+    color: var(--color-text-muted-soft);
     text-align: center;
     display: grid;
     place-items: center;
@@ -792,7 +743,7 @@ h2 {
 #modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--color-overlay-backdrop);
     z-index: 9;
 }
 
@@ -803,10 +754,10 @@ h2 {
     transform: translate(-50%, -50%);
     width: 360px;
     font-family: "Noto Sans";
-    background: white;
+    background: var(--color-surface-modal);
     border-radius: 12px;
     padding: 16px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-modal);
     z-index: 10;
     text-align: left;
 }
@@ -831,7 +782,7 @@ h2 {
     margin: 0;
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
 }
 
@@ -840,7 +791,7 @@ h2 {
     max-width: 100%;
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
 }
 
@@ -849,11 +800,11 @@ h2 {
     max-width: 100%;
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border-input);
     font-family: "Noto Sans";
     appearance: none;
-    background: white;
-    color: #111;
+    background-color: var(--color-surface-input);
+    color: var(--color-text-strong);
 }
 
 #task-time:focus {
@@ -862,7 +813,7 @@ h2 {
 }
 
 #task-time::-webkit-calendar-picker-indicator {
-    opacity: 0.75;
+    opacity: 0;
     cursor: pointer;
 }
 
@@ -893,51 +844,6 @@ h2 {
     display: flex;
     justify-content: space-between;
     gap: 12px;
-}
-
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 25px;
-    margin-right: 10px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    inset: 0;
-    background: #cfcfcf;
-    border-radius: 999px;
-    transition: 0.2s ease;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
-}
-
-.slider::before {
-    content: "";
-    position: absolute;
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    top: 3px;
-    background: #fff;
-    border-radius: 50%;
-    transition: 0.2s ease;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-}
-
-.switch input:checked + .slider {
-    background: var(--color-primary-active);
-}
-
-.switch input:checked + .slider::before {
-    transform: translateX(17px);
 }
 
 @media (max-width: 1200px) {
@@ -982,14 +888,11 @@ h2 {
         font-size: 28px;
     }
 
-    .tasks-summary-metrics,
-    .tasks-summary-panel .tasks-summary-metrics {
+    .tasks-summary-metrics {
         grid-template-columns: 1fr;
     }
 
     .tasks-summary-group-metrics,
-    .tasks-summary-panel .tasks-summary-group-metrics,
-    .tasks-summary-panel .tasks-summary-group:last-child .tasks-summary-group-metrics,
     .tasks-month-summary-panel .tasks-summary-group-metrics,
     .tasks-month-summary-panel .tasks-summary-group:last-child .tasks-summary-group-metrics {
         grid-template-columns: repeat(2, minmax(0, 1fr));

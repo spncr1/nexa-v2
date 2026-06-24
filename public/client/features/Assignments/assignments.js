@@ -69,8 +69,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const DEFAULT_ASSIGNMENT_SORT = { key: "dueDate", direction: "asc" };
     const EMPTY_COPY = {
         assignments: "Add your first assignment and start seeing the workload.",
-        subjects: "Add a subject and give your work a home.",
-        subjectDropdown: "Add a subject first to give this assignment a home.",
+        subjects: "Add a subject now. Give your work a home.",
+        subjectDropdown: "You must add a subject first.",
         filter: "Nothing in this view. Clear the filter to widen the picture.",
         description: "No extra notes yet. Add the useful bits."
     };
@@ -397,10 +397,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function getReminderTone(assignment, daysUntil) {
-        const priority = (assignment?.priority || "").toLowerCase();
-
         if (daysUntil < 0 || daysUntil <= 3) return "critical";
-        if (daysUntil <= 7 || priority === "high") return "important";
+        if (daysUntil <= 7) return "important";
         if (daysUntil <= 14) return "watch";
         return "neutral";
     }
@@ -415,13 +413,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     function formatReminderBadge(daysUntil) {
         if (daysUntil < 0) return "Overdue";
         return `${daysUntil}d`;
-    }
-
-    function priorityRankByTone(tone) {
-        if (tone === "critical") return 3;
-        if (tone === "important") return 2;
-        if (tone === "watch") return 1;
-        return 0;
     }
 
     function isHighPriorityAssignment(assignment) {
@@ -683,11 +674,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return daysUntil < 0 || daysUntil <= 14 || (isHighPriorityAssignment(assignment) && daysUntil <= 30);
             })
             .sort((a, b) => {
-                const aDaysUntil = getDaysUntil(a.dueDateObj, today);
-                const bDaysUntil = getDaysUntil(b.dueDateObj, today);
-                const toneDiff = priorityRankByTone(getReminderTone(b, bDaysUntil)) - priorityRankByTone(getReminderTone(a, aDaysUntil));
-                if (toneDiff !== 0) return toneDiff;
-
                 const dueDateDiff = a.dueDateObj - b.dueDateObj;
                 if (dueDateDiff !== 0) return dueDateDiff;
 
@@ -1210,6 +1196,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 circle.setAttribute("cx", radius);
                 circle.setAttribute("cy", radius);
                 circle.setAttribute("r", radius);
+                // Intentional chart colour: generated per slice, not tokenised.
                 circle.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
                 circle.classList.add("pie-slice");
                 circle.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
@@ -1229,6 +1216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
                     Z`
                 );
+                // Intentional chart colour: generated per slice, not tokenised.
                 path.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
                 path.classList.add("pie-slice");
                 path.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
@@ -1358,7 +1346,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function getSubjectColour(i) {
-        // Stable, readable colours (repeat safely)
+        // Intentional chart colours: no approved token mapping for this generated palette.
         const palette = [
             "hsl(210, 70%, 55%)",
             "hsl(120, 70%, 50%)",
@@ -1589,19 +1577,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function coloursForStatus(key) {
-    // simple, readable palette
-    if (key === "completed") return "#2ecc71";
-    if (key === "in-progress") return "#f1c40f";
-    if (key === "not-started") return "#e74c3c";
-    return "#7f8c8d";
+    if (key === "completed") return "var(--color-status-complete)";
+    if (key === "in-progress") return "var(--color-status-progress)";
+    if (key === "not-started") return "var(--color-status-danger)";
+    return "var(--grey-status)";
     }
 
     function coloursForPriority(key) {
-    // simple, readable palette
-    if (key === "low") return "#2ecc71";
-    if (key === "medium") return "#f1c40f";
-    if (key === "high") return "#e74c3c";
-    return "#7f8c8d";
+    if (key === "low") return "var(--color-status-complete)";
+    if (key === "medium") return "var(--color-status-progress)";
+    if (key === "high") return "var(--color-status-danger)";
+    return "var(--grey-status)";
     }
 
     function dashboardTooltipNote(filterType, key) {

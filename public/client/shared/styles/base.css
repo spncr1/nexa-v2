@@ -14,7 +14,7 @@ body {
     width: 100%;
     overscroll-behavior: none;
     background: var(--color-bg);
-    color: var(--color-text);
+    color: var(--color-text-primary);
     font-family: "Manrope", sans-serif;
 }
 
@@ -43,7 +43,7 @@ ul {
 h1,
 h2,
 h3 {
-    color: var(--color-text);
+    color: var(--color-text-primary);
     font-family: "Manrope", sans-serif;
 }
 
@@ -59,7 +59,7 @@ h3 {
     --nav-collapsed-target-size: 46px;
     --nav-collapsed-icon-offset-y: 0px;
     width: var(--nav-width, 220px);
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border-standard);
     padding: 16px;
     align-self: stretch;
     margin-top: 0;
@@ -79,7 +79,7 @@ body.nav-collapsing .navbar {
     gap: 16px;
     min-height: 52px;
     padding-bottom: 14px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-standard);
     padding-left: 14px;
     box-sizing: border-box;
 }
@@ -100,7 +100,7 @@ body.nav-collapsing .navbar {
 }
 
 .nav-title {
-    color: black;
+    color: var(--color-text-heading);
     font-family: "Manrope", sans-serif;
     font-size: 31px;
     font-weight: 800;
@@ -130,7 +130,7 @@ body.nav-collapsing .navbar {
     width: 100%;
     min-height: 32px;
     padding: 2px 10px;
-    color: black;
+    color: var(--color-text-heading);
     font-weight: 800;
     cursor: pointer;
     list-style: none;
@@ -144,7 +144,7 @@ body.nav-collapsing .navbar {
 }
 
 .nav-group summary:hover {
-    background: var(--color-primary-hover);
+    background: var(--color-accent-primary-hover);
 }
 
 .navbar .nav-submenu {
@@ -166,17 +166,17 @@ body.nav-collapsing .navbar {
     align-items: center;
     padding: 2px 10px;
     text-decoration: none;
-    color: black;
+    color: var(--color-text-heading);
     box-sizing: border-box;
     position: relative;
 }
 
 .navbar a:hover {
-    background: var(--color-primary-hover);
+    background: var(--color-accent-primary-hover);
 }
 
 .navbar a.active {
-    background: var(--color-primary-active);
+    background: var(--color-accent-primary-hover);
     font-weight: 700;
 }
 
@@ -299,7 +299,7 @@ body.nav-collapsing .navbar {
     min-height: 30px;
     padding: 6px 12px;
     border-radius: 6px;
-    border: 2px solid black;
+    border: 2px solid var(--color-text-heading);
     box-sizing: border-box;
     font-family: inherit;
     font-size: 14px;
@@ -310,19 +310,87 @@ body.nav-collapsing .navbar {
 
 .btn-secondary {
     background-color: var(--color-panel);
-    color: black;
+    color: var(--color-text-heading);
 }
 
 .btn-secondary:hover {
-    background-color: var(--color-control-hover);
-    border-color: grey;
-    color: black;
+    background-color: var(--color-control-bg);
+    border-color: var(--color-control-today-border);
+    color: var(--color-text-heading);
+}
+
+.btn-secondary.is-danger {
+    background: var(--color-action-destructive-bg);
+    border-color: var(--color-action-destructive-border);
+    color: var(--color-text-inverse);
+}
+
+.btn-secondary.is-danger:hover,
+.btn-secondary.is-danger:focus-visible {
+    background: var(--color-action-destructive-bg-hover);
+    border-color: var(--color-action-destructive-border-hover);
+    color: var(--color-text-inverse);
+}
+
+.btn-secondary.is-success {
+    background: var(--color-action-confirm-bg);
+    border-color: var(--color-action-confirm-border);
+    color: var(--color-text-inverse);
+}
+
+.btn-secondary.is-success:hover,
+.btn-secondary.is-success:focus-visible {
+    background: var(--color-action-confirm-bg-hover);
+    border-color: var(--color-action-confirm-border-hover);
+    color: var(--color-text-inverse);
+}
+
+.btn-secondary.is-neutral {
+    background: var(--color-action-neutral);
+    border-color: var(--color-action-neutral-border);
+    color: var(--color-text-inverse);
+}
+
+.btn-secondary.is-neutral:hover,
+.btn-secondary.is-neutral:focus-visible {
+    background: var(--color-action-neutral);
+    border-color: var(--color-border-active);
+    color: var(--color-text-inverse);
+    filter: brightness(1.08);
 }
 
 .btn-secondary .app-icon,
 .setting-action-btn .app-icon {
     width: 16px;
     height: 16px;
+}
+
+.btn-secondary.is-danger .app-icon,
+.btn-secondary.is-success .app-icon,
+.btn-secondary.is-neutral .app-icon {
+    filter: invert(1);
+}
+
+input[type="date"],
+input[type="time"] {
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px 18px;
+    padding-right: 42px;
+}
+
+input[type="date"] {
+    background-image: url("/client/shared/assets/Icons/calendar-picker.svg");
+}
+
+input[type="time"] {
+    background-image: url("/client/shared/assets/Icons/time-picker.svg");
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0;
 }
 
 button:disabled,
@@ -336,7 +404,7 @@ textarea:disabled,
 .setting-action-btn {
     margin-right: 10px;
     border: 1px solid transparent;
-    color: #fff;
+    color: var(--color-text-inverse);
     transition: transform 0.2s ease, filter 0.2s ease;
 }
 
@@ -346,18 +414,18 @@ textarea:disabled,
 }
 
 .setting-action-btn.danger {
-    background: #d84c4c;
-    border-color: #b63b3b;
+    background: var(--color-action-danger);
+    border-color: var(--color-action-danger-border);
 }
 
 .setting-action-btn.success {
-    background: #2f9a4a;
-    border-color: #227738;
+    background: var(--color-action-success);
+    border-color: var(--color-action-success-border);
 }
 
 .setting-action-btn.neutral {
-    background: #2f5d9a;
-    border-color: #132a4896;
+    background: var(--color-action-neutral);
+    border-color: var(--color-action-neutral-border);
 }
 
 .setting-action-btn .app-icon {
@@ -368,18 +436,18 @@ textarea:disabled,
 #today-btn {
     font-size: 20px;
     border-radius: 5px;
-    background-color: black;
-    border: 2px solid grey;
-    color: white;
+    background-color: var(--color-control-today-bg);
+    border: 2px solid var(--color-control-today-border);
+    color: var(--color-text-inverse);
     width: 100px;
     height: 38px;
     cursor: pointer;
 }
 
 #today-btn:hover {
-    background-color: var(--color-control-hover);
-    border-color: black;
-    color: black;
+    background-color: var(--color-control-bg);
+    border-color: var(--color-text-heading);
+    color: var(--color-text-heading);
 }
 
 /*
@@ -450,8 +518,8 @@ body.nav-collapsed .nav-group summary::after {
     max-width: 140px;
     padding: 7px 9px;
     border-radius: 8px;
-    background: #24242a;
-    color: #fff;
+    background: var(--color-control-tooltip);
+    color: var(--color-text-inverse);
     font-family: "Noto Sans";
     font-size: 12px;
     font-weight: 800;
@@ -472,7 +540,7 @@ body.nav-collapsed .nav-group summary::before {
     transform: translateY(-50%) translateX(-4px) rotate(45deg);
     width: 8px;
     height: 8px;
-    background: #24242a;
+    background: var(--color-control-tooltip);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.14s ease, transform 0.14s ease;
@@ -547,12 +615,12 @@ body.nav-collapsed .nav-summary-icon {
 
 body.nav-collapsed .navbar a:hover,
 body.nav-collapsed .nav-group summary:hover {
-    background: var(--color-primary-hover);
+    background: var(--color-accent-primary-hover);
 }
 
 body.nav-collapsed .navbar a.active,
 body.nav-collapsed .nav-group summary.active {
-    background: var(--color-primary-active);
+    background: var(--color-accent-primary-hover);
 }
 
 body.nav-collapsed .nav-group[open] .nav-submenu {
@@ -599,7 +667,7 @@ body.nav-collapsed .menu-toggle {
     position: fixed;
     bottom: 50px;
     right: auto;
-    background: rgb(245, 245, 245);
+    background: var(--color-surface-floating);
     border-radius: 8px;
     left: var(--settings-nav-expanded-center);
     transform: translateX(-50%);
@@ -650,7 +718,7 @@ body.nav-collapsed .settings-navbar-actions {
 
 .settings-navbar-button:hover .settings-navbar-icon-hover,
 .settings-navbar-button:focus-visible .settings-navbar-icon-hover {
-    background: rgba(17, 17, 18, 0.08);
+    background: var(--color-control-highlight);
 }
 
 .settings-navbar-button::after {
@@ -663,8 +731,8 @@ body.nav-collapsed .settings-navbar-actions {
     max-width: 140px;
     padding: 7px 9px;
     border-radius: 8px;
-    background: #24242a;
-    color: #fff;
+    background: var(--color-control-tooltip);
+    color: var(--color-text-inverse);
     font-family: "Noto Sans";
     font-size: 12px;
     font-weight: 800;
@@ -684,7 +752,7 @@ body.nav-collapsed .settings-navbar-actions {
     width: 8px;
     height: 8px;
     transform: translateX(-50%) translateY(4px) rotate(45deg);
-    background: #24242a;
+    background: var(--color-control-tooltip);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.16s ease, transform 0.16s ease;
@@ -732,7 +800,7 @@ body.nav-collapsed .settings-navbar-button:focus-visible::before {
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: rgba(95, 132, 179, 0.28);
+    background: var(--color-profile-avatar-bg);
     background-size: cover;
     background-position: center;
     overflow: hidden;
@@ -794,7 +862,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
 #settings-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--color-overlay-backdrop);
     z-index: 2100;
 }
 
@@ -806,10 +874,10 @@ body.settings-modal-open .settings-navbar-icon-hover {
     width: min(620px, 92vw);
     max-height: min(720px, 88vh);
     font-family: "Noto Sans";
-    background: white;
+    background: var(--color-surface-modal);
     border-radius: 12px;
     padding: 0;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-modal);
     z-index: 2200;
     text-align: left;
     overflow: auto;
@@ -837,9 +905,9 @@ body.settings-modal-open .settings-navbar-icon-hover {
 
 .settings-close-btn:hover,
 .settings-close-btn:focus-visible {
-    background: #e9ebf4;
+    background: var(--color-surface-close-hover);
     transform: translateY(-1px);
-    border-color: rgba(20, 22, 30, 0.24);
+    border-color: var(--color-border-close-hover);
 }
 
 .settings-close-btn .app-icon {
@@ -860,9 +928,9 @@ body.settings-modal-open .settings-navbar-icon-hover {
 }
 
 .settings-sidebar {
-    border-right: 1px solid #ddd;
+    border-right: 1px solid var(--color-border-standard);
     padding: 12px;
-    background: #f7f7f7;
+    background: var(--color-surface-sidebar);
 }
 
 .settings-sidebar-title {
@@ -883,8 +951,8 @@ body.settings-modal-open .settings-navbar-icon-hover {
 .settings-nav {
     width: 100%;
     text-align: left;
-    border: 1px solid #ccc;
-    background: white;
+    border: 1px solid var(--color-border-input);
+    background: var(--color-surface-input);
     border-radius: 8px;
     padding: 8px 10px;
     cursor: pointer;
@@ -899,7 +967,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
 }
 
 .settings-nav.active {
-    border-color: #111;
+    border-color: var(--color-border-active);
     font-weight: 700;
 }
 
@@ -909,7 +977,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
     padding-bottom: 10px;
     padding-left: 16px;
     margin-bottom: 12px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--color-border-standard);
 }
 
 .settings-brand-logo {
@@ -978,7 +1046,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
     max-width: 100%;
     padding: 7px 10px;
     border-radius: 8px;
-    border: 1px solid #b9b9b9;
+    border: 1px solid var(--color-border-field);
     font-family: inherit;
     font-size: 13px;
     margin-right: 10px;
@@ -986,16 +1054,31 @@ body.settings-modal-open .settings-navbar-icon-hover {
 }
 
 .profile-avatar-row {
-    display: flex;
+    display: grid;
     align-items: center;
-    gap: 14px;
-    margin: 6px 16px 14px 10px;
+    justify-items: center;
+    gap: 12px;
+    margin: 6px 16px 18px 10px;
 }
 
 .profile-avatar-preview {
+    appearance: none;
+    -webkit-appearance: none;
+    display: grid;
+    place-items: center;
     width: 72px;
     height: 72px;
-    border: 2px solid rgba(95, 132, 179, 0.45);
+    padding: 0;
+    border: 2px solid var(--color-profile-avatar-border);
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, filter 0.16s ease;
+}
+
+.profile-avatar-preview:hover,
+.profile-avatar-preview:focus-visible {
+    border-color: var(--color-accent-primary-hover);
+    filter: brightness(1.04);
+    transform: translateY(-1px);
 }
 
 .profile-avatar-preview .app-icon {
@@ -1004,21 +1087,34 @@ body.settings-modal-open .settings-navbar-icon-hover {
 }
 
 .profile-avatar-controls {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    --profile-avatar-action-width: 6rem;
+    display: grid;
+    align-items: start;
+    justify-items: start;
     gap: 8px;
+}
+
+.profile-avatar-controls .setting-file-btn,
+.profile-avatar-controls .setting-action-btn {
+    justify-content: center;
+    width: var(--profile-avatar-action-width);
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
 }
 
 .setting-file-btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    gap: 8px;
     min-height: 30px;
     padding: 6px 12px;
-    border: 1px solid #132a4896;
+    border: 1px solid var(--color-action-neutral-border);
     border-radius: 6px;
-    background: #2f5d9a;
-    color: #fff;
+    background: var(--color-action-neutral);
+    color: var(--color-text-inverse);
+    font-family: inherit;
     font-size: 14px;
     font-weight: 800;
     line-height: 1;
@@ -1030,6 +1126,71 @@ body.settings-modal-open .settings-navbar-icon-hover {
 .setting-file-btn:hover {
     transform: scale(1.03);
     filter: brightness(1.15);
+}
+
+.setting-file-btn .app-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    filter: invert(1);
+    order: 2;
+}
+
+#remove-avatar-btn {
+    margin: 0;
+}
+
+.profile-settings-group {
+    display: grid;
+    gap: 10px;
+    margin: 16px 18px 0 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border-panel);
+}
+
+.profile-settings-group-title {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: "Manrope", sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: left;
+}
+
+.year-level-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.year-level-option {
+    appearance: none;
+    -webkit-appearance: none;
+    min-height: 30px;
+    padding: 6px 10px;
+    border: 1px solid var(--color-border-input);
+    border-radius: 8px;
+    background: var(--color-surface-input);
+    color: var(--color-text-primary);
+    font-family: "Noto Sans";
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.year-level-option:hover,
+.year-level-option:focus-visible {
+    border-color: var(--color-accent-primary-hover);
+    transform: translateY(-1px);
+}
+
+.year-level-option.active {
+    border-color: var(--color-border-active);
+    background: var(--color-accent-primary-hover);
 }
 
 .settings-toggle {
@@ -1050,7 +1211,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
     position: absolute;
     inset: 0;
     border-radius: 999px;
-    background: #c9ced8;
+    background: var(--color-control-toggle);
     cursor: pointer;
     box-sizing: border-box;
     transition: background 0.2s ease;
@@ -1064,13 +1225,13 @@ body.settings-modal-open .settings-navbar-icon-hover {
     left: 3px;
     top: 3px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--color-surface);
     transition: transform 0.2s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+    box-shadow: 0 2px 8px var(--color-shadow-toggle);
 }
 
 .settings-toggle input:checked + span {
-    background: var(--color-primary-active);
+    background: var(--color-accent-primary-hover);
 }
 
 .settings-toggle input:checked + span::before {
@@ -1101,7 +1262,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
 
     .settings-sidebar {
         border-right: 0;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-border-standard);
     }
 
     .settings-sidebar-list {
@@ -1130,6 +1291,25 @@ body.settings-modal-open .settings-navbar-icon-hover {
 
     .settings-toggle {
         margin-left: 10px;
+    }
+
+    #profile-settings-modal .profile-avatar-row {
+        align-items: center;
+        justify-items: center;
+        margin: 0.75rem 0 1rem;
+    }
+
+    #profile-settings-modal .profile-avatar-controls {
+        justify-items: center;
+    }
+
+    #profile-settings-modal .settings-panel[data-panel="profile"] .setting-account-input {
+        width: min(14rem, 62vw);
+        margin: 0;
+    }
+
+    .profile-settings-group {
+        margin: 0.95rem 0 0;
     }
 
     #system-settings-modal .setting-row {
@@ -1189,7 +1369,9 @@ body.settings-modal-open .settings-navbar-icon-hover {
     }
 
     #system-settings-modal .settings-panel[data-panel="data"] .setting-action-btn,
-    #profile-settings-modal .settings-panel[data-panel="account"] .setting-action-btn {
+    #profile-settings-modal .settings-panel[data-panel="account"] .setting-action-btn,
+    #save-profile-btn,
+    #change-password-btn {
         width: auto;
         min-width: 4.25rem;
         max-width: 4.75rem;
@@ -1199,6 +1381,12 @@ body.settings-modal-open .settings-navbar-icon-hover {
         gap: 0.35rem;
         font-size: 0.78rem;
         flex: 0 0 auto;
+    }
+
+    #save-profile-btn,
+    #change-password-btn {
+        align-self: flex-start;
+        margin-left: 10px;
     }
 
     #system-settings-modal .setting-account-input {
@@ -1230,7 +1418,7 @@ body.settings-modal-open .settings-navbar-icon-hover {
         align-self: auto;
         padding: 0.75rem clamp(0.875rem, 4vw, 1.25rem) !important;
         border-right: 0;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid var(--color-border-standard);
         background: var(--color-bg);
         box-sizing: border-box;
         overflow: visible;
@@ -1518,6 +1706,30 @@ body.settings-modal-open .settings-navbar-icon-hover {
         margin: 0;
     }
 
+    #profile-settings-modal .settings-panel[data-panel="profile"] .setting-account-input {
+        width: min(13rem, 68vw);
+    }
+
+    .profile-settings-group {
+        gap: 0.6rem;
+        margin-top: 0.8rem;
+        padding-top: 0.7rem;
+    }
+
+    .profile-settings-group-title {
+        font-size: 0.82rem;
+    }
+
+    .year-level-options {
+        gap: 0.35rem;
+    }
+
+    .year-level-option {
+        min-height: 1.9rem;
+        padding: 0.4rem 0.55rem;
+        font-size: 0.72rem;
+    }
+
     #system-settings-modal .settings-panel[data-panel="preferences"] .setting-row,
     #system-settings-modal .settings-panel[data-panel="appearance"] .setting-row {
         grid-template-columns: minmax(0, 1fr) auto;
@@ -1539,8 +1751,8 @@ body.settings-modal-open .settings-navbar-icon-hover {
         max-width: calc(100vw - 2rem);
         padding: 0.25rem;
         border-radius: 0.75rem;
-        background: rgba(245, 245, 245, 0.96);
-        box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.16);
+        background: var(--color-surface-floating-strong);
+        box-shadow: 0 0.75rem 2rem var(--color-shadow-floating);
         transition: none;
     }
 

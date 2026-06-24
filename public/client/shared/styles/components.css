@@ -7,14 +7,14 @@
 @import url("/client/shared/styles/tokens.css");
 
 .switch input:checked + .slider {
-    background: var(--color-primary-active);
+    background: var(--color-accent-primary-hover);
 }
 
 #settings-backdrop {
     position: fixed;
     inset: 0;
     z-index: 9;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--color-overlay-backdrop);
 }
 
 #theme-switch {
@@ -36,7 +36,7 @@
 #theme-switch:hover {
     transform: scale(1.06);
     filter: brightness(1.04);
-    border-color: var(--color-primary-active);
+    border-color: var(--color-accent-primary-hover);
 }
 
 #theme-switch img {
@@ -50,12 +50,12 @@
 }
 
 body.dark-mode #theme-switch {
-    background: #202024;
-    border-color: rgba(255, 255, 255, 0.22);
+    background: var(--color-control-neutral);
+    border-color: var(--color-border-input);
 }
 
 body.dark-mode #theme-switch:hover {
-    border-color: var(--color-primary-soft);
+    border-color: var(--color-accent-primary-soft);
 }
 
 body.dark-mode #theme-switch img:first-child {
@@ -90,11 +90,11 @@ body.dark-mode #theme-switch img:last-child {
     width: min(calc(100vw - 32px), 420px);
     min-height: 20px;
     padding: 12px 18px;
-    border: 1px solid rgba(2, 30, 80, 0.24);
+    border: 1px solid var(--color-border-panel);
     border-radius: 12px;
     background: var(--color-surface);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
-    color: var(--color-text);
+    box-shadow: 0 12px 32px var(--color-shadow-panel);
+    color: var(--color-text-primary);
     font-family: "Noto Sans", sans-serif;
     font-size: 14px;
     font-weight: 800;
@@ -115,17 +115,17 @@ body.dark-mode #theme-switch img:last-child {
 
 .nexa-toast-region--positive,
 .nexa-inline-notice--positive {
-    color: #2fa84f;
+    color: var(--color-feedback-positive);
 }
 
 .nexa-toast-region--negative,
 .nexa-inline-notice--negative {
-    color: #d44c4c;
+    color: var(--color-feedback-negative);
 }
 
 .nexa-toast-region--neutral,
 .nexa-inline-notice--neutral {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 .nexa-inline-notice {
@@ -141,7 +141,7 @@ body.dark-mode #theme-switch img:last-child {
     position: fixed;
     inset: 0;
     z-index: 2990;
-    background: rgba(0, 0, 0, 0.42);
+    background: var(--color-overlay-backdrop);
 }
 
 .nexa-confirm-dialog {
@@ -152,13 +152,13 @@ body.dark-mode #theme-switch img:last-child {
     transform: translate(-50%, -50%);
     width: min(420px, calc(100vw - 32px));
     padding: 18px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border-modal);
     border-radius: 12px;
     background: var(--color-surface);
-    color: var(--color-text);
+    color: var(--color-text-primary);
     font-family: "Noto Sans", sans-serif;
     text-align: center;
-    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+    box-shadow: 0 18px 44px var(--color-shadow-toggle);
     box-sizing: border-box;
 }
 
@@ -182,12 +182,12 @@ body.dark-mode #theme-switch img:last-child {
 
 .nexa-confirm-dialog--positive .nexa-confirm-title,
 .nexa-confirm-dialog--positive .nexa-confirm-message {
-    color: #2fa84f;
+    color: var(--color-feedback-positive);
 }
 
 .nexa-confirm-dialog--negative .nexa-confirm-title,
 .nexa-confirm-dialog--negative .nexa-confirm-message {
-    color: #d44c4c;
+    color: var(--color-feedback-negative);
 }
 
 .nexa-confirm-actions {
@@ -197,19 +197,19 @@ body.dark-mode #theme-switch img:last-child {
 }
 
 .nexa-confirm-actions .btn-secondary {
-    min-width: 118px;
+    min-width: 96px;
 }
 
 .nexa-confirm-accept--positive {
-    background: rgba(57, 195, 94, 0.82);
+    background: var(--color-feedback-positive-bg);
 }
 
 .nexa-confirm-accept--negative {
-    background: rgba(210, 78, 78, 0.82);
+    background: var(--color-feedback-negative-bg);
 }
 
 .nexa-confirm-accept--neutral {
-    background: var(--color-primary-active);
+    background: var(--color-accent-primary-hover);
 }
 
 @media (max-width: 520px) {

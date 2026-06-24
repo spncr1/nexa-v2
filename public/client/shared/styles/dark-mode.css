@@ -7,30 +7,6 @@
 @import url("/client/shared/styles/tokens.css");
 @import url("/client/shared/styles/components.css");
 
-body.dark-mode {
-    --color-bg: #0f0f10f5;
-    --color-text: #e9e9ea;
-    --color-surface: #121213;
-    --color-panel: var(--color-panel-dark);
-    --color-border: var(--color-control-dark);
-    --color-border-root: rgba(100, 185, 255, 0.35);
-    --color-scroll-fade-start: rgba(60, 80, 130, 0);
-    --color-scroll-fade-end: rgba(60, 80, 130, 1);
-    --color-task-week-header: var(--color-task-week-header-dark);
-    --color-today: var(--color-today-dark);
-    --color-table-header: var(--color-table-header-dark);
-    --bg: var(--color-bg);
-    --text: var(--color-text);
-    --panel: var(--color-panel);
-    --border: var(--color-border);
-    --surface: var(--color-surface);
-    --tasks-surface: #121213;
-    --tasks-surface-border: rgba(255, 255, 255, 0.25);
-    --tasks-grid-line: rgba(255, 255, 255, 0.14);
-    background: var(--color-bg);
-    color: var(--color-text);
-}
-
 body.dark-mode h1,
 body.dark-mode h2,
 body.dark-mode h3,
@@ -45,9 +21,8 @@ body.dark-mode .table-title,
 body.dark-mode .widget-title,
 body.dark-mode .dash-label,
 body.dark-mode .carousel-subject,
-body.dark-mode .pie-breakdown,
 body.dark-mode .task-status {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode hr {
@@ -60,11 +35,11 @@ body.dark-mode hr {
 */
 
 body.dark-mode .navbar {
-    border-right-color: rgba(221, 221, 221, 0.55);
+    border-right-color: var(--color-border-standard);
 }
 
 body.dark-mode .nav-brand {
-    border-bottom-color: rgba(221, 221, 221, 0.55);
+    border-bottom-color: var(--color-border-standard);
 }
 
 body.dark-mode .nav-logo,
@@ -82,29 +57,29 @@ body.dark-mode .profile-avatar-fallback {
 body.dark-mode .nav-title,
 body.dark-mode .nav-group summary,
 body.dark-mode .navbar a {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .nav-group summary:hover,
 body.dark-mode .navbar a:hover {
-    background: var(--color-primary-hover);
-    color: #ffffff;
+    background: var(--color-accent-primary-hover);
+    color: var(--color-text-inverse);
 }
 
 body.dark-mode .navbar a.active {
-    background: var(--color-primary-active);
-    color: #ffffff;
+    background: var(--color-accent-primary-hover);
+    color: var(--color-text-inverse);
 }
 
 body.dark-mode .settings-navbar-actions {
-    background: #1b1b20;
-    border-color: rgba(255, 255, 255, 0.12);
+    background: var(--color-surface-panel-subtle);
+    border-color: var(--color-border-panel);
     box-shadow: none;
 }
 
 body.dark-mode .settings-navbar-button:hover .settings-navbar-icon-hover,
 body.dark-mode .settings-navbar-button:focus-visible .settings-navbar-icon-hover {
-    background: #303038;
+    background: var(--color-surface-control-hover);
 }
 
 body.dark-mode.settings-modal-open .settings-navbar-button,
@@ -120,20 +95,20 @@ body.dark-mode.settings-modal-open .settings-navbar-icon-hover {
 
 body.dark-mode .settings-navbar-profile-avatar,
 body.dark-mode .profile-avatar-preview {
-    background-color: #272a32;
+    background-color: var(--color-profile-avatar-bg);
 }
 
 body.dark-mode .settings-modal {
-    background: #141416;
-    border-color: rgba(255, 255, 255, 0.18);
-    color: var(--color-text);
+    background: var(--color-surface-modal);
+    border-color: var(--color-border-modal);
+    color: var(--color-text-primary);
 }
 
 @media (max-width: 600px) {
     body.dark-mode .navbar {
         background: var(--color-bg);
         border-right-color: transparent;
-        border-bottom-color: rgba(255, 255, 255, 0.18);
+        border-bottom-color: var(--color-border-modal);
     }
 
     body.dark-mode .nav-brand {
@@ -141,51 +116,68 @@ body.dark-mode .settings-modal {
     }
 
     body.dark-mode.mobile-nav-open .navbar {
-        box-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.24);
+        box-shadow: 0 0.75rem 1.75rem var(--color-shadow-toggle);
     }
 
     body.dark-mode .settings-navbar-actions,
     body.dark-mode.nav-collapsed .settings-navbar-actions {
-        background: rgba(27, 27, 32, 0.96);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.34);
+        background: var(--color-surface-panel-subtle);
+        border: 1px solid var(--color-border-panel);
+        box-shadow: 0 0.75rem 2rem var(--color-shadow-panel-strong);
     }
 }
 
 body.dark-mode .nexa-toast-region,
 body.dark-mode .nexa-confirm-dialog {
-    background: #141416;
-    border-color: rgba(255, 255, 255, 0.18);
-    color: var(--color-text);
+    background: var(--color-surface-modal);
+    border-color: var(--color-border-modal);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .nexa-toast-region--neutral,
 body.dark-mode .nexa-inline-notice--neutral {
-    color: #fff;
+    color: var(--color-text-inverse);
 }
 
 body.dark-mode .nexa-confirm-backdrop {
-    background: rgba(255, 255, 255, 0.22);
+    background: var(--color-overlay-backdrop);
 }
 
 body.dark-mode .settings-sidebar {
-    background: #1a1a1d;
-    border-right-color: rgba(255, 255, 255, 0.16);
-    border-bottom-color: rgba(255, 255, 255, 0.16);
+    background: var(--color-surface-sidebar);
+    border-right-color: var(--color-border-panel-soft);
+    border-bottom-color: var(--color-border-panel-soft);
 }
 
 body.dark-mode .settings-header {
-    border-bottom-color: rgba(255, 255, 255, 0.16);
+    border-bottom-color: var(--color-border-panel-soft);
 }
 
 body.dark-mode .settings-nav {
-    background: #202024;
-    color: var(--color-text);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: var(--color-surface-input);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-modal);
 }
 
 body.dark-mode .settings-nav.active {
-    border-color: var(--color-text);
+    border-color: var(--color-text-primary);
+}
+
+body.dark-mode .year-level-option {
+    background: var(--color-surface-input);
+    border-color: var(--color-border-input);
+    color: var(--color-text-primary);
+}
+
+body.dark-mode .year-level-option:hover,
+body.dark-mode .year-level-option:focus-visible {
+    border-color: var(--color-accent-primary-soft);
+}
+
+body.dark-mode .year-level-option.active {
+    background: var(--color-accent-primary-hover);
+    border-color: var(--color-border-active);
+    color: var(--color-text-inverse);
 }
 
 body.dark-mode .settings-close-btn {
@@ -194,8 +186,8 @@ body.dark-mode .settings-close-btn {
 
 body.dark-mode .settings-close-btn:hover,
 body.dark-mode .settings-close-btn:focus-visible {
-    background: #393941;
-    border-color: rgba(255, 255, 255, 0.16);
+    background: var(--color-surface-close-hover);
+    border-color: var(--color-border-close-hover);
 }
 
 body.dark-mode .settings-close-btn .app-icon {
@@ -203,34 +195,34 @@ body.dark-mode .settings-close-btn .app-icon {
 }
 
 body.dark-mode .setting-account-input {
-    background: #202024;
-    color: var(--color-text);
-    border-color: rgba(255, 255, 255, 0.22);
+    background: var(--color-surface-input);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-input);
 }
 
 body.dark-mode .setting-file-btn {
-    background: #2f5d9a;
-    color: #fff;
+    background: var(--color-action-neutral);
+    color: var(--color-text-inverse);
 }
 
 body.dark-mode .settings-toggle span {
-    background: rgba(80, 120, 170, 0.42);
+    background: var(--color-control-toggle);
     box-shadow:
-        inset 0 0 0 1px rgba(140, 185, 240, 0.52),
-        inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+        inset 0 0 0 1px var(--color-control-toggle-ring),
+        inset 0 0 0 2px var(--color-control-toggle-ring-inner);
 }
 
 body.dark-mode .settings-toggle span::before {
-    background: #ffffff;
+    background: var(--color-control-toggle-knob);
     left: 3px;
     top: 3px;
 }
 
 body.dark-mode .settings-toggle input:checked + span {
-    background: var(--color-primary-active);
+    background: var(--color-accent-primary-hover);
     box-shadow:
-        inset 0 0 0 1px rgba(150, 205, 255, 0.75),
-        inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+        inset 0 0 0 1px var(--color-control-toggle-active-ring),
+        inset 0 0 0 2px var(--color-control-toggle-ring-inner);
 }
 
 body.dark-mode .settings-toggle input:checked + span::before {
@@ -243,15 +235,15 @@ body.dark-mode .settings-toggle input:checked + span::before {
 */
 
 body.dark-mode #today-btn {
-    background-color: #ffffff;
-    color: var(--color-control-dark);
+    background-color: var(--color-text-inverse);
+    color: var(--color-control-bg);
     border-color: var(--color-border-soft);
 }
 
 body.dark-mode #today-btn:hover {
-    background-color: var(--color-control-dark-fill);
-    color: #ffffff;
-    border-color: var(--color-control-dark);
+    background-color: var(--color-control-bg-fill);
+    color: var(--color-text-inverse);
+    border-color: var(--color-control-bg);
 }
 
 body.dark-mode .btn-primary .app-icon,
@@ -278,14 +270,71 @@ body.dark-mode #next-btn:hover .app-icon {
 
 body.dark-mode .btn-secondary {
     background-color: var(--color-panel);
-    color: var(--color-text);
-    border-color: var(--color-control-dark);
+    color: var(--color-text-primary);
+    border-color: var(--color-control-bg);
 }
 
 body.dark-mode .btn-secondary:hover {
-    background-color: #ffffff;
-    color: var(--color-control-dark);
+    background-color: var(--color-text-inverse);
+    color: var(--color-control-bg);
     border-color: var(--color-border-soft);
+}
+
+body.dark-mode .btn-secondary .app-icon {
+    filter: invert(1);
+}
+
+body.dark-mode .btn-secondary:hover .app-icon {
+    filter: none;
+}
+
+body.dark-mode .btn-secondary.is-danger {
+    background: var(--color-action-destructive-bg);
+    border-color: var(--color-action-destructive-border);
+    color: var(--color-text-inverse);
+}
+
+body.dark-mode .btn-secondary.is-danger:hover,
+body.dark-mode .btn-secondary.is-danger:focus-visible {
+    background: var(--color-action-destructive-bg-hover);
+    border-color: var(--color-action-destructive-border-hover);
+    color: var(--color-text-inverse);
+}
+
+body.dark-mode .btn-secondary.is-success {
+    background: var(--color-action-confirm-bg);
+    border-color: var(--color-action-confirm-border);
+    color: var(--color-text-inverse);
+}
+
+body.dark-mode .btn-secondary.is-success:hover,
+body.dark-mode .btn-secondary.is-success:focus-visible {
+    background: var(--color-action-confirm-bg-hover);
+    border-color: var(--color-action-confirm-border-hover);
+    color: var(--color-text-inverse);
+}
+
+body.dark-mode .btn-secondary.is-neutral {
+    background: var(--color-action-neutral);
+    border-color: var(--color-action-neutral-border);
+    color: var(--color-text-inverse);
+}
+
+body.dark-mode .btn-secondary.is-neutral:hover,
+body.dark-mode .btn-secondary.is-neutral:focus-visible {
+    background: var(--color-action-neutral);
+    border-color: var(--color-border-active);
+    color: var(--color-text-inverse);
+    filter: brightness(1.08);
+}
+
+body.dark-mode .btn-secondary.is-danger .app-icon,
+body.dark-mode .btn-secondary.is-danger:hover .app-icon,
+body.dark-mode .btn-secondary.is-success .app-icon,
+body.dark-mode .btn-secondary.is-success:hover .app-icon,
+body.dark-mode .btn-secondary.is-neutral .app-icon,
+body.dark-mode .btn-secondary.is-neutral:hover .app-icon {
+    filter: invert(1);
 }
 
 /*  =========================================
@@ -296,22 +345,21 @@ body.dark-mode .btn-secondary:hover {
 body.dark-mode .today-tasks,
 body.dark-mode .assignments-due {
     background-color: var(--color-panel);
-    border-color: var(--color-control-dark);
+    border-color: var(--color-control-bg);
 }
 
-body.dark-mode .calendar-widget,
-body.dark-mode .sort-panel {
-    background: #141416;
-    border-color: var(--color-dark-border);
+body.dark-mode .calendar-widget {
+    background: var(--color-surface-modal);
+    border-color: var(--color-border-tooltip);
 }
 
 body.dark-mode .calendar-widget {
     background: var(--color-panel);
-    border-color: var(--color-control-dark);
+    border-color: var(--color-control-bg);
 }
 
 body.dark-mode .calendar-widget-header {
-    background: var(--color-control-dark);
+    background: var(--color-control-bg);
 }
 
 body.dark-mode .calendar-widget-header h2,
@@ -319,24 +367,24 @@ body.dark-mode .calendar-weekdays,
 body.dark-mode .calendar-day,
 body.dark-mode .calendar-day-tooltip-task,
 body.dark-mode .calendar-day-tooltip-subject {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .welcome-carousel-copy {
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--color-text-soft);
 }
 
 body.dark-mode .task-empty,
 body.dark-mode .assignment-due-empty {
-    color: rgba(255, 255, 255, 0.76);
+    color: var(--color-text-muted-strong);
 }
 
 body.dark-mode .calendar-day.outside-month {
-    color: rgba(233, 233, 234, 0.45);
+    color: var(--color-text-calendar-muted);
 }
 
 body.dark-mode .calendar-day:hover {
-    background: rgba(255, 255, 255, 0.16);
+    background: var(--color-calendar-hover);
 }
 
 body.dark-mode .calendar-day-tooltip,
@@ -344,19 +392,19 @@ body.dark-mode #add-task-modal,
 body.dark-mode #add-subject-modal,
 body.dark-mode #add-assignment-modal,
 body.dark-mode #view-assignment-modal {
-    background: #141416;
-    border-color: rgba(255, 255, 255, 0.18);
-    color: var(--color-text);
+    background: var(--color-surface-modal);
+    border-color: var(--color-border-modal);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .calendar-day-tooltip {
     background: var(--color-bg);
-    border-color: var(--color-dark-border);
+    border-color: var(--color-border-tooltip);
 }
 
 body.dark-mode #modal-backdrop,
 body.dark-mode #subject-modal-backdrop {
-    background: rgba(255, 255, 255, 0.22);
+    background: var(--color-overlay-backdrop);
 }
 
 body.dark-mode #task-list .task-list-item,
@@ -365,8 +413,8 @@ body.dark-mode .assignments-due-more {
     background: var(--color-auth-button);
     border-width: 2px;
     border-style: solid;
-    border-color: var(--color-control-dark);
-    color: #111;
+    border-color: var(--color-control-bg);
+    color: var(--color-table-text);
 }
 
 body.dark-mode .assignment-due-task,
@@ -374,11 +422,11 @@ body.dark-mode .assignment-due-subject,
 body.dark-mode .assignment-due-meta,
 body.dark-mode .assignments-due-more,
 body.dark-mode #task-list .task-list-item {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode #task-list .task-list-item.is-completed {
-    --task-priority-strip: rgba(255, 255, 255, 0.42);
+    --task-priority-strip: var(--color-task-complete-border);
 }
 
 body.dark-mode .today-tasks.has-more::after,
@@ -387,17 +435,17 @@ body.dark-mode .subjects-panel.has-more::after {
 }
 
 body.dark-mode .control-select {
-    background: var(--color-dark-border);
-    color: var(--color-text);
-    border-color: var(--color-control-dark);
+    background: var(--color-border-tooltip);
+    color: var(--color-text-primary);
+    border-color: var(--color-control-bg);
 }
 
 body.dark-mode input,
 body.dark-mode textarea,
 body.dark-mode select {
-    background-color: #202024;
-    color: var(--color-text);
-    border-color: rgba(255, 255, 255, 0.22);
+    background-color: var(--color-surface-input);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-input);
 }
 
 body.dark-mode #add-task-modal input,
@@ -409,18 +457,23 @@ body.dark-mode #add-subject-modal select,
 body.dark-mode #add-assignment-modal input,
 body.dark-mode #add-assignment-modal textarea,
 body.dark-mode #add-assignment-modal select {
-    border-color: rgba(255, 255, 255, 0.22);
+    border-color: var(--color-border-input);
 }
 
-body.dark-mode #task-time {
-    background: #202024;
-    color: var(--color-text);
-    border-color: rgba(255, 255, 255, 0.22);
+body.dark-mode input[type="time"],
+body.dark-mode input[type="date"] {
+    background-color: var(--color-surface-input);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-input);
     color-scheme: dark;
 }
 
-body.dark-mode #task-time::-webkit-calendar-picker-indicator {
-    filter: invert(1);
+body.dark-mode input[type="date"] {
+    background-image: url("/client/shared/assets/Icons/calendar-picker-light.svg");
+}
+
+body.dark-mode input[type="time"] {
+    background-image: url("/client/shared/assets/Icons/time-picker-light.svg");
 }
 
 /*  =========================================
@@ -431,113 +484,122 @@ body.dark-mode #task-time::-webkit-calendar-picker-indicator {
 body.dark-mode .subjects-panel,
 body.dark-mode .assignments-table-card {
     background-color: var(--color-panel);
-    border-color: var(--color-control-dark);
+    border-color: var(--color-control-bg);
 }
 
 body.dark-mode .weighting-carousel,
 body.dark-mode .widget-card {
-    background: var(--color-auth-border-dark);
-    border-color: grey;
+    background: var(--color-auth-border);
+    border-color: var(--color-control-today-border);
 }
 
 body.dark-mode .subjects-panel {
-    box-shadow: 0 24px 48px rgba(32, 126, 219, 0.18);
+    box-shadow: 0 24px 48px var(--color-accent-primary-shadow-lg);
 }
 
 body.dark-mode .weighting-carousel {
-    box-shadow: 0 22px 46px rgba(32, 126, 219, 0.14);
+    box-shadow: 0 22px 46px var(--color-accent-primary-shadow-md);
 }
 
 body.dark-mode .assignments-table-card {
-    box-shadow: 0 26px 54px rgba(32, 126, 219, 0.2);
+    box-shadow: 0 26px 54px var(--color-accent-primary-shadow-xl);
 }
 
 body.dark-mode .widget-card {
-    box-shadow: 0 20px 40px rgba(32, 126, 219, 0.12);
+    box-shadow: 0 20px 40px var(--color-accent-primary-shadow-sm);
 }
 
 body.dark-mode .assignment-reminders-widget {
-    box-shadow: 0 22px 42px rgba(236, 143, 40, 0.18);
+    box-shadow: 0 22px 42px var(--color-reminder-shadow);
 }
 
 body.dark-mode .assignment-reminder-link,
 body.dark-mode .assignment-reminder-empty {
     background: none;
-    color: var(--color-text);
-    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--color-text-primary);
+    border-color: var(--color-task-grid-line);
 }
 
 body.dark-mode .assignments-soft-empty {
-    color: rgba(255, 255, 255, 0.76);
+    color: var(--color-text-muted-strong);
 }
 
 body.dark-mode .assignment-reminders-widget {
-    background: #111720;
+    background: var(--color-reminder-bg);
 }
 
 body.dark-mode .assignment-reminder-subject,
 body.dark-mode .assignment-reminder-meta,
 body.dark-mode .assignment-reminder-days-value,
 body.dark-mode .assignment-reminder-days-label {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .assignment-reminder-countdown {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--color-reminder-countdown-bg);
 }
 
 body.dark-mode .assignment-reminder-item.is-critical .assignment-reminder-link {
-    border-left-color: #ff6868;
-    background: rgba(216, 63, 63, 0.18);
+    border-left-color: var(--color-reminder-critical);
+    background: var(--color-reminder-critical-soft);
 }
 
 body.dark-mode .assignment-reminder-item.is-critical .assignment-reminder-countdown {
-    background: rgba(255, 104, 104, 0.24);
+    background: var(--color-reminder-critical-fill);
 }
 
 body.dark-mode .assignment-reminder-item.is-important .assignment-reminder-link {
-    border-left-color: #ffad5c;
-    background: rgba(236, 143, 40, 0.18);
+    border-left-color: var(--color-reminder-important);
+    background: var(--color-reminder-important-soft);
 }
 
 body.dark-mode .assignment-reminder-item.is-important .assignment-reminder-countdown {
-    background: rgba(255, 173, 92, 0.24);
+    background: var(--color-reminder-important-fill);
 }
 
 body.dark-mode .assignment-reminder-item.is-watch .assignment-reminder-link {
-    border-left-color: #f0d85b;
-    background: rgba(228, 195, 63, 0.17);
+    border-left-color: var(--color-reminder-watch);
+    background: var(--color-reminder-watch-soft);
 }
 
 body.dark-mode .assignment-reminder-item.is-watch .assignment-reminder-countdown {
-    background: rgba(240, 216, 91, 0.22);
+    background: var(--color-reminder-watch-fill);
+}
+
+body.dark-mode .assignment-reminder-item.is-neutral .assignment-reminder-link {
+    border-left-color: var(--color-reminder-neutral);
+    background: var(--color-reminder-neutral-soft);
+}
+
+body.dark-mode .assignment-reminder-item.is-neutral .assignment-reminder-countdown {
+    background: var(--color-reminder-neutral-fill);
 }
 
 body.dark-mode #subjects-list .subject-item,
 body.dark-mode .assignments-table {
-    background: rgba(255, 255, 255, 0.78);
-    color: #111;
-    border-color: rgba(0, 0, 0, 0.18);
+    background: var(--color-table-surface);
+    color: var(--color-table-text);
+    border-color: var(--color-border-table);
 }
 
 body.dark-mode .assignments-table td {
-    border-color: rgba(0, 0, 0, 0.18);
+    border-color: var(--color-border-table);
 }
 
 body.dark-mode #subjects-list .subject-item.active {
-    border-color: #111;
+    border-color: var(--color-border-active);
 }
 
 body.dark-mode .assignments-table th {
-    background: var(--color-table-header-dark);
-    color: var(--color-text);
-    border-color: rgba(255, 255, 255, 0.18);
+    background: var(--color-table-header);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-modal);
 }
 
 body.dark-mode .assignment-sort-btn:hover,
 body.dark-mode .assignment-sort-btn:focus-visible,
 body.dark-mode .assignment-sort-btn.is-active {
-    background: rgba(255, 255, 255, 0.13);
+    background: var(--color-chart-sort-hover-bg);
 }
 
 body.dark-mode .assignment-sort-btn .app-icon {
@@ -545,153 +607,153 @@ body.dark-mode .assignment-sort-btn .app-icon {
 }
 
 body.dark-mode .assignments-table tbody tr.is-status-completed td {
-    background: rgba(46, 204, 113, 0.24);
-    color: rgba(17, 17, 17, 0.72);
+    background: var(--color-status-complete-soft);
+    color: var(--color-table-muted-text);
 }
 
 body.dark-mode .assignments-table tbody tr.is-status-in-progress td {
-    background: rgba(241, 196, 15, 0.24);
+    background: var(--color-status-progress-soft);
 }
 
 body.dark-mode .assignments-table tbody tr.is-status-not-started td {
-    background: rgba(231, 76, 60, 0.22);
+    background: var(--color-status-danger-soft);
 }
 
 body.dark-mode .assignments-table tbody tr.is-due-soon {
-    box-shadow: inset 0 0 0 1px rgba(255, 136, 136, 0.3);
+    box-shadow: inset 0 0 0 1px var(--color-status-danger-ring);
 }
 
 body.dark-mode .assignments-table tbody tr.is-overdue td {
-    background: rgba(214, 63, 63, 0.28);
+    background: var(--color-status-overdue-soft);
 }
 
 body.dark-mode .assignments-table tbody tr.is-overdue {
-    box-shadow: inset 0 0 0 1px rgba(255, 136, 136, 0.42);
+    box-shadow: inset 0 0 0 1px var(--color-status-danger-ring-strong);
 }
 
 body.dark-mode .assignments-table tbody tr.is-urgent-priority:not(.is-status-completed):not(.is-overdue) {
-    box-shadow: inset 0 0 0 1px rgba(255, 136, 136, 0.28);
+    box-shadow: inset 0 0 0 1px var(--color-status-danger-ring-soft);
 }
 
 body.dark-mode .assignments-empty-row td {
-    color: var(--color-text);
-    background: #1b1b20;
+    color: var(--color-text-primary);
+    background: var(--color-surface-panel-subtle);
 }
 
 body.dark-mode .assignments-table-actions .btn-secondary {
-    background: #1b1b20;
-    border-color: var(--color-dark-border);
-    color: var(--color-text);
-    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+    background: var(--color-surface-panel-subtle);
+    border-color: var(--color-border-tooltip);
+    color: var(--color-text-primary);
+    box-shadow: 0 14px 28px var(--color-shadow-md);
 }
 
 body.dark-mode .assignments-table-actions .btn-secondary:hover,
 body.dark-mode .assignments-table-actions .btn-secondary:focus-visible {
-    background: #303038;
-    border-color: rgba(255, 255, 255, 0.22);
+    background: var(--color-surface-control-hover);
+    border-color: var(--color-border-input);
     filter: none;
 }
 
 body.dark-mode .assignments-table-actions #add-assignment-btn {
-    background: rgba(42, 138, 80, 0.94);
-    border-color: rgba(108, 205, 147, 0.28);
+    background: var(--color-action-confirm-bg);
+    border-color: var(--color-action-confirm-border);
 }
 
 body.dark-mode .assignments-table-actions #add-assignment-btn:hover,
 body.dark-mode .assignments-table-actions #add-assignment-btn:focus-visible {
-    background: rgba(52, 156, 92, 0.98);
-    border-color: rgba(130, 222, 166, 0.42);
+    background: var(--color-action-confirm-bg-hover);
+    border-color: var(--color-action-confirm-border-hover);
 }
 
 body.dark-mode .assignments-table-actions #reset-btn {
-    background: rgba(193, 74, 96, 0.96);
-    border-color: rgba(255, 145, 160, 0.34);
+    background: var(--color-action-destructive-bg);
+    border-color: var(--color-action-destructive-border);
 }
 
 body.dark-mode .assignments-table-actions #reset-btn:hover,
 body.dark-mode .assignments-table-actions #reset-btn:focus-visible {
-    background: rgba(210, 86, 108, 0.98);
-    border-color: rgba(255, 168, 180, 0.48);
+    background: var(--color-action-destructive-bg-hover);
+    border-color: var(--color-action-destructive-border-hover);
 }
 
 body.dark-mode .assignment-priority-pill.is-low {
-    background: rgba(46, 204, 113, 0.24);
-    border-color: rgba(124, 232, 165, 0.3);
-    color: #0e4f29;
+    background: var(--color-status-complete-pill);
+    border-color: var(--color-status-complete-border);
+    color: var(--color-status-complete-text);
 }
 
 body.dark-mode .assignment-priority-pill.is-medium {
-    background: rgba(241, 196, 15, 0.24);
-    border-color: rgba(248, 222, 114, 0.3);
-    color: #5a4700;
+    background: var(--color-status-progress-pill);
+    border-color: var(--color-status-progress-border);
+    color: var(--color-status-progress-text);
 }
 
 body.dark-mode .assignment-priority-pill.is-high {
-    background: rgba(231, 76, 60, 0.26);
-    border-color: rgba(255, 154, 141, 0.32);
-    color: #65150d;
+    background: var(--color-status-danger-pill);
+    border-color: var(--color-status-danger-border);
+    color: var(--color-status-danger-text);
 }
 
 body.dark-mode .pie-slice {
-    stroke: #111;
+    stroke: var(--color-table-text);
 }
 
 body.dark-mode .pie-label {
-    fill: black;
-    stroke: rgba(0, 0, 0, 0.6);
+    fill: var(--color-chart-label-fill);
+    stroke: var(--color-chart-label-stroke);
 }
 
 body.dark-mode .carousel-dots span,
 body.dark-mode .dash-dots span {
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--color-chart-dot);
 }
 
 body.dark-mode .carousel-dots span.active,
 body.dark-mode .dash-dots span.active {
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--color-chart-dot-active);
 }
 
 body.dark-mode .total-assignments-widget .bars,
 body.dark-mode .vchart-plot {
-    border-left-color: rgba(255, 255, 255, 0.35);
+    border-left-color: var(--color-chart-axis);
 }
 
 body.dark-mode .total-assignments-widget .bars,
 body.dark-mode .vchart-plot {
-    border-bottom-color: rgba(255, 255, 255, 0.55);
+    border-bottom-color: var(--color-chart-axis-strong);
 }
 
 body.dark-mode .total-assignments-widget .bar-row:hover,
 body.dark-mode .total-assignments-widget .bar-row:focus-visible {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--color-chart-hover-bg);
 }
 
 body.dark-mode .total-assignments-widget .bar-row.active-chart-filter {
-    background: rgba(95, 132, 179, 0.22);
-    box-shadow: inset 0 0 0 2px rgba(160, 190, 230, 0.42);
+    background: var(--color-chart-active-bg);
+    box-shadow: inset 0 0 0 2px var(--color-chart-ring);
 }
 
 body.dark-mode .vbar[role="button"]:hover,
 body.dark-mode .vbar[role="button"]:focus-visible,
 body.dark-mode .vbar.active-chart-filter,
 body.dark-mode .vbar-column:focus-within .vbar[role="button"] {
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 3px rgba(160, 190, 230, 0.42);
+    background: var(--color-chart-hover-bg);
+    box-shadow: 0 0 0 3px var(--color-chart-ring-soft);
 }
 
 body.dark-mode .chart-tooltip {
-    background: #141416;
-    border-color: var(--color-dark-border);
-    color: var(--color-text);
+    background: var(--color-surface-tooltip);
+    border-color: var(--color-border-tooltip);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .chart-tooltip-title,
 body.dark-mode .chart-tooltip-line {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .view-assignment-desc {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 /*  =========================================
@@ -700,8 +762,8 @@ body.dark-mode .view-assignment-desc {
 */
 
 body.dark-mode .tasks-surface {
-    background: var(--tasks-surface);
-    border-color: var(--tasks-surface-border);
+    background: var(--color-task-surface);
+    border-color: var(--color-task-surface-border);
 }
 
 body.dark-mode .time-label,
@@ -713,7 +775,7 @@ body.dark-mode .tasks-day-date,
 body.dark-mode .tasks-day-count,
 body.dark-mode .tasks-day-add-btn,
 body.dark-mode .tasks-filter-btn {
-    color: var(--color-text);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .tasks-time-rail,
@@ -722,18 +784,17 @@ body.dark-mode .tasks-month-agenda-grid,
 body.dark-mode .tasks-month-tbd-lane,
 body.dark-mode .month-slot,
 body.dark-mode .month-tbd-empty {
-    border-color: var(--tasks-grid-line);
+    border-color: var(--color-task-grid-line);
 }
 
 body.dark-mode .tasks-summary-strip,
-body.dark-mode .tasks-summary-panel,
 body.dark-mode .tasks-month-summary-panel {
-    background: rgba(77, 159, 255, 0.08);
-    border-color: var(--tasks-surface-border);
+    background: var(--color-accent-primary-faint);
+    border-color: var(--color-task-surface-border);
 }
 
 body.dark-mode .tasks-week-board-wrap::after {
-    background: linear-gradient(to right, rgba(20, 20, 22, 0), rgba(20, 20, 22, 0.72));
+    background: var(--color-task-scroll-hint);
 }
 
 body.dark-mode .tasks-summary-heading p,
@@ -742,26 +803,26 @@ body.dark-mode .tasks-summary-metric span,
 body.dark-mode .tasks-day-name,
 body.dark-mode .tasks-day-empty,
 body.dark-mode .month-tbd-empty {
-    color: rgba(233, 233, 234, 0.68);
+    color: var(--color-text-muted-soft);
 }
 
 body.dark-mode .tasks-summary-metric,
 body.dark-mode .tasks-day-column,
 body.dark-mode .tasks-filter-btn {
-    background: #1d1d20;
-    border-color: var(--tasks-grid-line);
+    background: var(--color-task-panel-bg);
+    border-color: var(--color-task-grid-line);
 }
 
 body.dark-mode .tasks-summary-metric.priority-high {
-    border-left-color: var(--color-priority-high-border-dark);
+    border-left-color: var(--color-priority-high-border);
 }
 
 body.dark-mode .tasks-summary-metric.priority-medium {
-    border-left-color: var(--color-priority-medium-border-dark);
+    border-left-color: var(--color-priority-medium-border);
 }
 
 body.dark-mode .tasks-summary-metric.priority-low {
-    border-left-color: var(--color-priority-low-border-dark);
+    border-left-color: var(--color-priority-low-border);
 }
 
 body.dark-mode .tasks-summary-metric.is-total,
@@ -769,8 +830,8 @@ body.dark-mode .tasks-day-count,
 body.dark-mode .tasks-day-add-btn,
 body.dark-mode .tasks-filter-btn.active,
 body.dark-mode .tasks-filter-btn:hover {
-    background: var(--color-task-week-today-dark);
-    border-color: var(--color-today-dark);
+    background: var(--color-task-week-today);
+    border-color: var(--color-calendar-today);
 }
 
 body.dark-mode .tasks-day-add-btn .app-icon {
@@ -778,82 +839,66 @@ body.dark-mode .tasks-day-add-btn .app-icon {
 }
 
 body.dark-mode .tasks-day-column.today {
-    border-color: var(--color-today-dark);
-    box-shadow: inset 0 0 0 1px rgba(90, 170, 255, 0.35);
+    border-color: var(--color-calendar-today);
+    box-shadow: inset 0 0 0 1px var(--color-accent-primary-ring);
 }
 
 body.dark-mode .tasks-day-empty {
-    border-color: var(--tasks-grid-line);
+    border-color: var(--color-task-grid-line);
 }
 
 body.dark-mode .tasks-month-calendar,
 body.dark-mode .tasks-month-agenda,
 body.dark-mode .tasks-month-summary-panel,
 body.dark-mode .tasks-month-tbd-lane {
-    border-color: var(--tasks-surface-border);
+    border-color: var(--color-task-surface-border);
 }
 
 body.dark-mode .tasks-month-day {
-    background: #1d1d20;
-    border-color: var(--tasks-grid-line);
-    color: var(--color-text);
+    background: var(--color-task-panel-bg);
+    border-color: var(--color-task-grid-line);
+    color: var(--color-text-primary);
 }
 
 body.dark-mode .tasks-month-day.today {
-    box-shadow: inset 0 0 0 2px var(--color-today-dark);
+    box-shadow: inset 0 0 0 2px var(--color-calendar-today);
 }
 
 body.dark-mode .tasks-month-day.selected {
-    background: var(--color-month-day-current-dark);
-    color: #111;
+    background: var(--color-calendar-current-month);
+    color: var(--color-table-text);
 }
 
 body.dark-mode .tasks-month-day.outside {
-    color: rgba(233, 233, 234, 0.45);
+    color: var(--color-text-calendar-muted);
 }
 
 body.dark-mode .task-card {
-    color: #111;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--color-task-card-text);
+    border-color: var(--color-task-card-border);
 }
 
 body.dark-mode .task-card.priority-high {
-    background: var(--color-priority-high-dark);
-    border-left-color: var(--color-priority-high-border-dark);
+    background: var(--color-priority-high-fill);
+    border-left-color: var(--color-priority-high-border);
 }
 
 body.dark-mode .task-card.priority-medium {
-    background: var(--color-priority-medium-dark);
-    border-left-color: var(--color-priority-medium-border-dark);
+    background: var(--color-priority-medium-fill);
+    border-left-color: var(--color-priority-medium-border);
 }
 
 body.dark-mode .task-card.priority-low {
-    background: var(--color-priority-low-dark);
-    border-left-color: var(--color-priority-low-border-dark);
+    background: var(--color-priority-low-fill);
+    border-left-color: var(--color-priority-low-border);
 }
 
 body.dark-mode .task-card.is-completed {
-    background: rgba(210, 216, 228, 0.78);
-    border-left-color: rgba(255, 255, 255, 0.42);
+    background: var(--color-task-complete-bg);
+    border-left-color: var(--color-task-complete-border);
 }
 
-body.dark-mode .tbd-chip {
-    background: #223050;
-    color: var(--color-text);
-    border-color: var(--color-tile-border-dark);
-}
-
-body.dark-mode .tbd-chip:hover {
-    background: var(--color-task-tbd-hover);
-    color: #111;
-}
-
-body.dark-mode .tbd-chip.is-completed {
-    opacity: 0.72;
-}
-
-body.dark-mode .tbd-more,
 body.dark-mode .tasks-month-day-count,
 body.dark-mode .task-schedule-context {
-    color: rgba(233, 233, 234, 0.72);
+    color: var(--color-text-soft);
 }

@@ -98,8 +98,11 @@
 
         resetToneClasses(dialog, "nexa-confirm-dialog");
         resetToneClasses(acceptBtn, "nexa-confirm-accept");
+        acceptBtn.classList.remove("is-danger", "is-success");
         dialog.classList.add(`nexa-confirm-dialog--${tone}`);
         acceptBtn.classList.add(`nexa-confirm-accept--${tone}`);
+        if (tone === "negative") acceptBtn.classList.add("is-danger");
+        if (tone === "positive") acceptBtn.classList.add("is-success");
 
         backdrop.classList.remove("hidden");
         dialog.classList.remove("hidden");

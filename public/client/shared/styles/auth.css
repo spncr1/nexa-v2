@@ -9,11 +9,6 @@
 @import url("/client/shared/styles/components.css");
 
 :root {
-    --bg: var(--color-bg);
-    --text: var(--color-text);
-    --panel: var(--color-panel);
-    --border: var(--color-border);
-    --surface: var(--color-surface);
     --nav-width: 180px;
     --content-max: 1280px;
     --content-pad: 24px;
@@ -59,11 +54,11 @@ html, body {
 }
 
 .auth-status.success {
-    color: #2fa84f;
+    color: var(--color-auth-success);
 }
 
 .auth-status.error {
-    color: #d44c4c;
+    color: var(--color-auth-error);
 }
 
 .auth-form {
@@ -93,8 +88,8 @@ html, body {
 }
 
 .form-row.has-error input {
-    border-color: #ed5959;
-    box-shadow: 0 0 0 3px rgba(140, 47, 47, 0.12);
+    border-color: var(--color-auth-error-strong);
+    box-shadow: 0 0 0 3px var(--color-auth-error-ring);
 }
 
 .password-input-group {
@@ -110,8 +105,8 @@ html, body {
 .password-inline-btn {
     border: 1px solid var(--color-task-tbd-hover);
     border-radius: 8px;
-    background: var(--color-primary-soft);
-    color: var(--color-panel-dark);
+    background: var(--color-accent-primary-soft);
+    color: var(--color-panel-secondary);
     font-family: "Manrope", sans-serif;
     font-weight: 600;
     cursor: pointer;
@@ -123,10 +118,10 @@ html, body {
 
 /* Generate button */
 .password-helper-btn {
-    border: 2px solid var(--color-panel-dark);
+    border: 2px solid var(--color-panel-secondary);
     border-radius: 9px;
-    background: var(--color-primary-active);
-    color: var(--color-border);
+    background: var(--color-accent-primary-hover);
+    color: var(--color-border-interactive);
     font-family: "Manrope", sans-serif;
     font-size: 13.5px;
     font-weight: 700;
@@ -170,7 +165,7 @@ html, body {
 
 .field-error {
     margin: 0;
-    color: #ed5959;
+    color: var(--color-auth-error-strong);
     font-family: "Noto Sans", sans-serif;
     font-size: 12px;
     font-weight: 700;
@@ -185,7 +180,7 @@ html, body {
     border: 2px solid var(--color-auth-border);
     border-radius: 12px;
     background: var(--color-auth-button);
-    color: #111;
+    color: var(--color-text-strong);
     font-family: "Manrope", sans-serif;
     font-size: 16px;
     font-weight: 700;
@@ -211,7 +206,7 @@ html, body {
 .auth-link {
     display: inline-block;
     margin-top: 0;
-    color: var(--color-primary-active);
+    color: var(--color-accent-primary-hover);
     font-family: "Noto Sans", sans-serif;
     font-size: 14px;
     font-weight: 700;
