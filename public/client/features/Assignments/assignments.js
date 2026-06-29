@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjects: "Add a subject now. Give your work a home.",
         subjectDropdown: "You must add a subject first.",
         filter: "Nothing in this view. Clear the filter to widen the picture.",
-        description: "No extra notes yet. Add the useful bits."
+        description: "No extra notes yet, Just the useful bits."
     };
     let activeChartFilter = { type: null, value: null };
     let assignmentTableSort = { ...DEFAULT_ASSIGNMENT_SORT };

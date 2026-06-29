@@ -80,14 +80,14 @@
                     
                     <div class="date-header">
                         <div class="date-row">
-                            <button id="previous-btn" aria-label="Previous day"><img class="app-icon" src="/client/shared/assets/Icons/prev(circle).svg" alt="" aria-hidden="true"></button>
+                            <button id="previous-btn" aria-label="Previous day"><span class="app-icon icon-prev" aria-hidden="true"></span></button>
 
                             <div class="date-text">
                                 <h1 id="date-display"></h1>
                                 <h2 id="day-display"></h2>
                             </div>
 
-                            <button id="next-btn" aria-label="Next day"><img class="app-icon" src="/client/shared/assets/Icons/next(circle).svg" alt="" aria-hidden="true"></button>
+                            <button id="next-btn" aria-label="Next day"><span class="app-icon icon-next" aria-hidden="true"></span></button>
                         </div>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
             
             <hr>
             <section class="welcome-panel" aria-label="Welcome summary">
-                <h2>Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
+                <h2 class="welcome-heading">Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
                 <p id="welcome-carousel-copy" class="welcome-carousel-copy"></p>
             </section>
 
@@ -104,10 +104,10 @@
             <div class="dashboard-cards">
                     <div class="today-tasks">
                     <div class="today-tasks-header">
-                        <h2>TODAY'S TASKS</h2>
+                        <h2>Today's Tasks</h2>
 
                         <div class="today-tasks-controls">
-                            <button class="btn-primary" id="add-task-btn"><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true"></button>
+                            <button class="btn-primary" id="add-task-btn" aria-label="Add task"><span class="app-icon icon-add" aria-hidden="true"></span></button>
 
                             <div class="controls-group">
                                 <label class="control-label" for="sort-select">Sort</label>
@@ -129,7 +129,7 @@
 
                 <div class="assignments-due">
                     <div class="assignments-due-header">
-                        <h2>ASSIGNMENTS DUE TODAY</h2>
+                        <h2>Assignments Due Today</h2>
                     </div>
                     <ul id="assignments-due-list"></ul>
                     <div id="assignments-due-more" class="assignments-due-more hidden"></div>
@@ -139,8 +139,8 @@
                     <div class="calendar-widget-header">
                         <h2 id="calendar-month-label">MONTH YEAR</h2>
                         <div class="calendar-widget-nav">
-                            <button type="button" class="calendar-nav" id="calendar-prev-month" aria-label="Previous month"><img class="app-icon" src="/client/shared/assets/Icons/prev(circle).svg" alt="" aria-hidden="true"></button>
-                            <button type="button" class="calendar-nav" id="calendar-next-month" aria-label="Next month"><img class="app-icon" src="/client/shared/assets/Icons/next(circle).svg" alt="" aria-hidden="true"></button>
+                            <button type="button" class="calendar-nav" id="calendar-prev-month" aria-label="Previous month"><span class="app-icon icon-prev" aria-hidden="true"></span></button>
+                            <button type="button" class="calendar-nav" id="calendar-next-month" aria-label="Next month"><span class="app-icon icon-next" aria-hidden="true"></span></button>
                         </div>
                     </div>
                     <div class="calendar-weekdays" aria-hidden="true">

@@ -91,6 +91,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         const el = document.getElementById("welcome-name");
         if (el) {
             el.textContent = loadUserName();
+
+            const heading = el.closest(".welcome-heading");
+            if (heading) {
+                const welcomeText = heading.textContent.trim();
+                heading.dataset.welcomeText = welcomeText;
+                heading.style.setProperty("--welcome-reveal-steps", Math.max(welcomeText.length, 1));
+                heading.classList.remove("welcome-reveal-ready", "welcome-reveal-complete");
+                heading.addEventListener("animationend", (event) => {
+                    if (event.animationName === "welcome-heading-reveal") {
+                        heading.classList.add("welcome-reveal-complete");
+                    }
+                }, { once: true });
+
+                window.requestAnimationFrame(() => {
+                    heading.classList.add("welcome-reveal-ready");
+                });
+            }
         }
     }
 
@@ -223,10 +240,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const meta = document.createElement("span");
             meta.className = "task-list-meta";
-            meta.textContent = `${toLabelCase(priority)} priority - ${taskStatusLabel(t)}`;
+            meta.textContent = taskStatusLabel(t).toLowerCase();
 
             contentBtn.appendChild(title);
             contentBtn.appendChild(meta);
+
+            const priorityBadge = document.createElement("span");
+            priorityBadge.className = `task-priority-badge priority-${priority}`;
+            priorityBadge.textContent = priority === "high" ? "HIGH" : priority === "low" ? "LOW" : "MED";
 
             const checkBtn = document.createElement("button");
             checkBtn.type = "button";
@@ -242,6 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             checkBtn.appendChild(checkIcon);
             li.appendChild(contentBtn);
+            li.appendChild(priorityBadge);
             li.appendChild(checkBtn);
             taskListEl.appendChild(li);
         });
@@ -494,11 +516,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function updateHomeOverflowHints() {
-        // I want this to match the working subjects list behaviour:
-        // only show the fade if the inner list actually has content hidden below.
         if (todayTasksCard && taskListEl) {
-            const tasksCanScroll = taskListEl.scrollHeight > taskListEl.clientHeight + 1;
-            todayTasksCard.classList.toggle("has-more", tasksCanScroll);
+            todayTasksCard.classList.remove("has-more");
         }
 
     }

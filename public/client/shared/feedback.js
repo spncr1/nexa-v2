@@ -98,9 +98,11 @@
 
         resetToneClasses(dialog, "nexa-confirm-dialog");
         resetToneClasses(acceptBtn, "nexa-confirm-accept");
+        dialog.classList.remove("nexa-confirm-dialog--logout");
         acceptBtn.classList.remove("is-danger", "is-success");
         dialog.classList.add(`nexa-confirm-dialog--${tone}`);
         acceptBtn.classList.add(`nexa-confirm-accept--${tone}`);
+        if (options.variant === "logout") dialog.classList.add("nexa-confirm-dialog--logout");
         if (tone === "negative") acceptBtn.classList.add("is-danger");
         if (tone === "positive") acceptBtn.classList.add("is-success");
 

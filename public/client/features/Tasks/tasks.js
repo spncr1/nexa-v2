@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const weekSummaryEl = document.getElementById("tasks-week-summary");
     const weekBoardEl = document.getElementById("tasks-week-board");
+    const weekBoardWrapEl = weekBoardEl?.closest(".tasks-week-board-wrap");
 
     const monthDaysEl = document.getElementById("tasks-month-days");
     const monthSummaryEl = document.getElementById("tasks-month-summary");
@@ -362,7 +363,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const helper = document.createElement("p");
         helper.textContent = summary.total
             ? `${summary.active} active, ${summary.completed} completed`
-            : "No tasks in this view yet";
+            : "No tasks to show yet.";
 
         heading.appendChild(titleEl);
         heading.appendChild(helper);
@@ -533,7 +534,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             addBtn.type = "button";
             addBtn.className = "tasks-day-add-btn";
             addBtn.setAttribute("aria-label", `Add task on ${date.toDateString()}`);
-            addBtn.innerHTML = `<span>Add</span><img class="app-icon" src="/client/shared/assets/Icons/add-circle.svg" alt="" aria-hidden="true">`;
+            addBtn.innerHTML = `<span class="app-icon icon-add" aria-hidden="true"></span>`;
             addBtn.addEventListener("click", () => openAddModal(key, null));
 
             tools.appendChild(addBtn);
@@ -554,6 +555,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             column.appendChild(list);
             weekBoardEl.appendChild(column);
         });
+
+        requestAnimationFrame(updateWeekBoardFade);
+    }
+
+    function updateWeekBoardFade() {
+        if (!weekBoardEl || !weekBoardWrapEl) return;
+
+        const maxScroll = weekBoardEl.scrollWidth - weekBoardEl.clientWidth;
+        if (maxScroll <= 1) {
+            weekBoardWrapEl.style.setProperty("--tasks-fade-left-opacity", "0");
+            weekBoardWrapEl.style.setProperty("--tasks-fade-right-opacity", "0");
+            return;
+        }
+
+        const progress = Math.min(Math.max(weekBoardEl.scrollLeft / maxScroll, 0), 1);
+        weekBoardWrapEl.style.setProperty("--tasks-fade-left-opacity", progress.toFixed(3));
+        weekBoardWrapEl.style.setProperty("--tasks-fade-right-opacity", (1 - progress).toFixed(3));
     }
 
     function getMonthTasks(monthDate) {
@@ -794,6 +812,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         monthViewBtn.setAttribute("aria-selected", (!isWeek).toString());
 
         updateRangeLabel();
+        if (isWeek) {
+            requestAnimationFrame(updateWeekBoardFade);
+        }
     }
 
     function refreshCalendarViews() {
@@ -1263,6 +1284,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (monthViewBtn) {
         monthViewBtn.addEventListener("click", () => setViewMode("month"));
+    }
+
+    if (weekBoardEl) {
+        weekBoardEl.addEventListener("scroll", updateWeekBoardFade, { passive: true });
+        window.addEventListener("resize", updateWeekBoardFade);
     }
 
     if (cancelBtn) {

@@ -515,6 +515,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             title: "Log out?",
             message: "Are you sure you want to log out?",
             tone: "neutral",
+            variant: "logout",
             confirmLabel: "Log out",
             cancelLabel: "Cancel"
         });

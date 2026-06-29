@@ -6,6 +6,70 @@
 
 @import url("/client/shared/styles/tokens.css");
 
+.nx-card {
+    position: relative;
+    border: 1px solid var(--color-raw-surface-panel-dark);
+    border-radius: 12px 12px 12px 0;
+    background: var(--color-raw-surface-card-dark);
+    box-shadow: 0 2px 12px var(--color-raw-shadow-card-dark), inset 0 1px 0 var(--color-raw-surface-subtle-dark);
+    backdrop-filter: blur(12px) saturate(1.2);
+    -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+body:not(.dark-mode) .nx-card {
+    border-color: var(--color-raw-accent-primary-border-light);
+    background: var(--color-raw-surface-card-light);
+    box-shadow: 0 2px 16px var(--color-raw-shadow-card-light), inset 0 1px 0 color-mix(in srgb, var(--color-raw-background-page-light) 90%, transparent);
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+}
+
+.nx-card:hover {
+    border-color: var(--color-border-strong);
+}
+
+body:not(.dark-mode) .nx-card:hover {
+    border-color: var(--color-border-strong);
+}
+
+.nx-card::before,
+.nx-card::after {
+    position: absolute;
+    pointer-events: none;
+    content: "";
+}
+
+.nx-card::before {
+    top: -2px;
+    right: -2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-accent-primary);
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+.nx-card:hover::before {
+    opacity: 1;
+}
+
+.nx-card::after {
+    right: -22px;
+    bottom: -8px;
+    width: 34px;
+    height: 18px;
+    background: var(--color-accent-primary);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.4%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.4%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+body:not(.dark-mode) .nx-card::after {
+    -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.3%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E");
+    mask-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.3%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E");
+}
+
 .switch input:checked + .slider {
     background: var(--color-accent-primary-hover);
 }
@@ -137,6 +201,43 @@ body.dark-mode #theme-switch img:last-child {
     text-align: center;
 }
 
+.task-empty,
+.assignment-due-empty,
+.assignment-reminder-empty,
+.assignments-soft-empty,
+.assignments-empty-row td,
+.tasks-day-empty,
+.month-tbd-empty {
+    text-align: center;
+}
+
+.task-empty::before,
+.assignment-due-empty::before,
+.assignment-reminder-empty::before,
+.assignments-soft-empty::before,
+.assignments-empty-row td::before,
+.tasks-day-empty::before,
+.month-tbd-empty::before {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 10px;
+    background: url("/client/shared/assets/Images/nexa-v1.png") center / contain no-repeat;
+    opacity: 0.34;
+}
+
+body.dark-mode .task-empty::before,
+body.dark-mode .assignment-due-empty::before,
+body.dark-mode .assignment-reminder-empty::before,
+body.dark-mode .assignments-soft-empty::before,
+body.dark-mode .assignments-empty-row td::before,
+body.dark-mode .tasks-day-empty::before,
+body.dark-mode .month-tbd-empty::before {
+    filter: invert(1);
+    opacity: 1;
+}
+
 .nexa-confirm-backdrop {
     position: fixed;
     inset: 0;
@@ -209,7 +310,21 @@ body.dark-mode #theme-switch img:last-child {
 }
 
 .nexa-confirm-accept--neutral {
-    background: var(--color-accent-primary-hover);
+    background: var(--color-auth-button);
+    border: 2px solid var(--color-auth-border);
+    color: var(--color-text-inverse);
+}
+
+.nexa-confirm-accept--neutral .app-icon {
+    filter: invert(1);
+}
+
+.nexa-confirm-dialog--logout .nexa-confirm-cancel {
+    display: none;
+}
+
+.nexa-confirm-dialog--logout .nexa-confirm-actions {
+    justify-content: center;
 }
 
 @media (max-width: 520px) {
