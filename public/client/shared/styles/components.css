@@ -306,7 +306,14 @@ body.dark-mode .month-tbd-empty::before {
 }
 
 .nexa-confirm-accept--negative {
-    background: var(--color-feedback-negative-bg);
+    background: color-mix(in srgb, var(--color-action-assignment-reset-bg) 72%, var(--color-bg));
+    border-color: var(--color-status-danger-border);
+    color: var(--color-text-inverse);
+}
+
+.nexa-confirm-accept--negative:hover,
+.nexa-confirm-accept--negative:focus-visible {
+    filter: brightness(1.06);
 }
 
 .nexa-confirm-accept--neutral {

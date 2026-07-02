@@ -72,7 +72,7 @@
     --color-raw-tag-light-work-border-dark: #b7e5dc;
     --color-raw-tag-passive-work-fill-dark: rgba(255, 200, 80, 0.2);
     --color-raw-tag-passive-work-border-dark: rgba(255, 200, 80, 0.6);
-    --color-raw-action-destructive-dark: rgb(240, 110, 100);
+    --color-raw-action-destructive-dark: rgb(240, 77, 77, 0.6);
     --color-raw-shadow-card-dark: rgba(0, 0, 0, 0.3);
     --color-raw-shadow-neutral-dark: rgba(0, 0, 0, 0.22);
 }
@@ -498,7 +498,7 @@ body.dark-mode {
     --color-auth-input: var(--color-raw-accent-primary-subtle-dark);
     --color-auth-success: var(--color-raw-priority-low-border-dark);
     --color-auth-success-border: rgba(136, 224, 164, 0.44);
-    --color-feedback-negative: var(--color-raw-action-destructive-dark);
+    --color-feedback-negative: var(--color-raw-action-destructive-light);
     --color-feedback-negative-bg: var(--color-raw-priority-high-fill-dark);
     --color-feedback-positive: var(--color-raw-priority-low-border-dark);
     --color-feedback-positive-bg: var(--color-raw-priority-low-fill-dark);

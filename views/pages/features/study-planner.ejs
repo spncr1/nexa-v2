@@ -73,237 +73,327 @@
 
         <main class="content study-planner-page">
             <header class="study-header">
-                <div>
-                    <p class="study-kicker">Today</p>
+                <div class="study-title-block">
                     <h1 class="study-title">Study Planner</h1>
-                    <p class="study-subtitle">Here's the plan. Stop thinking. Start studying.</p>
-                </div>
-
-                <div class="study-header-actions">
-                    <button class="study-mode-btn" type="button">Focus Mode</button>
-                    <button class="study-primary-action icon-add-btn" id="add-session-btn" type="button" aria-label="Add Session">
-                        <span class="app-icon icon-add" aria-hidden="true"></span>
-                    </button>
+                    <p class="study-date" id="study-current-date">Wednesday, 1 July 2026</p>
                 </div>
             </header>
 
-            <section class="study-shell">
-                <div class="study-main">
-                    <section class="study-stats" aria-label="Weekly study summary">
-                        <article class="study-stat nx-card">
-                            <span>Sessions Completed</span>
-                            <strong>8 / 12</strong>
-                            <meter min="0" max="12" value="8">8 of 12</meter>
-                        </article>
-                        <article class="study-stat nx-card">
-                            <span>Goal Progress</span>
-                            <strong>72%</strong>
-                            <meter min="0" max="100" value="72">72 percent</meter>
-                        </article>
-                        <article class="study-stat study-stat-balance nx-card">
-                            <span>Focus Balance</span>
-                            <div class="focus-donut" aria-label="Deep work 58 percent, light work 27 percent, passive work 15 percent"></div>
-                            <div class="balance-legend">
-                                <span><i class="legend-dot is-deep"></i>Deep</span>
-                                <span><i class="legend-dot is-light"></i>Light</span>
-                                <span><i class="legend-dot is-passive"></i>Passive</span>
-                            </div>
-                        </article>
-                        <article class="study-stat nx-card">
-                            <span>Total Focus Time</span>
-                            <strong>16h 30m</strong>
-                            <small>+2h 40m this week</small>
-                        </article>
-                        <article class="study-stat nx-card">
-                            <span>Active Days</span>
-                            <strong>5 / 7</strong>
-                            <div class="active-days" aria-label="Five active days this week">
-                                <i></i><i></i><i></i><i></i><i></i><i class="is-rest"></i><i class="is-rest"></i>
-                            </div>
-                        </article>
-                    </section>
-
-                    <section class="study-hero">
-                        <article class="session-queue nx-card" aria-labelledby="queue-title">
-                            <div class="card-heading">
-                                <div>
-                                    <h2 id="queue-title">Today's Session Queue</h2>
-                                    <p>Ordered study blocks for the next few hours.</p>
-                                </div>
-                                <button class="quiet-action" type="button" id="queue-add-suggested">Add Suggested</button>
-                            </div>
-
-                            <ol class="queue-list" id="queue-list">
-                                <li class="queue-item nx-card" data-session-title="Software Architecture" data-session-detail="Component diagram" data-session-type="deep" data-duration="90">
-                                    <span class="queue-index">1</span>
-                                    <div class="queue-copy">
-                                        <strong>Software Architecture</strong>
-                                        <span>Component diagram</span>
-                                        <span class="session-tag tag-deep">Deep Work</span>
-                                    </div>
-                                    <div class="queue-meta">
-                                        <span>90 min</span>
-                                        <span>9:00 AM</span>
-                                    </div>
-                                    <button class="icon-action session-play" type="button" aria-label="Start Software Architecture">
-                                        <img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true">
-                                    </button>
-                                </li>
-                                <li class="queue-item nx-card" data-session-title="Maths 2" data-session-detail="Past paper questions" data-session-type="light" data-duration="45">
-                                    <span class="queue-index">2</span>
-                                    <div class="queue-copy">
-                                        <strong>Maths 2</strong>
-                                        <span>Past paper questions</span>
-                                        <span class="session-tag tag-light">Light Work</span>
-                                    </div>
-                                    <div class="queue-meta">
-                                        <span>45 min</span>
-                                        <span>11:00 AM</span>
-                                    </div>
-                                    <button class="icon-action session-play" type="button" aria-label="Start Maths 2">
-                                        <img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true">
-                                    </button>
-                                </li>
-                                <li class="queue-item nx-card" data-session-title="Leetcode Practice" data-session-detail="Arrays and hashing" data-session-type="passive" data-duration="30">
-                                    <span class="queue-index">3</span>
-                                    <div class="queue-copy">
-                                        <strong>Leetcode Practice</strong>
-                                        <span>Arrays and hashing</span>
-                                        <span class="session-tag tag-passive">Passive Work</span>
-                                    </div>
-                                    <div class="queue-meta">
-                                        <span>30 min</span>
-                                        <span>1:00 PM</span>
-                                    </div>
-                                    <button class="icon-action session-play" type="button" aria-label="Start Leetcode Practice">
-                                        <img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true">
-                                    </button>
-                                </li>
-                            </ol>
-                        </article>
-
-                        <article class="current-session nx-card" aria-labelledby="current-title">
-                            <div class="card-heading">
-                                <div>
-                                    <h2 id="current-title">Current Session</h2>
-                                    <p id="session-state">In progress</p>
-                                </div>
-                                <span class="session-tag tag-deep" id="current-type">Deep Work</span>
-                            </div>
-
-                            <div class="timer-stage">
-                                <p id="current-subject">Software Architecture</p>
-                                <span id="current-detail">Component diagram</span>
-                                <strong id="countdown-timer" aria-live="polite">87:52</strong>
-                                <span>remaining</span>
-                            </div>
-
-                            <div class="timer-controls">
-                                <button class="timer-control" id="pause-session-btn" type="button">Pause</button>
-                                <button class="timer-control is-stop" id="stop-session-btn" type="button">Stop</button>
-                            </div>
-                        </article>
-                    </section>
-
-                    <section class="study-lower">
-                        <article class="session-history nx-card">
-                            <div class="card-heading">
-                                <div>
-                                    <h2>Session History</h2>
-                                    <p>Reuse what worked recently.</p>
-                                </div>
-                            </div>
-
-                            <div class="study-tabs" role="tablist" aria-label="Session history">
-                                <button class="is-active" type="button" data-tab="recent">Recent</button>
-                                <button type="button" data-tab="history">History</button>
-                                <button type="button" data-tab="favourites">Favourites</button>
-                            </div>
-
-                            <div class="history-panel is-active" data-panel="recent">
-                                <button class="history-row" type="button"><span>Operating Systems</span><small>Notes review · Yesterday · 1h</small></button>
-                                <button class="history-row" type="button"><span>Discrete Maths</span><small>Practice questions · Yesterday · 45m</small></button>
-                                <button class="history-row" type="button"><span>Computer Networks</span><small>Lecture review · 17 May · 1h 15m</small></button>
-                            </div>
-                            <div class="history-panel" data-panel="history">
-                                <button class="history-row" type="button"><span>Database Systems</span><small>Indexing recap · 16 May · 50m</small></button>
-                                <button class="history-row" type="button"><span>Software Studio</span><small>Prototype polish · 15 May · 2h</small></button>
-                            </div>
-                            <div class="history-panel" data-panel="favourites">
-                                <button class="history-row" type="button"><span>Deep Work Sprint</span><small>90m · No phone · Single task</small></button>
-                                <button class="history-row" type="button"><span>Past Paper Reset</span><small>45m · Timed questions</small></button>
-                            </div>
-                        </article>
-
-                        <article class="week-plan nx-card" aria-labelledby="week-plan-title">
-                            <div class="card-heading week-heading">
-                                <div>
-                                    <h2 id="week-plan-title">Week Plan</h2>
-                                    <p>Five active days. Keep the rhythm simple.</p>
-                                </div>
-                                <div class="mini-legend">
-                                    <span><i class="legend-dot is-deep"></i>Deep</span>
-                                    <span><i class="legend-dot is-light"></i>Light</span>
-                                    <span><i class="legend-dot is-passive"></i>Passive</span>
-                                </div>
-                            </div>
-
-                            <div class="week-grid" aria-label="Weekly study plan">
-                                <div class="week-day nx-card"><strong>Mon</strong><span>SA · 90m</span><span class="is-light">LC · 30m</span></div>
-                                <div class="week-day is-today nx-card"><strong>Tue</strong><span>SA · 90m</span><span class="is-light">Maths · 45m</span></div>
-                                <div class="week-day nx-card"><strong>Wed</strong><span>OS · 60m</span></div>
-                                <div class="week-day nx-card"><strong>Thu</strong><span>SA · 90m</span><span class="is-light">Maths · 45m</span></div>
-                                <div class="week-day nx-card"><strong>Fri</strong><span class="is-passive">DBS · 60m</span><span class="is-light">LC · 30m</span></div>
-                                <div class="week-day nx-card"><strong>Sat</strong><span>Catch-up · 120m</span></div>
-                                <div class="week-day nx-card"><strong>Sun</strong><span class="is-light">Review · 60m</span></div>
-                            </div>
-                        </article>
-                    </section>
+            <section class="study-stats nx-card" aria-label="Study summary">
+                <div class="study-stats-heading">
+                    <div class="study-period-toggle" role="tablist" aria-label="Study summary period">
+                        <button class="is-active" id="study-week-summary-btn" type="button" role="tab" aria-selected="true">This week</button>
+                        <button id="study-month-summary-btn" type="button" role="tab" aria-selected="false">This month</button>
+                    </div>
+                    <button class="quiet-action set-study-goal-btn" id="set-study-goal-btn" type="button">
+                        <img class="app-icon" src="/client/shared/assets/Icons/add.svg" alt="" aria-hidden="true">
+                        Set study goal now
+                    </button>
                 </div>
 
-                <aside class="study-sidebar" aria-label="Study suggestions">
-                    <article class="suggested-focuses nx-card">
-                        <div class="card-heading">
-                            <div>
-                                <h2>Suggested Focuses</h2>
-                                <p>Based on saved assignments.</p>
+                <div class="study-stats-grid">
+                    <article class="study-stat">
+                        <span>Sessions Completed</span>
+                        <strong id="sessions-completed-stat">0 / 0</strong>
+                        <div class="stat-progress"><i id="sessions-completed-progress" style="width: 0%;"></i><span id="sessions-completed-percent">0%</span></div>
+                    </article>
+                    <article class="study-stat">
+                        <span>Goal Progress</span>
+                        <strong id="goal-progress-stat">0%</strong>
+                        <small id="goal-progress-note">Set a weekly study goal now</small>
+                        <div class="stat-progress"><i id="goal-progress-bar" style="width: 0%;"></i></div>
+                    </article>
+                    <article class="study-stat study-stat-balance">
+                        <span>Focus Balance</span>
+                        <div class="focus-balance-row">
+                            <div class="focus-ring is-empty" id="focus-balance-ring" aria-label="No focus balance yet"></div>
+                            <div class="balance-legend">
+                                <span><i class="legend-dot is-deep"></i>Deep Work <b id="deep-focus-percent">0%</b></span>
+                                <span><i class="legend-dot is-passive"></i>Standard Focus <b id="standard-focus-percent">0%</b></span>
+                                <span><i class="legend-dot is-light"></i>Light Study <b id="light-study-percent">0%</b></span>
                             </div>
                         </div>
-
-                        <div class="suggestion-list">
-                            <article class="suggestion-card nx-card" data-session-title="Software Architecture" data-session-detail="Component diagram" data-session-type="deep" data-duration="90">
-                                <strong>Software Architecture</strong>
-                                <span>40% complete · Due in 9 days</span>
-                                <small>Suggested: 90 min Deep Work</small>
-                                <button class="quiet-action add-suggestion" type="button">Add to Queue</button>
-                            </article>
-                            <article class="suggestion-card nx-card" data-session-title="Maths 2" data-session-detail="Past paper questions" data-session-type="light" data-duration="60">
-                                <strong>Maths 2</strong>
-                                <span>35% complete · Due in 5 days</span>
-                                <small>Suggested: 60 min Light Work</small>
-                                <button class="quiet-action add-suggestion" type="button">Add to Queue</button>
-                            </article>
-                            <article class="suggestion-card nx-card" data-session-title="Data Structures" data-session-detail="Tree traversal drills" data-session-type="light" data-duration="45">
-                                <strong>Data Structures</strong>
-                                <span>20% complete · Due in 21 days</span>
-                                <small>Suggested: 45 min Light Work</small>
-                                <button class="quiet-action add-suggestion" type="button">Add to Queue</button>
-                            </article>
+                    </article>
+                    <article class="study-stat">
+                        <span>Total Focus Time</span>
+                        <strong id="total-focus-time-stat">0m</strong>
+                        <small id="total-focus-time-note">No study time logged yet</small>
+                    </article>
+                    <article class="study-stat">
+                        <span>Active Days</span>
+                        <strong id="active-days-stat">0 / 7</strong>
+                        <div class="active-days" id="active-days-list" aria-label="No active study days this week">
+                            <span><i class="is-rest"></i>M</span>
+                            <span><i class="is-rest"></i>T</span>
+                            <span><i class="is-rest"></i>W</span>
+                            <span><i class="is-rest"></i>T</span>
+                            <span><i class="is-rest"></i>F</span>
+                            <span><i class="is-rest"></i>S</span>
+                            <span><i class="is-rest"></i>S</span>
                         </div>
                     </article>
-
-                    <article class="focus-streak nx-card">
-                        <div class="card-heading">
-                            <div>
-                                <h2>Focus Streak</h2>
-                                <p>Keep it going.</p>
-                            </div>
-                        </div>
-                        <strong>7 days</strong>
-                        <div class="streak-line" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-                    </article>
-                </aside>
+                </div>
             </section>
+
+            <section class="study-board" aria-label="Study planner workspace">
+                <div class="study-board-left">
+                    <article class="session-queue nx-card" aria-labelledby="queue-title">
+                        <div class="card-heading">
+                            <div class="card-title-row">
+                                <h2 id="queue-title">Today's Session Queue</h2>
+                                <span class="count-pill">0 sessions</span>
+                            </div>
+                            <div class="card-actions queue-card-actions">
+                                <button class="quiet-action" id="play-next-session-btn" type="button">
+                                    <img class="app-icon" src="/client/shared/assets/Icons/play.svg" alt="" aria-hidden="true">
+                                    Play
+                                </button>
+                                <button class="quiet-action" id="add-session-btn" type="button">
+                                    <img class="app-icon" src="/client/shared/assets/Icons/add.svg" alt="" aria-hidden="true">
+                                    Add Session
+                                </button>
+                                <button class="quiet-action" id="clear-queue-btn" type="button">
+                                    <img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true">
+                                    Clear Queue
+                                </button>
+                            </div>
+                        </div>
+
+                        <ol class="queue-list" id="queue-list"></ol>
+                        <p class="study-empty-state" id="queue-empty-state">No study sessions queued yet.</p>
+                    </article>
+
+                    <article class="session-history nx-card">
+                        <div class="card-heading">
+                            <h2>Session History</h2>
+                        </div>
+
+                        <div class="study-tabs" role="tablist" aria-label="Session history">
+                            <button class="is-active" type="button" data-tab="recent">Recent</button>
+                            <button type="button" data-tab="history">History</button>
+                            <button type="button" data-tab="favourites">Favourites</button>
+                        </div>
+
+                        <div class="history-panel is-active" data-panel="recent">
+                            <p class="study-empty-state">No recent study sessions yet.</p>
+                        </div>
+                        <div class="history-panel" data-panel="history">
+                            <p class="study-empty-state">Your completed sessions will appear here.</p>
+                        </div>
+                        <div class="history-panel" data-panel="favourites">
+                            <p class="study-empty-state">No favourited sessions yet.</p>
+                        </div>
+                    </article>
+                </div>
+
+                <article class="current-session nx-card" aria-labelledby="current-title">
+                    <div class="card-heading current-heading">
+                        <h2 id="current-title">Current Session</h2>
+                        <div class="session-status is-hidden">
+                            <i class="is-idle" aria-hidden="true"></i>
+                            <span id="session-state"></span>
+                        </div>
+                    </div>
+
+                    <div class="timer-stage">
+                        <span class="session-icon nexa-session-icon" aria-hidden="true">
+                            <img class="app-icon" src="/client/shared/assets/Images/nexa-v1.png" alt="">
+                        </span>
+                        <p id="current-subject">No active session</p>
+                        <span id="current-detail">Start or add a session to begin.</span>
+                        <span class="session-tag tag-deep is-hidden" id="current-type">Deep Work</span>
+                        <div class="timer-ring is-empty">
+                            <input id="countdown-timer" type="text" inputmode="numeric" autocomplete="off" value="00:00:00" aria-label="Timer duration">
+                            <span id="timer-remaining-label" class="is-hidden">remaining</span>
+                        </div>
+                    </div>
+
+                    <button class="timer-reset-btn" id="reset-timer-btn" type="button">Reset</button>
+
+                    <div class="timer-controls">
+                        <button class="timer-control is-prev" id="previous-session-btn" type="button" aria-label="Previous session" title="Previous session">
+                            <img class="app-icon" src="/client/shared/assets/Icons/skip-previous.svg" alt="" aria-hidden="true">
+                        </button>
+                        <button class="timer-control is-pause" id="pause-session-btn" type="button" aria-label="Start timer" title="Start timer">
+                            <img class="app-icon" id="pause-session-icon" src="/client/shared/assets/Icons/play.svg" alt="" aria-hidden="true">
+                        </button>
+                        <button class="timer-control is-next" id="next-session-btn" type="button" aria-label="Next session" title="Next session">
+                            <img class="app-icon" src="/client/shared/assets/Icons/skip-next.svg" alt="" aria-hidden="true">
+                        </button>
+                        <button class="timer-control is-repeat" id="repeat-session-btn" type="button" aria-label="Repeat session" title="Repeat session">
+                            <img class="app-icon" src="/client/shared/assets/Icons/repeat.svg" alt="" aria-hidden="true">
+                        </button>
+                        <button class="timer-control is-stop" id="stop-session-btn" type="button" aria-label="Abandon session" title="Abandon session">
+                            <img class="app-icon" src="/client/shared/assets/Icons/stop.svg" alt="" aria-hidden="true">
+                        </button>
+                    </div>
+                </article>
+
+                <aside class="suggested-focuses nx-card" aria-label="Suggested focuses">
+                    <div class="card-heading">
+                        <h2>Suggested Focuses</h2>
+                        <a href="/assignments" id="view-assignments">View all assignments</a>
+                    </div>
+
+                    <div class="suggestion-list">
+                        <p class="study-empty-state">No suggested focuses yet.</p>
+                    </div>
+                </aside>
+
+                <article class="week-plan nx-card" aria-labelledby="week-plan-title">
+                    <div class="card-heading week-heading">
+                        <div class="week-title-group">
+                            <h2 id="week-plan-title">Week Plan</h2>
+                            <div class="week-nav-actions" aria-label="Change week">
+                                <button class="tasks-nav-btn week-nav-btn" id="previous-week-btn" type="button" aria-label="Previous week" title="Previous week">
+                                    <span class="app-icon icon-prev" aria-hidden="true"></span>
+                                </button>
+                                <button class="period-now-btn" id="current-plan-period-btn" type="button">This week</button>
+                                <button class="tasks-nav-btn week-nav-btn" id="next-week-btn" type="button" aria-label="Next week" title="Next week">
+                                    <span class="app-icon icon-next" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mini-legend">
+                            <span><i class="legend-dot is-deep"></i>Deep Work</span>
+                            <span><i class="legend-dot is-passive"></i>Standard Focus</span>
+                            <span><i class="legend-dot is-light"></i>Light Study</span>
+                        </div>
+                    </div>
+
+                    <div class="week-grid" aria-label="Weekly study plan">
+                        <div class="week-day"><strong>Mon <span>29</span></strong></div>
+                        <div class="week-day is-today"><strong>Tue <span>30</span></strong></div>
+                        <div class="week-day"><strong>Wed <span>1</span></strong></div>
+                        <div class="week-day"><strong>Thu <span>2</span></strong></div>
+                        <div class="week-day"><strong>Fri <span>3</span></strong></div>
+                        <div class="week-day"><strong>Sat <span>4</span></strong></div>
+                        <div class="week-day"><strong>Sun <span>5</span></strong></div>
+                    </div>
+
+                    <div class="month-plan-list hidden" id="month-plan-list" aria-label="Monthly study plan summary"></div>
+
+                    <p class="week-note">No planned study sessions this week.</p>
+                </article>
+            </section>
+
+            <div id="study-modal-backdrop" class="hidden"></div>
+
+            <div id="add-study-session-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="add-study-session-title">
+                <button type="button" id="close-study-session-modal-btn" class="settings-close-btn" aria-label="Close add session modal"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
+                <h3 id="add-study-session-title" align="center">ADD SESSION</h3>
+
+                <div class="form-row">
+                    <label for="study-session-title"><strong>Title</strong></label>
+                    <input id="study-session-title" type="text" autocomplete="off" placeholder="e.g., Exam revision">
+                </div>
+
+                <div class="form-row">
+                    <label for="study-session-type"><strong>Category</strong></label>
+                    <select id="study-session-type">
+                        <option value="light">Light Study</option>
+                        <option value="standard" selected>Standard Focus</option>
+                        <option value="deep">Deep Work</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="study-session-duration"><strong>Duration</strong></label>
+                    <div class="duration-field-group">
+                        <input id="study-session-duration" type="text" inputmode="numeric" autocomplete="off" placeholder="HH:MM:SS">
+                        <div class="duration-preset-row" id="study-session-duration-presets" aria-label="Duration presets"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="study-session-notes"><strong>Notes</strong></label>
+                    <textarea id="study-session-notes" rows="3" maxlength="500" placeholder="Optional notes here..."></textarea>
+                </div>
+
+                <p id="study-session-status-text" class="task-status"></p>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary is-neutral" id="cancel-study-session-btn" type="button"><span class="ui-btn-label">Cancel</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary is-success" id="confirm-study-session-btn" type="button"><span class="ui-btn-label">Add</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
+                </div>
+            </div>
+
+            <div id="study-session-detail-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="study-session-detail-title">
+                <button type="button" id="close-study-session-detail-btn" class="settings-close-btn" aria-label="Close session details"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
+                <h3 id="study-session-detail-title" align="center">EDIT SESSION</h3>
+
+                <div class="form-row">
+                    <label for="detail-session-title"><strong>Title</strong></label>
+                    <input id="detail-session-title" type="text" autocomplete="off">
+                </div>
+
+                <div class="form-row">
+                    <label for="detail-session-type"><strong>Category</strong></label>
+                    <select id="detail-session-type">
+                        <option value="light">Light Study</option>
+                        <option value="standard">Standard Focus</option>
+                        <option value="deep">Deep Work</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="detail-session-duration"><strong>Duration</strong></label>
+                    <div class="duration-field-group">
+                        <input id="detail-session-duration" type="text" inputmode="numeric" autocomplete="off">
+                        <div class="duration-preset-row" id="detail-session-duration-presets" aria-label="Duration summary"></div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <label for="detail-session-notes"><strong>Notes</strong></label>
+                    <textarea id="detail-session-notes" rows="3" maxlength="500"></textarea>
+                </div>
+
+                <p id="study-session-detail-status-text" class="task-status"></p>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary is-neutral" id="cancel-study-session-detail-btn" type="button"><span class="ui-btn-label">Cancel</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary is-success" id="favourite-study-session-btn" type="button"><span class="ui-btn-label">Favourite</span><img class="app-icon" src="/client/shared/assets/Icons/favourite.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary is-danger" id="delete-study-session-btn" type="button"><span class="ui-btn-label">Delete</span><img class="app-icon" src="/client/shared/assets/Icons/delete.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary is-success" id="save-study-session-detail-btn" type="button"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
+                </div>
+            </div>
+
+            <div id="study-goal-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="study-goal-title">
+                <button type="button" id="close-study-goal-btn" class="settings-close-btn" aria-label="Close study goal modal"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
+                <h3 id="study-goal-title" align="center">SET WEEKLY STUDY GOAL</h3>
+
+                <div class="form-row">
+                    <label for="goal-target-sessions"><strong>Target sessions</strong></label>
+                    <input id="goal-target-sessions" type="number" min="1" step="1" inputmode="numeric" autocomplete="off" placeholder="8">
+                </div>
+
+                <div class="form-row">
+                    <label for="goal-target-time"><strong>Target focus time</strong></label>
+                    <input id="goal-target-time" type="text" autocomplete="off" placeholder="e.g., 10h or 2h 30m">
+                </div>
+
+                <div class="form-row">
+                    <label for="goal-active-days"><strong>Active days</strong></label>
+                    <input id="goal-active-days" type="number" min="1" step="1" inputmode="numeric" autocomplete="off" placeholder="4">
+                </div>
+
+                <fieldset class="goal-balance-fields">
+                    <legend>Focus balance</legend>
+                    <label for="goal-deep-work">Deep Work <input id="goal-deep-work" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="50"><span>%</span></label>
+                    <label for="goal-standard-focus">Standard Focus <input id="goal-standard-focus" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="30"><span>%</span></label>
+                    <label for="goal-light-study">Light Study <input id="goal-light-study" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="20"><span>%</span></label>
+                </fieldset>
+
+                <p id="study-goal-status-text" class="task-status"></p>
+
+                <div class="modal-actions">
+                    <button class="btn-secondary is-neutral" id="cancel-study-goal-btn" type="button"><span class="ui-btn-label">Cancel</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                    <button class="btn-secondary is-success" id="save-study-goal-btn" type="button"><span class="ui-btn-label">Save Goal</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
+                </div>
+            </div>
 
             <%- include("../../partials/system-settings") %>
         </main>
