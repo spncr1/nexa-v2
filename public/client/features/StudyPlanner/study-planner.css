@@ -1600,7 +1600,24 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
     width: 84px;
 }
 
+/*  ===================================
+            RESPONSIVE DESIGN
+    ===================================
+*/
+
+/* ### DESKTOPS ### */
+@media (max-width: 1440px) {
+
+}
+
+/* ### TABLETS ### */
+@media (max-width: 1024px) {
+
+}
+
+/* ### SPLIT SCREEN ### */
 @media (max-width: 1280px) {
+    /* Split-screen study board */
     .study-board {
         grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
         grid-template-areas:
@@ -1610,14 +1627,17 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
             "week week";
     }
 
+    /* Split-screen suggestions */
     .suggestion-list {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    /* Split-screen stats */
     .study-stats-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    /* Split-screen stat cards */
     .study-stat {
         border-right: 0;
         border-bottom: 1px solid var(--study-light-blue-border);
@@ -1628,11 +1648,14 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
     }
 }
 
+/* ### SPLIT SCREEN STACK ### */
 @media (max-width: 980px) {
+    /* Split-stack study board */
     .study-board {
         grid-template-columns: 1fr;
     }
 
+    /* Split-stack study order */
     .study-board {
         grid-template-areas:
             "queue"
@@ -1642,41 +1665,77 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
             "week";
     }
 
+    /* Split-stack lists */
     .suggestion-list,
     .week-grid {
         grid-template-columns: 1fr;
     }
 
+    /* Split-stack current session */
     .current-session {
         min-height: auto;
     }
 }
 
-@media (max-width: 760px) {
+/* ### PHONES ### */
+@media (max-width: 600px) {
+    /* Mobile content rhythm */
     .content.study-planner-page {
-        padding: 16px;
+        display: block;
+    }
+
+    /* Mobile header */
+    .study-header {
+        margin-bottom: 0.85rem;
     }
 
     .study-title {
-        font-size: 28px;
+        font-size: clamp(1.65rem, 8vw, 2.15rem);
+        line-height: 1.08;
     }
 
+    .study-date {
+        font-size: clamp(0.85rem, 4vw, 1rem);
+    }
+
+    /* Mobile cards */
+    .nx-card {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    /* Mobile stats card */
     .study-stats {
-        padding: 14px;
+        padding: 0.85rem;
     }
 
     .study-stats-heading {
         align-items: flex-start;
         flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .study-period-toggle {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .study-period-toggle button,
+    .quiet-action {
+        min-height: 2.2rem;
+        padding: 0.45rem 0.7rem;
+        font-size: 0.8rem;
     }
 
     .study-stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .study-stat,
     .study-stat:nth-last-child(-n + 2) {
-        padding: 12px 0;
+        padding: 0.75rem 0;
         border-bottom: 1px solid var(--study-light-blue-border);
     }
 
@@ -1684,32 +1743,135 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
         border-bottom: 0;
     }
 
+    .focus-balance-row {
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: start;
+    }
+
+    .balance-legend {
+        width: 100%;
+    }
+
+    /* Mobile study board */
+    .study-board {
+        grid-template-columns: minmax(0, 1fr);
+        gap: clamp(0.85rem, 4vw, 1.1rem);
+    }
+
+    .study-board-left {
+        gap: clamp(0.85rem, 4vw, 1.1rem);
+        min-width: 0;
+    }
+
+    /* Mobile card headers */
     .card-heading,
     .week-heading {
         align-items: start;
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         flex-direction: column;
+        gap: 0.65rem;
+    }
+
+    .card-title-row {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .card-heading h2,
+    .week-heading h2 {
+        font-size: clamp(1rem, 5.4vw, 1.25rem);
+        line-height: 1.12;
     }
 
     .card-actions,
     .mini-legend {
         justify-content: start;
         flex-wrap: wrap;
+        gap: 0.45rem;
     }
 
+    /* Mobile queue */
     .queue-item {
-        grid-template-columns: auto auto minmax(0, 1fr) auto;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 0.55rem;
     }
 
     .queue-meta {
-        grid-column: 3 / 4;
+        grid-column: 2 / 3;
         text-align: left;
+    }
+
+    /* Mobile current session */
+    .current-session {
+        min-height: auto;
+    }
+
+    .timer-stage {
+        gap: 0.65rem;
+    }
+
+    .timer-ring {
+        width: min(14rem, 64vw);
+        height: auto;
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+    }
+
+    #countdown-timer {
+        font-size: clamp(1.75rem, 10vw, 2.35rem);
+    }
+
+    .timer-controls {
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .timer-control {
+        width: 2.45rem;
+        height: 2.45rem;
+        min-width: 2.45rem;
+        min-height: 2.45rem;
+        flex: 0 0 2.45rem;
+        aspect-ratio: 1 / 1;
+    }
+
+    /* Mobile suggestions and week plan */
+    .suggestion-list,
+    .week-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .week-nav-actions {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .period-now-btn {
+        min-height: 2.1rem;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.78rem;
+    }
+
+    .week-day {
+        min-height: 4.25rem;
+    }
+
+    /* Mobile study modals */
+    #add-study-session-modal,
+    #study-session-detail-modal,
+    #study-goal-modal {
+        width: min(88vw, 22rem);
+        max-height: min(76vh, 34rem);
+        padding: 0.85rem;
+        overflow-y: auto;
+        box-sizing: border-box;
     }
 
     #add-study-session-modal .form-row,
     #study-session-detail-modal .form-row,
     #study-goal-modal .form-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 0.4rem;
     }
 
     #add-study-session-modal .form-row label,
@@ -1718,13 +1880,96 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
         padding-top: 0;
     }
 
+    #add-study-session-modal input,
+    #add-study-session-modal textarea,
+    #add-study-session-modal select,
+    #study-session-detail-modal input,
+    #study-session-detail-modal textarea,
+    #study-session-detail-modal select,
+    #study-goal-modal input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .duration-field-group,
+    .duration-preset-row {
+        min-width: 0;
+    }
+
     #add-study-session-modal .modal-actions,
     #study-session-detail-modal .modal-actions,
     #study-goal-modal .modal-actions {
         flex-wrap: wrap;
+        justify-content: flex-start;
+        gap: 0.5rem;
     }
 
     .goal-balance-fields {
         margin-left: 0;
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* ### SMALL PHONES ### */
+@media (max-width: 430px) {
+    /* Small-phone header */
+    .study-title {
+        font-size: clamp(1.45rem, 8vw, 1.85rem);
+    }
+
+    /* Small-phone cards */
+    .study-stats,
+    .nx-card {
+        border-radius: 8px;
+        padding: 0.7rem;
+    }
+
+    /* Small-phone actions */
+    .study-period-toggle button,
+    .quiet-action {
+        min-height: 2rem;
+        padding: 0.38rem 0.55rem;
+        font-size: 0.74rem;
+    }
+
+    /* Small-phone current session */
+    .timer-ring {
+        width: min(12rem, 66vw);
+        height: auto;
+        aspect-ratio: 1 / 1;
+    }
+
+    #countdown-timer {
+        font-size: clamp(1.45rem, 9vw, 1.95rem);
+    }
+
+    .timer-control {
+        width: 2.25rem;
+        height: 2.25rem;
+        min-width: 2.25rem;
+        min-height: 2.25rem;
+        flex-basis: 2.25rem;
+        aspect-ratio: 1 / 1;
+    }
+
+    /* Small-phone queue */
+    .queue-item {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .queue-meta {
+        grid-column: 1 / -1;
+    }
+
+    /* Small-phone week plan */
+    .week-day {
+        min-height: 3.75rem;
+    }
+
+    /* Small-phone modals */
+    #add-study-session-modal,
+    #study-session-detail-modal,
+    #study-goal-modal {
+        width: min(90vw, 20rem);
     }
 }

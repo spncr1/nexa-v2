@@ -1346,6 +1346,11 @@ body.dark-mode #language-pref-select {
     margin-top: 0;
 }
 
+/*  ===================================
+            RESPONSIVE DESIGN
+    ===================================
+*/
+
 @media (max-width: 760px) {
     .settings-modal {
         width: min(94vw, 520px);
