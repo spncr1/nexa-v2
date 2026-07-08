@@ -35,6 +35,11 @@ html, body {
     box-sizing: border-box;
 }
 
+body > main.content {
+    width: 100%;
+    margin: 0 auto;
+}
+
 #nexa-logo {
     max-height: 150px;
     max-width: 150px;
