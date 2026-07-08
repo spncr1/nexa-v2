@@ -216,7 +216,7 @@ body:not(.dark-mode) .tasks-view-toggle .btn-secondary[aria-selected="true"] {
     position: relative;
     min-width: 0;
     border: 1px solid var(--color-raw-surface-panel-dark);
-    border-radius: 12px 12px 12px 0;
+    border-radius: 12px;
     background: var(--color-raw-surface-card-dark);
     box-shadow: 0 2px 12px var(--color-raw-shadow-card-dark), inset 0 1px 0 var(--color-raw-surface-subtle-dark);
     backdrop-filter: blur(12px) saturate(1.2);
@@ -391,7 +391,7 @@ body.dark-mode #tasks-month-view .tasks-summary-metric.priority-low {
     min-width: 180px;
     min-height: 520px;
     border: 1px solid var(--color-raw-surface-panel-dark);
-    border-radius: 12px 12px 12px 0;
+    border-radius: 12px;
     background: var(--color-raw-surface-card-dark);
     box-shadow: 0 2px 12px var(--color-raw-shadow-card-dark), inset 0 1px 0 var(--color-raw-surface-subtle-dark);
     backdrop-filter: blur(12px) saturate(1.2);
@@ -570,7 +570,7 @@ body.dark-mode #tasks-week-board .tasks-day-column.today {
 .task-card {
     position: relative;
     width: 100%;
-    border-radius: 12px 12px 12px 0;
+    border-radius: 12px;
     border: 1px solid var(--color-raw-surface-panel-dark);
     box-shadow: 0 2px 12px var(--color-raw-shadow-card-dark), inset 0 1px 0 var(--color-raw-surface-subtle-dark);
     backdrop-filter: blur(12px) saturate(1.2);
@@ -733,6 +733,15 @@ body.dark-mode #tasks-month-view .task-card.is-completed {
         radial-gradient(circle at 31px 13px, currentColor 0 2px, transparent 2px),
         linear-gradient(45deg, transparent 47%, currentColor 48% 52%, transparent 53%) 3px 2px / 14px 12px no-repeat,
         linear-gradient(90deg, currentColor, currentColor) 14px 13px / 15px 1px no-repeat;
+}
+
+.tasks-summary-metric::before,
+.tasks-summary-metric::after,
+.tasks-day-column::before,
+.tasks-day-column::after,
+.task-card::before,
+.task-card::after {
+    content: none;
 }
 
 .task-card.is-completed .task-card-title {

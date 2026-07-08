@@ -73,6 +73,7 @@
                     </details>
                 </li>
             </ul>
+            <%- include("../../partials/settings-navbar-actions") %>
         </nav>
 
         <main class="content">
@@ -140,13 +141,13 @@
                 <h3 id="task-modal-title" align="center">ADD TASK</h3>
 
                 <div class="form-row">
-                    <label for="task-title"><strong>Title</strong></label>
+                    <label for="task-title"><strong>Title<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="task-title" type="text" placeholder="e.g., Finish tutorial">
                 </div>
 
                 <div class="form-row">
                     <label for="task-notes"><strong>Notes</strong></label>
-                    <textarea id="task-notes" rows="3" placeholder="Optional..."></textarea>
+                    <textarea id="task-notes" rows="3" placeholder="e.g., Don't forget water bottle!"></textarea>
                 </div>
 
                 <div class="form-row">
@@ -187,6 +188,8 @@
         <script src="/client/shared/theme-boot.js"></script>
         <script src="/client/app-storage.js"></script>
         <script src="/client/shared/feedback.js"></script>
+        <script src="/client/shared/preferences.js"></script>
+        <script src="/client/shared/copy.js"></script>
         <script src="/client/shared/settings-modal.js"></script>
         <script src="/client/features/Tasks/tasks.js"></script>
     </body>

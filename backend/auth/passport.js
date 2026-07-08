@@ -4,7 +4,7 @@
 
 const localStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
-const { normalizeEmail } = require('./auth-validation')
+const { normalizeEmail } = require('./validation')
 
 const INVALID_LOGIN_MESSAGE = 'Email or password is incorrect.'
 

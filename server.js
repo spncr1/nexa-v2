@@ -26,16 +26,25 @@ const {
     findUserById,
     findValidAuthToken,
     formatDbError,
-    getUserAppState,
     invalidateAuthTokens,
     invalidatePendingRegistration,
     pool,
     resetPasswordWithAuthToken,
-    saveUserAppState,
     testDatabaseConnection,
     updateUserById,
     updateUserPasswordById
-} = require('./db')
+} = require('./backend/database/db')
+const { runPendingMigrations } = require('./backend/database/migrations')
+const {
+    apiErrorHandler
+} = require('./backend/middleware/api')
+const assignmentsRouter = require('./backend/routes/assignments')
+const preferencesRouter = require('./backend/routes/preferences')
+const profileRouter = require('./backend/routes/profile')
+const remindersRouter = require('./backend/routes/reminders')
+const studyRouter = require('./backend/routes/study')
+const subjectsRouter = require('./backend/routes/subjects')
+const tasksRouter = require('./backend/routes/tasks')
 const {
     validateAccountInput,
     validateForgotPasswordInput,
@@ -43,14 +52,17 @@ const {
     validatePassword,
     validatePasswordResetInput,
     validateRegistrationInput
-} = require('./auth-validation')
+} = require('./backend/auth/validation')
 const {
     assertEmailConfiguration,
     sendEmailVerificationEmail,
     sendPasswordResetEmail
-} = require('./mailer')
+} = require('./backend/services/mailer')
+const {
+    startEmailReminderScheduler
+} = require('./backend/services/reminders')
 
-const initialisePassport = require('./passport.config')
+const initialisePassport = require('./backend/auth/passport')
 initialisePassport(
     passport, 
     findUserByEmail,
@@ -71,6 +83,9 @@ function ensureAppReady() {
             console.log('Database connection OK')
             await ensureDatabaseSchema()
             console.log('Database schema OK')
+            await runPendingMigrations(pool)
+            console.log('Database migrations OK')
+            startEmailReminderScheduler()
         })().catch((error) => {
             startupPromise = null
             throw error
@@ -211,6 +226,14 @@ app.use(async (req, res, next) => {
     }
 })
 
+app.use('/api/subjects', checkAuthenticatedApi, subjectsRouter)
+app.use('/api/assignments', checkAuthenticatedApi, assignmentsRouter)
+app.use('/api/tasks', checkAuthenticatedApi, tasksRouter)
+app.use('/api/study', checkAuthenticatedApi, studyRouter)
+app.use('/api/profile', checkAuthenticatedApi, profileRouter)
+app.use('/api/preferences', checkAuthenticatedApi, preferencesRouter)
+app.use('/api/reminders', checkAuthenticatedApi, remindersRouter)
+
 app.get('/', (req, res) => {
     if (req.isAuthenticated()) {
         return res.render('pages/index.ejs')
@@ -316,6 +339,7 @@ app.get('/verify-email/:token', checkNotAuthenticated, async (req, res) => {
     }
 });
 
+/* Login */
 app.post('/login', checkNotAuthenticated, (req, res, next) => {
     const validation = validateLoginInput(req.body)
 
@@ -351,6 +375,7 @@ app.post('/login', checkNotAuthenticated, (req, res, next) => {
     })(req, res, next)
 })
 
+/* Forgot Password */
 app.post('/forgot-password', checkNotAuthenticated, async (req, res) => {
     const validation = validateForgotPasswordInput(req.body)
 
@@ -448,6 +473,7 @@ app.post('/reset-password/:token', checkNotAuthenticated, async (req, res) => {
     }
 })
 
+/* Registration */
 app.post('/register', checkNotAuthenticated, async (req, res) => {
     try {
         const validation = validateRegistrationInput(req.body)
@@ -682,37 +708,7 @@ app.delete('/api/me', checkAuthenticatedApi, async (req, res, next) => {
     }
 })
 
-app.get('/api/app-state', checkAuthenticatedApi, async (req, res) => {
-    try {
-        const storage = await getUserAppState(req.user.id)
-
-        if (!storage.studenthub_user_name && req.user.name) {
-            storage.studenthub_user_name = req.user.name
-        }
-
-        res.json({ storage })
-    } catch (error) {
-        console.error('Failed to load app state:', formatDbError(error))
-        res.status(500).json({ error: 'Could not load app data right now' })
-    }
-})
-
-app.put('/api/app-state', checkAuthenticatedApi, async (req, res) => {
-    try {
-        const incomingStorage = req.body?.storage
-        const storage = incomingStorage && typeof incomingStorage === 'object' ? incomingStorage : {}
-
-        if (!storage.studenthub_user_name && req.user.name) {
-            storage.studenthub_user_name = req.user.name
-        }
-
-        const savedStorage = await saveUserAppState(req.user.id, storage)
-        res.json({ storage: savedStorage })
-    } catch (error) {
-        console.error('Failed to save app state:', formatDbError(error))
-        res.status(500).json({ error: 'Could not save app data right now' })
-    }
-})
+app.use('/api', apiErrorHandler)
 
 app.get('/index.html', checkAuthenticated, (req, res) => {
     res.redirect('/')

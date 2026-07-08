@@ -7,6 +7,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const databaseCount = document.querySelector("#database-count");
     const form = document.querySelector("#application-form");
 
+    function copy(key, fallback = "") {
+        return window.NexaCopy?.get?.(key, fallback) ?? fallback;
+    }
+
     let activeCategory = "swe";
 
     const categoryNames = {
@@ -53,8 +57,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form?.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (window.showToast) {
-            window.showToast("Application saved.", "positive");
+        if (window.NexaFeedback) {
+            window.NexaFeedback.toast(copy("jobs.toast.saved", "Application saved."), { tone: "positive" });
+        } else if (window.showToast) {
+            window.showToast(copy("jobs.toast.saved", "Application saved."), "positive");
         }
         form.reset();
     });

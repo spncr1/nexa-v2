@@ -71,6 +71,7 @@
                     </details>
                 </li>
             </ul>
+            <%- include("../partials/settings-navbar-actions") %>
         </nav>
 
         <main class="content">
@@ -96,7 +97,7 @@
             
             <hr>
             <section class="welcome-panel" aria-label="Welcome summary">
-                <h2 class="welcome-heading">Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
+                <h2 class="welcome-heading" data-sensitive>Welcome back, <span id="welcome-name"></span>.</h2> <!-- just a placeholder for now, will use a variable that stores the logged in user later to replace this -->
                 <p id="welcome-carousel-copy" class="welcome-carousel-copy"></p>
             </section>
 
@@ -166,11 +167,11 @@
             </template>
 
             <template id="assignment-due-empty-template">
-                <li class="assignment-due-empty empty-state-reveal">No deadlines here. Enjoy the breathing room.</li>
+                <li class="assignment-due-empty empty-state-reveal" data-copy-key="home.assignmentsDue.empty">No deadlines here. Enjoy the breathing room.</li>
             </template>
 
             <template id="task-empty-template">
-                <li class="task-empty empty-state-reveal">Nothing planned here yet. Let's give the day some structure.</li>
+                <li class="task-empty empty-state-reveal" data-copy-key="home.tasks.empty">Nothing planned here yet. Let's give the day some structure.</li>
             </template>
 
              <div id="modal-backdrop" class="hidden"></div>
@@ -182,14 +183,14 @@
                 <h3 id="task-modal-title" align="center">ADD TASK</h3>
                 <!-- Title -->
                  <div class="form-row">
-                    <label for="task-title"><strong>Title</strong></label>
+                    <label for="task-title"><strong>Title<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="task-title" type="text" placeholder="e.g., Finish tutorial">
                  </div>
 
                 <!-- Notes -->
                 <div class="form-row">
                     <label for="task-notes"><strong>Notes</strong></label>
-                    <textarea id="task-notes" rows="3" placeholder="Optional..."></textarea>
+                    <textarea id="task-notes" rows="3" placeholder="e.g., Don't forget water bottle!"></textarea>
                 </div>
 
                 <!-- Priority -->
@@ -225,6 +226,8 @@
         <script src="/client/shared/theme-boot.js"></script>
         <script src="/client/app-storage.js"></script>
         <script src="/client/shared/feedback.js"></script>
+        <script src="/client/shared/preferences.js"></script>
+        <script src="/client/shared/copy.js"></script>
         <script src="/client/shared/settings-modal.js"></script>
         <script src="/index.js"></script>
     </body>

@@ -1,5 +1,9 @@
 /*
-    defines db tables 
+    Core auth and session schema reference:
+
+    These tables support accounts, login sessions, email verification, and
+    password reset. Feature-specific app data is managed through the SQL
+    migrations in backend/database/migrations.
 */
 
 CREATE TABLE IF NOT EXISTS users (
@@ -8,13 +12,6 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS user_app_state (
-    user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    storage JSONB NOT NULL DEFAULT '{}'::jsonb,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS auth_tokens (

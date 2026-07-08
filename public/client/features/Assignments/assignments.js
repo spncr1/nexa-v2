@@ -67,15 +67,63 @@ document.addEventListener("DOMContentLoaded", async () => {
     const PIE_ASSIGNMENT_LABEL_MAX = 12;
     const ASSIGNMENT_REMINDERS_LIMIT = 3;
     const DEFAULT_ASSIGNMENT_SORT = { key: "dueDate", direction: "asc" };
-    const EMPTY_COPY = {
+    const ASSIGNMENT_CHART_PALETTE_LIGHT = [
+        "hsl(210, 44%, 55%)",
+        "hsl(144, 34%, 48%)",
+        "hsl(40, 50%, 52%)",
+        "hsl(282, 36%, 58%)",
+        "hsl(4, 45%, 58%)",
+        "hsl(184, 34%, 45%)"
+    ];
+    const ASSIGNMENT_CHART_PALETTE_DARK = [
+        "hsl(210, 40%, 62%)",
+        "hsl(148, 30%, 58%)",
+        "hsl(42, 42%, 58%)",
+        "hsl(282, 30%, 62%)",
+        "hsl(4, 38%, 62%)",
+        "hsl(184, 30%, 56%)"
+    ];
+    const EMPTY_COPY_FALLBACKS = {
         assignments: "Add your first assignment and start seeing the workload.",
         subjects: "Add a subject now. Give your work a home.",
         subjectDropdown: "You must add a subject first.",
         filter: "Nothing in this view. Clear the filter to widen the picture.",
         description: "No extra notes yet, Just the useful bits."
     };
+    const EMPTY_COPY = {
+        get assignments() {
+            return window.NexaCopy?.get?.("assignments.empty.assignments", EMPTY_COPY_FALLBACKS.assignments) ?? EMPTY_COPY_FALLBACKS.assignments;
+        },
+        get subjects() {
+            return window.NexaCopy?.get?.("assignments.empty.subjects", EMPTY_COPY_FALLBACKS.subjects) ?? EMPTY_COPY_FALLBACKS.subjects;
+        },
+        get subjectDropdown() {
+            return window.NexaCopy?.get?.("assignments.empty.subjectDropdown", EMPTY_COPY_FALLBACKS.subjectDropdown) ?? EMPTY_COPY_FALLBACKS.subjectDropdown;
+        },
+        get filter() {
+            return window.NexaCopy?.get?.("assignments.empty.filter", EMPTY_COPY_FALLBACKS.filter) ?? EMPTY_COPY_FALLBACKS.filter;
+        },
+        get description() {
+            return window.NexaCopy?.get?.("assignments.empty.description", EMPTY_COPY_FALLBACKS.description) ?? EMPTY_COPY_FALLBACKS.description;
+        }
+    };
     let activeChartFilter = { type: null, value: null };
     let assignmentTableSort = { ...DEFAULT_ASSIGNMENT_SORT };
+
+    function copy(key, fallback = "") {
+        return window.NexaCopy?.get?.(key, fallback) ?? fallback;
+    }
+
+    function deadlineReminderLevel() {
+        return window.NexaPreferences?.get?.("deadlineReminderLevel") || "important";
+    }
+
+    function getAssignmentChartColour(index) {
+        const palette = document.body.classList.contains("dark-mode")
+            ? ASSIGNMENT_CHART_PALETTE_DARK
+            : ASSIGNMENT_CHART_PALETTE_LIGHT;
+        return palette[index % palette.length];
+    }
 
     function loadSemesterLabel() {
         const saved = storage.getItem(SEMESTER_KEY);
@@ -661,8 +709,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         const today = getTodayAtNoon();
         const subjects = loadSubjects();
         const subjectNameById = new Map(subjects.map(s => [s.id, s.name]));
+        const reminderLevel = deadlineReminderLevel();
 
-        const reminders = loadAssignments()
+        const reminders = reminderLevel === "off" ? [] : loadAssignments()
             .map((assignment) => ({
                 ...assignment,
                 dueDateObj: parseISODate(assignment.dueDate)
@@ -671,6 +720,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 if (!assignment || !assignment.dueDateObj || !isReminderAssignmentIncomplete(assignment)) return false;
 
                 const daysUntil = getDaysUntil(assignment.dueDateObj, today);
+                if (reminderLevel === "all") return true;
                 return daysUntil < 0 || daysUntil <= 14 || (isHighPriorityAssignment(assignment) && daysUntil <= 30);
             })
             .sort((a, b) => {
@@ -688,9 +738,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!reminders.length) {
             if (!assignmentReminderEmptyTemplate) return;
-            assignmentRemindersListEl.appendChild(
-                assignmentReminderEmptyTemplate.content.firstElementChild.cloneNode(true)
-            );
+            const empty = assignmentReminderEmptyTemplate.content.firstElementChild.cloneNode(true);
+            empty.textContent = reminderLevel === "off"
+                ? copy("assignments.empty.remindersOff", "Deadline reminders are off.")
+                : copy("assignments.empty.reminders", "Nothing urgent right now. You're in the clear.");
+            assignmentRemindersListEl.appendChild(empty);
             return;
         }
 
@@ -874,7 +926,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAssignments(assignments);
         refreshAssignmentViews();
         closeAssignmentModal();
-        showToast("Assignment added.", "positive");
+        showToast(copy("assignments.toast.added", "Assignment added."), "positive");
     }
 
     function saveAssignmentEdits() {
@@ -932,7 +984,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAssignments(assignments);
         refreshAssignmentViews();
         closeAssignmentModal();
-        showToast("Assignment updated.", "neutral");
+        showToast(copy("assignments.toast.updated", "Assignment updated."), "neutral");
     }
 
     function deleteAssignment() {
@@ -941,13 +993,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAssignments(assignments);
         refreshAssignmentViews();
         closeAssignmentModal();
-        showToast("Assignment deleted.", "negative");
+        showToast(copy("assignments.toast.deleted", "Assignment deleted."), "negative");
     }
 
     async function resetAllAssignments() {
         const assignments = loadAssignments();
         if (!assignments.length) {
-            showToast("No assignments to reset.", "neutral");
+            showToast(copy("assignments.toast.resetEmpty", "No assignments to reset."), "neutral");
             return;
         }
 
@@ -967,7 +1019,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         closeAssignmentModal();
         refreshAssignmentViews();
-        showToast("Assignments reset.", "negative");
+        showToast(copy("assignments.toast.reset", "Assignments reset."), "negative");
     }
 
     function randomInt(min, max) {
@@ -1128,13 +1180,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         const demo = generateDemoAssignmentsData();
         storage.setItem(STORAGE_KEY, JSON.stringify(demo.subjects));
         storage.setItem(ASSIGNMENTS_KEY, JSON.stringify(demo.assignments));
-        storage.setItem(USER_NAME_KEY, "Demo Student");
-        storage.setItem(SEMESTER_KEY, DEFAULT_SEMESTER_LABEL);
-
         editingAssignmentId = null;
         editingSubjectId = null;
         refreshSubjectViews();
         renderSemesterLabel();
+        renderDashboard();
+        updateSubjectsOverflowHint();
+    }
+
+    function handleDemoDataLoaded() {
+        editingAssignmentId = null;
+        editingSubjectId = null;
+        refreshSubjectViews();
         renderDashboard();
         updateSubjectsOverflowHint();
     }
@@ -1185,7 +1242,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const ratio = totalWeight > 0 ? (slice.rawWeight / totalWeight) : equalShare;
             const sliceAngle = ratio * 2 * Math.PI;
             const endAngle = startAngle + sliceAngle;
-            const hue = (slice.index * 60) % 360;
+            const sliceColour = getAssignmentChartColour(slice.index);
             const pct = ratio * 100;
             const midAngle = startAngle + sliceAngle / 2;
 
@@ -1196,8 +1253,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 circle.setAttribute("cx", radius);
                 circle.setAttribute("cy", radius);
                 circle.setAttribute("r", radius);
-                // Intentional chart colour: generated per slice, not tokenised.
-                circle.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
+                circle.setAttribute("fill", sliceColour);
                 circle.classList.add("pie-slice");
                 circle.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
                 svg.appendChild(circle);
@@ -1216,8 +1272,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}
                     Z`
                 );
-                // Intentional chart colour: generated per slice, not tokenised.
-                path.setAttribute("fill", `hsl(${hue}, 70%, 55%)`);
+                path.setAttribute("fill", sliceColour);
                 path.classList.add("pie-slice");
                 path.addEventListener("click", () => openViewAssignmentModal(slice.assignment));
                 svg.appendChild(path);
@@ -1346,16 +1401,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function getSubjectColour(i) {
-        // Intentional chart colours: no approved token mapping for this generated palette.
-        const palette = [
-            "hsl(210, 70%, 55%)",
-            "hsl(120, 70%, 50%)",
-            "hsl(40, 100%, 50%)",
-            "hsl(290, 65%, 60%)",
-            "hsl(0, 75%, 60%)",
-            "hsl(180, 65%, 45%)"
-        ];
-        return palette[i % palette.length];
+        return getAssignmentChartColour(i);
         }
 
         function countAssignmentsBySubject(assignments) {
@@ -1973,9 +2019,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderSemesterLabel();
     renderDashboard();
     openAssignmentFromHomeWidget();
-    window.addEventListener("nexa:load-demo-data", loadDemoAssignmentsData);
+    window.addEventListener("nexa:demo-data-loaded", handleDemoDataLoaded);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
     window.addEventListener("nexa:account-updated", renderSemesterLabel);
+    window.NexaPreferences?.onChange?.((prefs, changedKey) => {
+        if (changedKey === "appTone" || changedKey === "deadlineReminderLevel") {
+            refreshAssignmentViews();
+        }
+    });
     subjectsListEl.addEventListener("scroll", updateSubjectsOverflowHint);
     window.addEventListener("resize", updateSubjectsOverflowHint);
 });

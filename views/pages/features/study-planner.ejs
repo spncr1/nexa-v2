@@ -69,6 +69,7 @@
                     </details>
                 </li>
             </ul>
+            <%- include("../../partials/settings-navbar-actions") %>
         </nav>
 
         <main class="content study-planner-page">
@@ -160,7 +161,7 @@
                         </div>
 
                         <ol class="queue-list" id="queue-list"></ol>
-                        <p class="study-empty-state" id="queue-empty-state">No study sessions queued yet.</p>
+                        <p class="study-empty-state" id="queue-empty-state" data-copy-key="study.empty.queue">No study sessions queued yet.</p>
                     </article>
 
                     <article class="session-history nx-card">
@@ -175,13 +176,13 @@
                         </div>
 
                         <div class="history-panel is-active" data-panel="recent">
-                            <p class="study-empty-state">No recent study sessions yet.</p>
+                            <p class="study-empty-state" data-copy-key="study.empty.recent">No recent study sessions yet.</p>
                         </div>
                         <div class="history-panel" data-panel="history">
                             <p class="study-empty-state">Your completed sessions will appear here.</p>
                         </div>
                         <div class="history-panel" data-panel="favourites">
-                            <p class="study-empty-state">No favourited sessions yet.</p>
+                            <p class="study-empty-state" data-copy-key="study.empty.favourites">No favourited sessions yet.</p>
                         </div>
                     </article>
                 </div>
@@ -236,7 +237,7 @@
                     </div>
 
                     <div class="suggestion-list">
-                        <p class="study-empty-state">No suggested focuses yet.</p>
+                        <p class="study-empty-state" data-copy-key="study.empty.suggestions">No suggested focuses yet.</p>
                     </div>
                 </aside>
 
@@ -284,7 +285,7 @@
                 <h3 id="add-study-session-title" align="center">ADD SESSION</h3>
 
                 <div class="form-row">
-                    <label for="study-session-title"><strong>Title</strong></label>
+                    <label for="study-session-title"><strong>Title<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="study-session-title" type="text" autocomplete="off" placeholder="e.g., Exam revision">
                 </div>
 
@@ -299,7 +300,7 @@
                 </div>
 
                 <div class="form-row">
-                    <label for="study-session-duration"><strong>Duration</strong></label>
+                    <label for="study-session-duration"><strong>Duration<span class="required-marker" title="Required">*</span></strong></label>
                     <div class="duration-field-group">
                         <input id="study-session-duration" type="text" inputmode="numeric" autocomplete="off" placeholder="HH:MM:SS">
                         <div class="duration-preset-row" id="study-session-duration-presets" aria-label="Duration presets"></div>
@@ -324,7 +325,7 @@
                 <h3 id="study-session-detail-title" align="center">EDIT SESSION</h3>
 
                 <div class="form-row">
-                    <label for="detail-session-title"><strong>Title</strong></label>
+                    <label for="detail-session-title"><strong>Title<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="detail-session-title" type="text" autocomplete="off">
                 </div>
 
@@ -339,7 +340,7 @@
                 </div>
 
                 <div class="form-row">
-                    <label for="detail-session-duration"><strong>Duration</strong></label>
+                    <label for="detail-session-duration"><strong>Duration<span class="required-marker" title="Required">*</span></strong></label>
                     <div class="duration-field-group">
                         <input id="detail-session-duration" type="text" inputmode="numeric" autocomplete="off">
                         <div class="duration-preset-row" id="detail-session-duration-presets" aria-label="Duration summary"></div>
@@ -366,25 +367,25 @@
                 <h3 id="study-goal-title" align="center">SET WEEKLY STUDY GOAL</h3>
 
                 <div class="form-row">
-                    <label for="goal-target-sessions"><strong>Target sessions</strong></label>
+                    <label for="goal-target-sessions"><strong>Target sessions<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="goal-target-sessions" type="number" min="1" step="1" inputmode="numeric" autocomplete="off" placeholder="8">
                 </div>
 
                 <div class="form-row">
-                    <label for="goal-target-time"><strong>Target focus time</strong></label>
+                    <label for="goal-target-time"><strong>Target focus time<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="goal-target-time" type="text" autocomplete="off" placeholder="e.g., 10h or 2h 30m">
                 </div>
 
                 <div class="form-row">
-                    <label for="goal-active-days"><strong>Active days</strong></label>
+                    <label for="goal-active-days"><strong>Active days<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="goal-active-days" type="number" min="1" step="1" inputmode="numeric" autocomplete="off" placeholder="4">
                 </div>
 
                 <fieldset class="goal-balance-fields">
                     <legend>Focus balance</legend>
-                    <label for="goal-deep-work">Deep Work <input id="goal-deep-work" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="50"><span>%</span></label>
-                    <label for="goal-standard-focus">Standard Focus <input id="goal-standard-focus" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="30"><span>%</span></label>
-                    <label for="goal-light-study">Light Study <input id="goal-light-study" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="20"><span>%</span></label>
+                    <label for="goal-deep-work">Deep Work<span class="required-marker" title="Required">*</span> <input id="goal-deep-work" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="50"><span>%</span></label>
+                    <label for="goal-standard-focus">Standard Focus<span class="required-marker" title="Required">*</span> <input id="goal-standard-focus" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="30"><span>%</span></label>
+                    <label for="goal-light-study">Light Study<span class="required-marker" title="Required">*</span> <input id="goal-light-study" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="20"><span>%</span></label>
                 </fieldset>
 
                 <p id="study-goal-status-text" class="task-status"></p>
@@ -400,6 +401,8 @@
 
         <script src="/client/app-storage.js"></script>
         <script src="/client/shared/feedback.js"></script>
+        <script src="/client/shared/preferences.js"></script>
+        <script src="/client/shared/copy.js"></script>
         <script src="/client/shared/settings-modal.js"></script>
         <script src="/client/features/StudyPlanner/study-planner.js"></script>
     </body>

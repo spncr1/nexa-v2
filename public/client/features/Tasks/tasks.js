@@ -61,6 +61,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         { value: "low", label: "Low" }
     ];
 
+    function copy(key, fallback = "") {
+        return window.NexaCopy?.get?.(key, fallback) ?? fallback;
+    }
+
     function atNoon(value) {
         const d = value instanceof Date ? new Date(value) : new Date(value);
         d.setHours(12, 0, 0, 0);
@@ -163,6 +167,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const month = dateObj.toLocaleDateString("en-AU", { month: "short" });
         const weekday = dateObj.toLocaleDateString("en-AU", { weekday: "short" });
         return `${weekday}, ${day} ${month}`;
+    }
+
+    function formatCompactDayMonth(dateObj) {
+        const day = dateObj.getDate();
+        const month = dateObj.toLocaleDateString("en-AU", { month: "short" });
+        return `${day} ${month}`;
     }
 
     function formatMonthYear(dateObj) {
@@ -363,7 +373,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const helper = document.createElement("p");
         helper.textContent = summary.total
             ? `${summary.active} active, ${summary.completed} completed`
-            : "No tasks to show yet.";
+            : copy("tasks.summary.empty", "No tasks to show yet.");
 
         heading.appendChild(titleEl);
         heading.appendChild(helper);
@@ -477,8 +487,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const empty = document.createElement("p");
         empty.className = "tasks-day-empty";
         empty.textContent = filterValue === "all"
-            ? "Nothing scheduled."
-            : "No tasks to show.";
+            ? copy("tasks.day.emptyAll", "Nothing scheduled.")
+            : copy("tasks.day.emptyFiltered", "No tasks to show.");
         return empty;
     }
 
@@ -746,7 +756,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             } else {
                 const empty = document.createElement("p");
                 empty.className = "month-tbd-empty";
-                empty.textContent = "No unscheduled tasks.";
+                empty.textContent = copy("tasks.month.unscheduledEmpty", "No unscheduled tasks.");
                 chips.appendChild(empty);
             }
             monthTbdLaneEl.appendChild(chips);
@@ -791,7 +801,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const weekDates = getWeekDates(activeDate);
             const start = weekDates[0];
             const end = weekDates[6];
-            rangeLabelEl.textContent = `${formatMonthDayWithWeekday(start)} - ${formatMonthDayWithWeekday(end)}`;
+            rangeLabelEl.textContent = `${formatCompactDayMonth(start)} - ${formatCompactDayMonth(end)}`;
             return;
         }
 
@@ -988,7 +998,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             list[index].scheduledMinute = chosenMinute;
             list[index].scheduledTime = normalizedTime;
             list[index].updatedAt = Date.now();
-            showTaskToast("Task updated.", "neutral");
+            showTaskToast(copy("tasks.toast.updated", "Task updated."), "neutral");
         } else {
             list.push({
                 id: Date.now(),
@@ -1003,7 +1013,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-            showTaskToast("Task added.", "positive");
+            showTaskToast(copy("tasks.toast.added", "Task added."), "positive");
         }
 
         tasksByDate[key] = list;
@@ -1023,7 +1033,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveAllTasks(tasksByDate);
         refreshCalendarViews();
         closeTaskModal();
-        showTaskToast("Task deleted.", "negative");
+        showTaskToast(copy("tasks.toast.deleted", "Task deleted."), "negative");
     }
 
     function randomInt(min, max) {
@@ -1255,9 +1265,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(TASKS_KEY, JSON.stringify(demoTasksByDate));
         storage.setItem(SUBJECTS_KEY, JSON.stringify(demoAssignments.subjects));
         storage.setItem(ASSIGNMENTS_KEY, JSON.stringify(demoAssignments.assignments));
-        storage.setItem(USER_NAME_KEY, "Demo Student");
-        storage.setItem(SEMESTER_KEY, DEFAULT_SEMESTER_LABEL);
+        editingTaskId = null;
+        modalDateKey = "";
+        modalHour = null;
+        activeDate = atNoon(new Date());
+        selectedMonthDate = atNoon(new Date());
+        refreshCalendarViews();
+    }
 
+    function handleDemoDataLoaded() {
         editingTaskId = null;
         modalDateKey = "";
         modalHour = null;
@@ -1329,8 +1345,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             closeTaskModal();
         }
     });
-    window.addEventListener("nexa:load-demo-data", loadDemoTasksData);
+    window.addEventListener("nexa:demo-data-loaded", handleDemoDataLoaded);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
+    window.NexaPreferences?.onChange?.((prefs, changedKey) => {
+        if (changedKey === "appTone") {
+            refreshCalendarViews();
+        }
+    });
     renderTimeRail(monthTimeRailEl);
     refreshCalendarViews();
     setViewMode("week");

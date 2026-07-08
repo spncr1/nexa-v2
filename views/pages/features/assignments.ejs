@@ -73,6 +73,7 @@
                     </details>
                 </li>
             </ul>
+            <%- include("../../partials/settings-navbar-actions") %>
         </nav>
 
         <main class="content">
@@ -213,7 +214,7 @@
             </template>
 
             <template id="assignment-reminder-empty-template">
-                <li class="assignment-reminder-empty empty-state-reveal">Nothing urgent right now. You're in the clear.</li>
+                <li class="assignment-reminder-empty empty-state-reveal" data-copy-key="assignments.empty.reminders">Nothing urgent right now. You're in the clear.</li>
             </template>
 
              <div id="modal-backdrop" class="hidden"></div>
@@ -228,7 +229,7 @@
                 <h3 id="subject-modal-title" align="center">ADD SUBJECT</h3>
 
                 <div class="form-row">
-                    <label for="subject-name"><strong>Subject name</strong></label>
+                    <label for="subject-name" class="subject-name-label"><strong>Subject name<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="subject-name" type="text" placeholder="e.g., Data Structures & Algorithms">
                 </div>
 
@@ -248,13 +249,13 @@
 
                 <!-- Course -->
                  <div class="form-row">
-                    <label for="assignment-course"><strong>Course</strong></label>
+                    <label for="assignment-course"><strong>Course<span class="required-marker" title="Required">*</span></strong></label>
                     <select id="assignment-course"></select>
                  </div>
 
                  <!-- Task -->
                  <div class="form-row">
-                    <label for="assignment-task"><strong>Task</strong></label>
+                    <label for="assignment-task"><strong>Task<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="assignment-task" type="text" placeholder="e.g., AT3 Research Report"></input>
                  </div>
 
@@ -286,13 +287,13 @@
 
                  <!-- Due Date -->
                  <div class="form-row">
-                    <label for="assignment-due"><strong>Due date</strong></label>
+                    <label for="assignment-due"><strong>Due date<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="assignment-due" type="date"></input>
                  </div>
 
                  <!-- Weighting -->
                  <div class="form-row">
-                    <label for="assignment-weight"><strong>Weighting (%)</strong></label>
+                    <label for="assignment-weight"><strong>Weighting (%)<span class="required-marker" title="Required">*</span></strong></label>
                     <input id="assignment-weight" type="number" min="0" max="100" step="0.1" placeholder="e.g., 20"></input>
                  </div>
 
@@ -319,6 +320,8 @@
         <script src="/client/shared/theme-boot.js"></script>
         <script src="/client/app-storage.js"></script>
         <script src="/client/shared/feedback.js"></script>
+        <script src="/client/shared/preferences.js"></script>
+        <script src="/client/shared/copy.js"></script>
         <script src="/client/shared/settings-modal.js"></script>
         <script src="/client/features/Assignments/assignments.js"></script>
     </body>

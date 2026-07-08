@@ -816,7 +816,7 @@ body.dark-mode .assignments-layout .assignments-table tbody tr {
 .assignment-reminder-link {
     position: relative;
     border: 1px solid var(--color-raw-surface-panel-dark);
-    border-radius: 12px 12px 12px 0;
+    border-radius: 12px;
     background: var(--color-raw-surface-card-dark);
     box-shadow: 0 2px 12px var(--color-raw-shadow-card-dark), inset 0 1px 0 var(--color-raw-surface-subtle-dark);
     backdrop-filter: blur(12px) saturate(1.2);
@@ -932,6 +932,34 @@ body:not(.dark-mode) .assignments-table-card::after,
 body:not(.dark-mode) .assignment-reminder-link::after {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.3%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.3%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E");
+}
+
+.subjects-panel::before,
+.subjects-panel::after,
+.weighting-carousel::before,
+.weighting-carousel::after,
+.widget-card::before,
+.widget-card::after,
+.assignments-table-card::before,
+.assignments-table-card::after,
+.assignment-reminder-link::before,
+.assignment-reminder-link::after {
+    content: none;
+}
+
+.subjects-panel.has-more::after {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 12px;
+    width: auto;
+    height: 28px;
+    border-radius: 8px;
+    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
+    pointer-events: none;
+    -webkit-mask: none;
+    mask: none;
 }
 
 .assignment-reminder-link {
@@ -1050,7 +1078,6 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
 .assignment-reminder-empty {
     padding: 10px 8px;
     border-radius: 8px;
-    background: var(--color-reminder-empty-bg);
     color: var(--color-text-strong);
     font-size: 13px;
     font-weight: 400;
@@ -1067,7 +1094,6 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
 }
 
 /* ===== Total Course Assignments widget ===== */
-/* intentional: chart colours in this widget are not tokenised */
 
 .total-assignments-widget .bars {
   display: flex;
@@ -1090,13 +1116,13 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
 
 .total-assignments-widget .bar-row:hover,
 .total-assignments-widget .bar-row:focus-visible {
-  background: rgba(95, 132, 179, 0.12); /* intentional: chart colour, not tokenised */
+  background: var(--color-chart-hover-bg);
   transform: translateY(-1px);
 }
 
 .total-assignments-widget .bar-row.active-chart-filter {
-  background: rgba(95, 132, 179, 0.18); /* intentional: chart colour, not tokenised */
-  box-shadow: inset 0 0 0 2px rgba(95, 132, 179, 0.42); /* intentional: chart colour, not tokenised */
+  background: var(--color-chart-active-bg);
+  box-shadow: inset 0 0 0 2px var(--color-chart-ring);
 }
 
 .total-assignments-widget .bar-label {
@@ -1284,14 +1310,14 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
 .vbar[role="button"]:hover,
 .vbar[role="button"]:focus-visible,
 .vbar.active-chart-filter {
-  background: rgba(95, 132, 179, 0.12); /* intentional: chart colour, not tokenised */
-  box-shadow: 0 0 0 3px rgba(95, 132, 179, 0.32); /* intentional: chart colour, not tokenised */
+  background: var(--color-chart-hover-bg);
+  box-shadow: 0 0 0 3px var(--color-chart-ring-soft);
   transform: translateY(-1px);
 }
 
 .vbar-column:focus-within .vbar[role="button"] {
-  background: rgba(95, 132, 179, 0.12); /* intentional: chart colour, not tokenised */
-  box-shadow: 0 0 0 3px rgba(95, 132, 179, 0.32); /* intentional: chart colour, not tokenised */
+  background: var(--color-chart-hover-bg);
+  box-shadow: 0 0 0 3px var(--color-chart-ring-soft);
 }
 
 .vbar-fill {
@@ -1468,7 +1494,7 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
 
 #add-subject-modal .form-row {
     display: grid;
-    grid-template-columns: 110px 1fr;
+    grid-template-columns: 128px minmax(0, 1fr);
     align-items: start;
     column-gap: 12px;
     margin: 12px 0;
@@ -1478,6 +1504,10 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
     text-align: left;
     margin: 0;
     padding-top: 8px;
+}
+
+#add-subject-modal .subject-name-label {
+    white-space: nowrap;
 }
 
 #add-subject-modal .form-row input {
@@ -1553,7 +1583,7 @@ button, input, select, textarea { font-family: inherit; }
 
 #add-assignment-modal .form-row {
     display: grid;
-    grid-template-columns: 90px 1fr;
+    grid-template-columns: 128px minmax(0, 1fr);
     align-items: start;
     column-gap: 12px;
     margin-bottom: 12px;
@@ -1563,6 +1593,7 @@ button, input, select, textarea { font-family: inherit; }
     text-align: left;
     margin: 0;
     padding-top: 8px;
+    white-space: nowrap;
 }
 
 #modal-backdrop { z-index: 9; }

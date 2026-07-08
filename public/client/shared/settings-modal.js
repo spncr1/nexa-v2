@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const themeSwitch = document.getElementById("theme-switch");
     const resetAppDataBtn = document.getElementById("reset-app-data-btn");
     const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
+    const sendEmailReminderBtn = document.getElementById("send-email-reminder-btn");
+    const emailReminderStatus = document.getElementById("email-reminder-status");
     const accountNameInput = document.getElementById("account-name-input");
     const accountEmailInput = document.getElementById("account-email-input");
     const accountAgeInput = document.getElementById("account-age-input");
@@ -53,10 +55,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     const PROFILE_AVATAR_KEY = "studenthub_profile_avatar";
     const SYSTEM_PREFS_KEY = "studenthub_system_preferences";
     const THEME_MODE_KEY = "studenthub_theme_mode";
+    const TASKS_KEY = "tasksByDate";
+    const SUBJECTS_KEY = "studenthub_subjects";
+    const ASSIGNMENTS_KEY = "studenthub_assignments";
+    const STUDY_QUEUE_KEY = "studenthub_study_queue";
+    const STUDY_COMPLETED_KEY = "studenthub_study_completed_sessions";
+    const STUDY_FAVOURITES_KEY = "studenthub_study_favourites";
+    const STUDY_ACTIVE_KEY = "studenthub_study_active_session";
+    const STUDY_WEEKLY_GOAL_KEY = "studenthub_study_weekly_goal";
+    const STUDY_MONTHLY_GOAL_KEY = "studenthub_study_monthly_goal";
+    const STUDY_SUGGESTION_OVERRIDES_KEY = "studenthub_study_suggestion_overrides";
+    const JOB_APPLICATIONS_KEY = "studenthub_job_applications";
     const APP_DATA_KEYS = [
-        "tasksByDate",
-        "studenthub_subjects",
-        "studenthub_assignments",
+        TASKS_KEY,
+        SUBJECTS_KEY,
+        ASSIGNMENTS_KEY,
+        STUDY_QUEUE_KEY,
+        STUDY_COMPLETED_KEY,
+        STUDY_FAVOURITES_KEY,
+        STUDY_ACTIVE_KEY,
+        STUDY_WEEKLY_GOAL_KEY,
+        STUDY_MONTHLY_GOAL_KEY,
+        STUDY_SUGGESTION_OVERRIDES_KEY,
+        JOB_APPLICATIONS_KEY,
         USER_NAME_KEY,
         SEMESTER_KEY,
         PROFILE_AGE_KEY,
@@ -91,6 +112,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function loadNavGroupState() {
+        if (window.NexaPreferences && !window.NexaPreferences.allowsPersonalisation()) return {};
+
         try {
             const parsed = JSON.parse(storage.getItem(NAV_GROUPS_KEY) || "{}");
             return parsed && typeof parsed === "object" ? parsed : {};
@@ -102,6 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function saveNavGroupState(navGroup) {
         const key = getNavGroupKey(navGroup);
         if (!key) return;
+        if (window.NexaPreferences && !window.NexaPreferences.allowsPersonalisation()) return;
 
         const state = loadNavGroupState();
         state[key] = navGroup.open;
@@ -151,7 +175,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         document.body.classList.toggle("nav-collapsed", isCollapsed);
-        storage.setItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0");
+        if (window.NexaPreferences && !window.NexaPreferences.allowsPersonalisation()) {
+            storage.removeItem(NAV_COLLAPSED_KEY);
+        } else {
+            storage.setItem(NAV_COLLAPSED_KEY, isCollapsed ? "1" : "0");
+        }
         menuToggle?.setAttribute("aria-expanded", (!isCollapsed).toString());
     }
 
@@ -168,7 +196,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         setMobileNavOpen(false);
-        setNavCollapsed(storage.getItem(NAV_COLLAPSED_KEY) === "1");
+        const shouldLoadSavedState = !window.NexaPreferences || window.NexaPreferences.allowsPersonalisation();
+        setNavCollapsed(shouldLoadSavedState && storage.getItem(NAV_COLLAPSED_KEY) === "1");
     }
 
     function handleCollapsedNavActivation(event) {
@@ -283,6 +312,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function loadSystemPrefs() {
+        if (window.NexaPreferences) return window.NexaPreferences.load();
+
         try {
             const raw = storage.getItem(SYSTEM_PREFS_KEY);
             const parsed = raw ? JSON.parse(raw) : {};
@@ -293,8 +324,25 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    function saveSystemPrefs(prefs) {
+    function saveSystemPrefs(prefs, changedKey = "") {
+        if (window.NexaPreferences) {
+            const saved = window.NexaPreferences.save(prefs, changedKey);
+            if (changedKey === "personalisation" && !saved.personalisation) {
+                window.NexaPreferences.clearPersonalisedUiState();
+            }
+            return saved;
+        }
+
         storage.setItem(SYSTEM_PREFS_KEY, JSON.stringify(prefs && typeof prefs === "object" ? prefs : {}));
+        return prefs && typeof prefs === "object" ? prefs : {};
+    }
+
+    function setSegmentedPreferenceValue(group, value) {
+        group.querySelectorAll("[data-pref-value]").forEach((button) => {
+            const isActive = button.dataset.prefValue === value;
+            button.classList.toggle("active", isActive);
+            button.setAttribute("aria-pressed", isActive.toString());
+        });
     }
 
     function populateSystemPreferences() {
@@ -310,16 +358,125 @@ document.addEventListener("DOMContentLoaded", async () => {
                 control.value = prefs[key] || control.querySelector("option")?.value || "";
             }
         });
+
+        document.querySelectorAll("[data-system-segmented-pref]").forEach((group) => {
+            const key = group.dataset.systemSegmentedPref;
+            setSegmentedPreferenceValue(group, prefs[key]);
+        });
+        syncEmailReminderAction(prefs);
     }
 
-    function saveSingleSystemPreference(control) {
+    function syncEmailReminderAction(prefs = loadSystemPrefs()) {
+        if (!sendEmailReminderBtn) return;
+        const isEnabled = prefs.emailReminders && prefs.emailReminders !== "off";
+        sendEmailReminderBtn.disabled = !isEnabled;
+        sendEmailReminderBtn.classList.toggle("disabled", !isEnabled);
+    }
+
+    function showEmailReminderStatus(message, tone = "neutral") {
+        if (!emailReminderStatus) return;
+        emailReminderStatus.textContent = message || "";
+        emailReminderStatus.classList.remove("hidden", "is-positive", "is-negative", "is-neutral");
+        emailReminderStatus.classList.add(`is-${tone}`);
+        emailReminderStatus.classList.toggle("hidden", !message);
+    }
+
+    function describeReminderPayload(payload) {
+        const recipient = payload.recipientEmail ? ` to ${payload.recipientEmail}` : "";
+        const type = payload.reminderType === "weekly" ? "weekly summary" : "important reminder";
+        const items = Array.isArray(payload.items) ? payload.items : [];
+        const preview = items.slice(0, 3).map((item) => item.task).filter(Boolean).join(", ");
+        const suffix = preview ? ` Matched: ${preview}${items.length > 3 ? ", ..." : ""}.` : "";
+        return `Sent ${type}${recipient} with ${payload.itemCount} ${payload.itemCount === 1 ? "assignment" : "assignments"}.${suffix}`;
+    }
+
+    async function saveSingleSystemPreference(control) {
         const key = control.dataset.systemPref;
         if (!key) return;
 
+        let value = control.type === "checkbox" ? control.checked : control.value;
+
+        if (key === "studyTimerAlerts" && value) {
+            const permission = await window.NexaPreferences?.requestStudyTimerNotificationPermission?.();
+            if (permission !== "granted") {
+                const message = permission === "unsupported"
+                    ? "Browser notifications are not supported here. Timer alerts are saved in Nexa."
+                    : "Browser notifications are blocked. Timer alerts are saved in Nexa.";
+                showToast(message, "neutral");
+            }
+        }
+
         const prefs = loadSystemPrefs();
-        prefs[key] = control.type === "checkbox" ? control.checked : control.value;
-        saveSystemPrefs(prefs);
+        prefs[key] = value;
+        saveSystemPrefs(prefs, key);
+        if (key === "emailReminders") syncEmailReminderAction(prefs);
+        if (key === "emailReminders") {
+            showEmailReminderStatus(
+                value === "off"
+                    ? "Email reminders are off. Turn them on to send a backend reminder digest."
+                    : "Email reminders saved. Use Send to trigger the backend digest now.",
+                "neutral"
+            );
+        }
         showToast("System preference saved.", "neutral");
+    }
+
+    function saveSegmentedSystemPreference(group, value) {
+        const key = group.dataset.systemSegmentedPref;
+        if (!key || !value) return;
+
+        const prefs = loadSystemPrefs();
+        prefs[key] = value;
+        saveSystemPrefs(prefs, key);
+        setSegmentedPreferenceValue(group, value);
+        showToast("System preference saved.", "neutral");
+    }
+
+    async function sendEmailReminderDigest() {
+        if (!sendEmailReminderBtn) return;
+
+        sendEmailReminderBtn.disabled = true;
+        const label = sendEmailReminderBtn.querySelector(".ui-btn-label");
+        const originalLabel = label?.textContent || "Send";
+        if (label) label.textContent = "Sending";
+        showEmailReminderStatus("Sending reminder email through the backend...", "neutral");
+
+        try {
+            await storage.flush?.();
+            const response = await fetch("/api/reminders/email-digest", {
+                method: "POST",
+                credentials: "same-origin",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ force: true })
+            });
+            const payload = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(payload.error || "Could not send reminder email right now.");
+            }
+
+            if (payload.sent) {
+                const message = describeReminderPayload(payload);
+                showEmailReminderStatus(message, "positive");
+                showToast(`Reminder email sent with ${payload.itemCount} ${payload.itemCount === 1 ? "item" : "items"}.`, "positive");
+                return;
+            }
+
+            if (payload.skipped === "no_items") {
+                showEmailReminderStatus(`Backend ran, but no assignments matched ${payload.reminderType === "weekly" ? "Weekly summary" : "Important only"} for ${payload.recipientEmail || "this account"}.`, "neutral");
+                showToast("No reminder email sent because there are no matching assignments.", "neutral");
+                return;
+            }
+
+            showEmailReminderStatus("Backend skipped this digest because it was already sent for this period.", "neutral");
+            showToast("Reminder email already sent for this period.", "neutral");
+        } catch (error) {
+            showEmailReminderStatus(error.message || "Could not send reminder email right now.", "negative");
+            showToast(error.message || "Could not send reminder email right now.", "negative");
+        } finally {
+            if (label) label.textContent = originalLabel;
+            syncEmailReminderAction();
+        }
     }
 
     function showToast(message, tone = "neutral") {
@@ -561,6 +718,179 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 900);
     }
 
+    function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function shuffleList(items) {
+        return [...items].sort(() => Math.random() - 0.5);
+    }
+
+    function atNoon(dateObj) {
+        const date = new Date(dateObj);
+        date.setHours(12, 0, 0, 0);
+        return date;
+    }
+
+    function addDays(dateObj, days) {
+        const date = atNoon(dateObj);
+        date.setDate(date.getDate() + days);
+        return date;
+    }
+
+    function dateKey(dateObj) {
+        const date = atNoon(dateObj);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+
+    function timeInput(hour, minute = 0) {
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    }
+
+    function generateDemoTasksByDate() {
+        const now = Date.now();
+        const today = atNoon(new Date());
+        const taskTemplates = [
+            { title: "Draft weekly plan", notes: "Block out study, admin, and recovery time.", priority: "medium", status: "in-progress", hour: 9 },
+            { title: "Review assignment rubric", notes: "Check criteria before writing.", priority: "high", status: "not-started", hour: 11 },
+            { title: "Update lecture notes", notes: "Clean up examples and formulas.", priority: "low", status: "completed", hour: 14 },
+            { title: "Prepare tutorial questions", notes: "Bring two discussion points.", priority: "medium", status: "not-started", hour: 16 },
+            { title: "Submit progress reflection", notes: "Keep it brief and specific.", priority: "high", status: "in-progress", hour: 18 }
+        ];
+        const tasksByDate = {};
+
+        [-2, -1, 0, 1, 2, 4, 6].forEach((offset, dateIndex) => {
+            const key = dateKey(addDays(today, offset));
+            tasksByDate[key] = shuffleList(taskTemplates).slice(0, offset === 0 ? 4 : randomInt(2, 3)).map((task, taskIndex) => ({
+                id: `task_demo_${now}_${dateIndex}_${taskIndex}`,
+                title: task.title,
+                notes: task.notes,
+                priority: task.priority,
+                status: task.status,
+                scheduledHour: task.hour,
+                scheduledMinute: 0,
+                scheduledTime: timeInput(task.hour),
+                createdAt: now - randomInt(0, 8) * 86400000,
+                updatedAt: now - randomInt(0, 3) * 3600000
+            }));
+        });
+
+        return tasksByDate;
+    }
+
+    function generateDemoAssignmentsData() {
+        const now = Date.now();
+        const today = atNoon(new Date());
+        const subjectNames = ["Design Systems", "Data Structures", "Research Methods", "Business Analytics"];
+        const assignmentTemplates = [
+            { task: "Research report", priority: "high", status: "in-progress", weight: 35, offset: 1 },
+            { task: "Tutorial portfolio", priority: "medium", status: "not-started", weight: 20, offset: 4 },
+            { task: "Quiz revision", priority: "low", status: "completed", weight: 10, offset: -2 },
+            { task: "Final presentation", priority: "high", status: "not-started", weight: 30, offset: 8 }
+        ];
+        const subjects = subjectNames.map((name, index) => ({
+            id: `subject_demo_${now}_${index}`,
+            name,
+            createdAt: now - index * 1000,
+            updatedAt: now - index * 1000
+        }));
+        const assignments = [];
+
+        subjects.forEach((subject, subjectIndex) => {
+            shuffleList(assignmentTemplates).slice(0, 3).forEach((template, templateIndex) => {
+                assignments.push({
+                    id: `assignment_demo_${now}_${subjectIndex}_${templateIndex}`,
+                    courseId: subject.id,
+                    task: template.task,
+                    desc: "Demo assignment used to check layout, charts, reminders, and dashboard states.",
+                    priority: template.priority,
+                    status: template.status,
+                    dueDate: dateKey(addDays(today, template.offset + subjectIndex)),
+                    weighting: template.weight,
+                    createdAt: now - randomInt(0, 10) * 86400000,
+                    updatedAt: now - randomInt(0, 3) * 3600000
+                });
+            });
+        });
+
+        return { subjects, assignments };
+    }
+
+    function generateDemoStudyPlannerData() {
+        const now = Date.now();
+        const baseSessions = [
+            { title: "Exam revision", type: "deep", seconds: 90 * 60 },
+            { title: "Assignment writing", type: "standard", seconds: 60 * 60 },
+            { title: "Lecture recap", type: "light", seconds: 35 * 60 },
+            { title: "Practice questions", type: "standard", seconds: 50 * 60 },
+            { title: "Research sprint", type: "deep", seconds: 120 * 60 }
+        ];
+        const makeSession = (session, index, prefix) => ({
+            id: `${prefix}_${now}_${index}`,
+            title: session.title,
+            type: session.type,
+            durationSeconds: session.seconds,
+            durationMinutes: Math.round(session.seconds / 60),
+            notes: "Demo study block.",
+            createdAt: now - index * 3600000,
+            updatedAt: now - index * 1800000
+        });
+
+        return {
+            queue: baseSessions.slice(0, 3).map((session, index) => makeSession(session, index + 1, "study_demo_queue")),
+            completedSessions: baseSessions.slice(2, 5).map((session, index) => ({
+                ...makeSession(session, index + 1, "study_demo_completed"),
+                completedAt: now - randomInt(30, 2880) * 60 * 1000
+            })),
+            favouriteSessions: [{ ...makeSession(baseSessions[0], 1, "study_demo_favourite"), notes: "Reusable demo favourite." }],
+            weeklyGoal: {
+                targetSessions: 8,
+                targetFocusSeconds: 10 * 3600,
+                activeDays: 4,
+                focusBalance: { deep: 50, standard: 30, light: 20 },
+                updatedAt: now
+            },
+            monthlyGoal: {
+                targetSessions: 32,
+                targetFocusSeconds: 40 * 3600,
+                activeDays: 16,
+                focusBalance: { deep: 50, standard: 30, light: 20 },
+                updatedAt: now
+            }
+        };
+    }
+
+    function generateDemoJobApplications() {
+        const now = Date.now();
+        return [
+            { id: `job_demo_${now}_1`, company: "Atlassian", role: "Software Engineer Intern", location: "Sydney, Australia", type: "SWE Internship", status: "Applied", database: "SWE Internships", createdAt: now - 6 * 86400000, updatedAt: now - 2 * 86400000 },
+            { id: `job_demo_${now}_2`, company: "Canva", role: "Frontend Intern", location: "Sydney, Australia", type: "SWE Internship", status: "Interview", database: "SWE Internships", createdAt: now - 10 * 86400000, updatedAt: now - 3600000 },
+            { id: `job_demo_${now}_3`, company: "Commonwealth Bank", role: "Graduate Analyst", location: "Melbourne, Australia", type: "Graduate Role", status: "OA", database: "Graduate Roles", createdAt: now - 14 * 86400000, updatedAt: now - 4 * 86400000 },
+            { id: `job_demo_${now}_4`, company: "Local Cafe", role: "Part-Time Team Member", location: "Newcastle, Australia", type: "Part-Time", status: "Offer", database: "Part-Time", createdAt: now - 20 * 86400000, updatedAt: now - 7 * 86400000 }
+        ];
+    }
+
+    function loadDemoDataAcrossApp() {
+        const taskData = generateDemoTasksByDate();
+        const assignmentData = generateDemoAssignmentsData();
+        const studyData = generateDemoStudyPlannerData();
+
+        storage.setItem(TASKS_KEY, JSON.stringify(taskData));
+        storage.setItem(SUBJECTS_KEY, JSON.stringify(assignmentData.subjects));
+        storage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignmentData.assignments));
+        storage.setItem(STUDY_QUEUE_KEY, JSON.stringify(studyData.queue));
+        storage.setItem(STUDY_COMPLETED_KEY, JSON.stringify(studyData.completedSessions));
+        storage.setItem(STUDY_FAVOURITES_KEY, JSON.stringify(studyData.favouriteSessions));
+        storage.setItem(STUDY_WEEKLY_GOAL_KEY, JSON.stringify(studyData.weeklyGoal));
+        storage.setItem(STUDY_MONTHLY_GOAL_KEY, JSON.stringify(studyData.monthlyGoal));
+        storage.removeItem(STUDY_ACTIVE_KEY);
+        storage.removeItem(STUDY_SUGGESTION_OVERRIDES_KEY);
+        storage.setItem(JOB_APPLICATIONS_KEY, JSON.stringify(generateDemoJobApplications()));
+
+        window.dispatchEvent(new CustomEvent("nexa:demo-data-loaded"));
+        showToast("Demo data loaded.", "positive");
+    }
+
     async function resetAllAppData() {
         const confirmed = await confirmAction({
             title: "Reset app data?",
@@ -580,8 +910,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function requestDemoData() {
-        window.dispatchEvent(new CustomEvent("nexa:load-demo-data"));
-        populateProfileInputs();
+        loadDemoDataAcrossApp();
     }
 
     function updateAvatarFromFile(file) {
@@ -715,6 +1044,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
     loadDemoDataBtn?.addEventListener("click", requestDemoData);
+    sendEmailReminderBtn?.addEventListener("click", () => {
+        sendEmailReminderDigest().catch((error) => {
+            console.error("Failed to send email reminder digest:", error);
+            showToast("Could not send reminder email right now.", "negative");
+            syncEmailReminderAction();
+        });
+    });
     saveProfileBtn?.addEventListener("click", () => {
         saveProfileSettings().catch((error) => {
             console.error("Failed to save profile settings:", error);
@@ -747,7 +1083,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
     document.querySelectorAll("[data-system-pref]").forEach((control) => {
-        control.addEventListener("change", () => saveSingleSystemPreference(control));
+        control.addEventListener("change", () => {
+            saveSingleSystemPreference(control).catch((error) => {
+                console.error("Failed to save system preference:", error);
+                showToast("Could not save system preference right now.", "negative");
+            });
+        });
+    });
+    document.querySelectorAll("[data-system-segmented-pref]").forEach((group) => {
+        group.addEventListener("click", (event) => {
+            const button = event.target.closest("[data-pref-value]");
+            if (!button || !group.contains(button)) return;
+            saveSegmentedSystemPreference(group, button.dataset.prefValue);
+        });
     });
 
     setActiveTab("profile", "profile");
@@ -755,4 +1103,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     initialiseThemeSetting();
     populateProfileInputs();
     populateSystemPreferences();
+    window.NexaPreferences?.applySensitiveMode?.();
 });

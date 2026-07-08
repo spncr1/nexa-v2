@@ -8,6 +8,8 @@
     "devStart": "node scripts/start-local.js",
     "local": "node scripts/start-local.js",
     "start": "node server.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:import-legacy-state": "node scripts/import-legacy-state.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -1,3 +1,4 @@
+<!-- Three-icon settings command centre -->
 <%- include("./feedback") %>
 
 <div id="settings-backdrop" class="hidden" aria-hidden="true"></div>
@@ -167,37 +168,86 @@
                 </div>
 
                 <div class="settings-panel hidden" data-settings-panel="system" data-panel="preferences">
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Notifications</div>
-                            <div class="setting-desc">Store reminder preferences for future notification support.</div>
-                        </div>
-                        <label class="settings-toggle"><input type="checkbox" data-system-pref="notifications"><span></span></label>
-                    </div>
+                    <section class="settings-preference-section" aria-labelledby="notifications-preferences-title">
+                        <h4 id="notifications-preferences-title" class="settings-preference-heading">Notifications</h4>
 
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Accessibility</div>
-                            <div class="setting-desc">Prefer calmer motion and visual effects.</div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-labels">Study timer alerts</div>
+                                <div class="setting-desc">Allow an extra browser alert when a study timer ends.</div>
+                            </div>
+                            <label class="settings-toggle"><input type="checkbox" data-system-pref="studyTimerAlerts"><span></span></label>
                         </div>
-                        <label class="settings-toggle"><input type="checkbox" data-system-pref="reducedMotion"><span></span></label>
-                    </div>
 
-                    <div class="setting-row">
-                        <div class="setting-labels">Language</div>
-                        <select id="language-pref-select" class="setting-account-input" data-system-pref="language">
-                            <option value="en-AU">English (AU)</option>
-                            <option value="en-US">English (US)</option>
-                        </select>
-                    </div>
-
-                    <div class="setting-row">
-                        <div>
-                            <div class="setting-labels">Privacy preferences</div>
-                            <div class="setting-desc">Keep activity details private by default.</div>
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-labels">Deadline reminders</div>
+                                <div class="setting-desc">Choose how assignment reminders appear in Nexa.</div>
+                            </div>
+                            <select class="setting-account-input settings-select-compact" data-system-pref="deadlineReminderLevel">
+                                <option value="important">Important only</option>
+                                <option value="all">All upcoming</option>
+                                <option value="off">Off</option>
+                            </select>
                         </div>
-                        <label class="settings-toggle"><input type="checkbox" data-system-pref="privateActivity"><span></span></label>
-                    </div>
+                    </section>
+
+                    <section class="settings-preference-section" aria-labelledby="tone-preferences-title">
+                        <h4 id="tone-preferences-title" class="settings-preference-heading">App tone</h4>
+
+                        <div class="setting-row setting-row-stacked">
+                            <div>
+                                <div class="setting-labels">Tone</div>
+                                <div class="setting-desc">Adjust the style of empty states and light feedback copy.</div>
+                            </div>
+                            <div class="settings-segmented-control" role="group" aria-label="App tone" data-system-segmented-pref="appTone">
+                                <button type="button" class="settings-segmented-option" data-pref-value="encouraging">Encouraging</button>
+                                <button type="button" class="settings-segmented-option" data-pref-value="neutral">Neutral</button>
+                                <button type="button" class="settings-segmented-option" data-pref-value="direct">Direct</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-preference-section" aria-labelledby="privacy-preferences-title">
+                        <h4 id="privacy-preferences-title" class="settings-preference-heading">Privacy</h4>
+
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-labels">Personalisation</div>
+                                <div class="setting-desc">Remember layout and navigation preferences.</div>
+                            </div>
+                            <label class="settings-toggle"><input type="checkbox" data-system-pref="personalisation"><span></span></label>
+                        </div>
+
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-labels">Sensitive mode</div>
+                                <div class="setting-desc">Mask public-facing personal details and future financial amounts.</div>
+                            </div>
+                            <label class="settings-toggle"><input type="checkbox" data-system-pref="sensitiveMode"><span></span></label>
+                        </div>
+
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-labels">Email reminders</div>
+                                <div class="setting-desc">Send assignment reminder emails from the backend.</div>
+                            </div>
+                            <select class="setting-account-input settings-select-compact" data-system-pref="emailReminders">
+                                <option value="off">Off</option>
+                                <option value="important">Important only</option>
+                                <option value="weekly">Weekly summary</option>
+                            </select>
+                        </div>
+
+                        <div class="setting-row">
+                            <div>
+                                <div class="setting-labels">Send reminder email</div>
+                                <div class="setting-desc">Send the current digest to your account email now.</div>
+                            </div>
+                            <button type="button" id="send-email-reminder-btn" class="setting-action-btn neutral"><span class="ui-btn-label">Send</span><img class="app-icon" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></button>
+                        </div>
+                        <p id="email-reminder-status" class="settings-preference-status hidden"></p>
+                    </section>
                 </div>
 
                 <div class="settings-panel hidden" data-settings-panel="system" data-panel="data">
@@ -222,38 +272,18 @@
                     <div class="setting-row">
                         <div>
                             <div class="setting-labels">Help</div>
-                            <div class="setting-desc">Coming soon...</div>
+                            <div class="setting-desc">Need to reset demo data, update your profile, or change the theme? Use the tabs on the left.</div>
                         </div>
                     </div>
 
                     <div class="setting-row">
                         <div>
                             <div class="setting-labels">About Nexa</div>
-                            <div class="setting-desc">Version 1.0</div>
+                            <div class="setting-desc">Version 1.2.</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="settings-navbar-actions" aria-label="Account controls">
-    <button id="profile-settings-btn" class="settings-navbar-button settings-navbar-profile-button" type="button" aria-label="Profile settings" data-tooltip="Profile">
-        <span class="settings-navbar-icon-hover">
-            <span id="settings-navbar-profile-avatar" class="settings-navbar-profile-avatar">
-                <img class="app-icon" src="/client/shared/assets/Icons/profile.svg" alt="" aria-hidden="true">
-            </span>
-        </span>
-    </button>
-    <button id="system-settings-btn" class="settings-navbar-button" type="button" aria-label="System settings" data-tooltip="System Settings">
-        <span class="settings-navbar-icon-hover">
-            <img class="app-icon" src="/client/shared/assets/Icons/system-settings.svg" alt="" aria-hidden="true">
-        </span>
-    </button>
-    <button id="logout-btn" class="settings-navbar-button" type="button" aria-label="Log out" data-tooltip="Log Out">
-        <span class="settings-navbar-icon-hover">
-            <img class="app-icon" src="/client/shared/assets/Icons/logout.svg" alt="" aria-hidden="true">
-        </span>
-    </button>
 </div>

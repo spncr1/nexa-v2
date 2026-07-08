@@ -42,7 +42,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const welcomeCarouselCopyEl = document.getElementById("welcome-carousel-copy");
 
     const sortSelect = document.getElementById("sort-select");
-    let currentSortMode = storage.getItem("taskSortMode") || "createdNewOld"; // load saved sort mode (default: createdNewOld)
+    let currentSortMode = window.NexaPreferences?.allowsPersonalisation?.() === false
+        ? "createdNewOld"
+        : storage.getItem("taskSortMode") || "createdNewOld"; // load saved sort mode (default: createdNewOld)
     sortSelect.value = currentSortMode;
 
     let selectedDate = new Date();
@@ -64,18 +66,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const STATUS_MS = 1500;
     const WELCOME_PHRASE_MS = 5200;
     let statusTimer = null;
+    let welcomePhraseTimer = null;
 
-    // Homepage welcome carousel copy. Keep this short, calm, and purpose-aligned.
-    const WELCOME_PHRASES = [
-        "Everything in one place.",
-        "Start with what matters.",
-        "A clearer view of the week.",
-        "Your workload, laid out.",
-        "Keep the day simple.",
-        "Plan the next thing.",
-        "Today, made easier.",
-        "One place to get oriented."
-    ];
+    function copy(key, fallback = "") {
+        return window.NexaCopy?.get?.(key, fallback) ?? fallback;
+    }
+
+    function copyList(key) {
+        return window.NexaCopy?.list?.(key) || [];
+    }
 
     function loadUserName() {
         const saved = storage.getItem(USER_NAME_KEY);
@@ -112,23 +111,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function renderWelcomePhraseCarousel() {
-        if (!welcomeCarouselCopyEl || !WELCOME_PHRASES.length) return;
+        const welcomePhrases = copyList("home.welcomePhrases");
+        if (!welcomeCarouselCopyEl || !welcomePhrases.length) return;
+        if (welcomePhraseTimer) window.clearInterval(welcomePhraseTimer);
 
         let phraseIndex = 0;
         const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-        welcomeCarouselCopyEl.textContent = WELCOME_PHRASES[phraseIndex];
+        welcomeCarouselCopyEl.textContent = welcomePhrases[phraseIndex];
 
-        if (reduceMotion || WELCOME_PHRASES.length === 1) return;
+        if (reduceMotion || welcomePhrases.length === 1) return;
 
-        window.setInterval(() => {
-            phraseIndex = (phraseIndex + 1) % WELCOME_PHRASES.length;
+        welcomePhraseTimer = window.setInterval(() => {
+            phraseIndex = (phraseIndex + 1) % welcomePhrases.length;
             welcomeCarouselCopyEl.classList.add("is-changing");
 
             window.setTimeout(() => {
-                welcomeCarouselCopyEl.textContent = WELCOME_PHRASES[phraseIndex];
+                welcomeCarouselCopyEl.textContent = welcomePhrases[phraseIndex];
                 welcomeCarouselCopyEl.classList.remove("is-changing");
             }, 220);
         }, WELCOME_PHRASE_MS);
+    }
+
+    function cloneCopyTemplate(template, key, fallback) {
+        const node = template.content.firstElementChild.cloneNode(true);
+        node.textContent = copy(key, fallback);
+        return node;
     }
 
     function renderSemesterLabel() {
@@ -214,7 +221,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!sortedTasks.length) {
             if (!taskEmptyTemplate) return;
-            taskListEl.appendChild(taskEmptyTemplate.content.firstElementChild.cloneNode(true));
+            taskListEl.appendChild(cloneCopyTemplate(taskEmptyTemplate, "home.tasks.empty", "Nothing planned here yet. Let's give the day some structure."));
             updateHomeOverflowHints();
             return;
         }
@@ -468,7 +475,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (!assignments.length) {
             if (!assignmentDueEmptyTemplate) return;
-            assignmentsDueListEl.appendChild(assignmentDueEmptyTemplate.content.firstElementChild.cloneNode(true));
+            assignmentsDueListEl.appendChild(cloneCopyTemplate(assignmentDueEmptyTemplate, "home.assignmentsDue.empty", "No deadlines here. Enjoy the breathing room."));
             return;
         }
 
@@ -1020,14 +1027,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(TASKS_KEY, JSON.stringify(demoTasks));
         storage.setItem(SUBJECTS_KEY, JSON.stringify(demoAssignments.subjects));
         storage.setItem(ASSIGNMENTS_KEY, JSON.stringify(demoAssignments.assignments));
-        storage.setItem(USER_NAME_KEY, "Demo Student");
-        storage.setItem(SEMESTER_KEY, DEFAULT_SEMESTER_LABEL);
-
         editingTaskId = null;
         selectedDate = new Date();
         selectedDate.setHours(12, 0, 0, 0);
-        renderUserName();
-        renderSemesterLabel();
+        renderDate();
+    }
+
+    function handleDemoDataLoaded() {
+        editingTaskId = null;
+        selectedDate = new Date();
+        selectedDate.setHours(12, 0, 0, 0);
         renderDate();
     }
 
@@ -1083,7 +1092,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     sortSelect.addEventListener("change", () => {
         currentSortMode = sortSelect.value;
-        storage.setItem("taskSortMode", currentSortMode);
+        if (window.NexaPreferences?.allowsPersonalisation?.() === false) {
+            storage.removeItem("taskSortMode");
+        } else {
+            storage.setItem("taskSortMode", currentSortMode);
+        }
         renderTasksForSelectedDate();
     });
 
@@ -1101,11 +1114,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         assignmentsDueCard.setAttribute("tabindex", "0");
     }
 
-    window.addEventListener("nexa:load-demo-data", loadAllDemoData);
+    window.addEventListener("nexa:demo-data-loaded", handleDemoDataLoaded);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
     window.addEventListener("nexa:account-updated", () => {
         renderUserName();
         renderSemesterLabel();
+    });
+    window.NexaPreferences?.onChange?.((prefs, changedKey) => {
+        if (changedKey !== "appTone") return;
+        renderWelcomePhraseCarousel();
+        renderTasksForSelectedDate();
+        renderAssignmentsDueForSelectedDate();
     });
 
     taskListEl?.addEventListener("scroll", updateHomeOverflowHints);

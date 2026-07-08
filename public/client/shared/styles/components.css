@@ -9,7 +9,7 @@
 .nx-card {
     position: relative;
     border: 1px solid var(--color-raw-surface-panel-dark);
-    border-radius: 12px 12px 12px 0;
+    border-radius: 12px;
     background: var(--color-raw-surface-card-dark);
     box-shadow: 0 2px 12px var(--color-raw-shadow-card-dark), inset 0 1px 0 var(--color-raw-surface-subtle-dark);
     backdrop-filter: blur(12px) saturate(1.2);
@@ -68,6 +68,11 @@ body:not(.dark-mode) .nx-card:hover {
 body:not(.dark-mode) .nx-card::after {
     -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.3%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E");
     mask-image: url("data:image/svg+xml,%3Csvg%20viewBox%3D%270%200%2034%2018%27%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%3E%3Cpath%20d%3D%27M3%202L14%2013H29%27%20stroke%3D%27white%27%20stroke-width%3D%271%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%27.3%27%20fill%3D%27none%27/%3E%3Ccircle%20cx%3D%2731%27%20cy%3D%2713%27%20r%3D%272%27%20fill%3D%27white%27%20fill-opacity%3D%27.55%27/%3E%3C/svg%3E");
+}
+
+.nx-card::before,
+.nx-card::after {
+    content: none;
 }
 
 .switch input:checked + .slider {
@@ -236,6 +241,12 @@ body.dark-mode .tasks-day-empty::before,
 body.dark-mode .month-tbd-empty::before {
     filter: invert(1);
     opacity: 1;
+}
+
+.required-marker {
+    margin-left: 0.18em;
+    color: #d92d20;
+    white-space: nowrap;
 }
 
 .nexa-confirm-backdrop {

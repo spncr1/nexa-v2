@@ -329,7 +329,7 @@ meter {
     align-items: center;
     gap: 12px;
     padding: 12px;
-    border-radius: 12px 12px 12px 0;
+    border-radius: 12px;
 }
 
 .action-item strong,

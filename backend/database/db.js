@@ -32,15 +32,6 @@ const usersTableSql = `
     );
 `;
 
-const userAppStateTableSql = `
-    CREATE TABLE IF NOT EXISTS user_app_state (
-        user_id BIGINT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-        storage JSONB NOT NULL DEFAULT '{}'::jsonb,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-`;
-
 const authTokensTableSql = `
     CREATE TABLE IF NOT EXISTS auth_tokens (
         id BIGSERIAL PRIMARY KEY,
@@ -111,7 +102,6 @@ async function testDatabaseConnection() {
 
 async function ensureDatabaseSchema() {
     await pool.query(usersTableSql);
-    await pool.query(userAppStateTableSql);
     await pool.query(authTokensTableSql);
     await pool.query(authTokensUserPurposeIndexSql);
     await pool.query(authTokensActiveHashIndexSql);
@@ -432,45 +422,6 @@ async function createUserFromPendingRegistrationToken(tokenHash) {
     }
 }
 
-async function getUserAppState(userId) {
-    const result = await pool.query(
-        `SELECT storage
-         FROM user_app_state
-         WHERE user_id = $1
-         LIMIT 1`,
-        [userId]
-    );
-
-    if (!result.rows[0]) {
-        await pool.query(
-            `INSERT INTO user_app_state (user_id, storage)
-             VALUES ($1, '{}'::jsonb)
-             ON CONFLICT (user_id) DO NOTHING`,
-            [userId]
-        );
-
-        return {};
-    }
-
-    return result.rows[0].storage || {};
-}
-
-async function saveUserAppState(userId, storage) {
-    const normalizedStorage = storage && typeof storage === 'object' ? storage : {};
-
-    const result = await pool.query(
-        `INSERT INTO user_app_state (user_id, storage, updated_at)
-         VALUES ($1, $2::jsonb, NOW())
-         ON CONFLICT (user_id) DO UPDATE
-         SET storage = EXCLUDED.storage,
-             updated_at = NOW()
-         RETURNING storage`,
-        [userId, JSON.stringify(normalizedStorage)]
-    );
-
-    return result.rows[0]?.storage || {};
-}
-
 module.exports = {
     pool,
     ensureDatabaseSchema,
@@ -488,7 +439,5 @@ module.exports = {
     resetPasswordWithAuthToken,
     createPendingRegistration,
     createUserFromPendingRegistrationToken,
-    invalidatePendingRegistration,
-    getUserAppState,
-    saveUserAppState
+    invalidatePendingRegistration
 };

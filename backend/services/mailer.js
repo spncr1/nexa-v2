@@ -111,8 +111,68 @@ async function sendEmailVerificationEmail({ to, name, verificationUrl }) {
     })
 }
 
+function assignmentDueLabel(assignment) {
+    if (assignment.daysUntil < 0) return `overdue by ${Math.abs(assignment.daysUntil)} day${Math.abs(assignment.daysUntil) === 1 ? '' : 's'}`;
+    if (assignment.daysUntil === 0) return 'due today';
+    if (assignment.daysUntil === 1) return 'due tomorrow';
+    return `due in ${assignment.daysUntil} days`;
+}
+
+function assignmentReminderLines(assignments) {
+    return assignments.map((assignment) => {
+        const subject = assignment.subjectName || 'Unknown subject';
+        const priority = assignment.priority || 'medium';
+        const dueDate = assignment.dueDate || 'No due date';
+        return `- ${assignment.task} (${subject}) - ${assignmentDueLabel(assignment)}, ${dueDate}, ${priority} priority`;
+    });
+}
+
+function assignmentReminderHtml(assignments) {
+    return assignments.map((assignment) => `
+        <li>
+            <strong>${escapeHtml(assignment.task)}</strong><br>
+            <span>${escapeHtml(assignment.subjectName || 'Unknown subject')}</span><br>
+            <span>${escapeHtml(assignmentDueLabel(assignment))} · ${escapeHtml(assignment.dueDate || 'No due date')} · ${escapeHtml(assignment.priority || 'medium')} priority</span>
+        </li>
+    `).join('')
+}
+
+async function sendAssignmentReminderEmail({ to, name, reminderType, assignments }) {
+    const transporter = createTransporter()
+    const displayName = name || 'there'
+    const reminderLabel = reminderType === 'weekly' ? 'Weekly assignment summary' : 'Important assignment reminders'
+
+    await transporter.sendMail({
+        from: process.env.MAIL_FROM,
+        to,
+        subject: `NEXA: ${reminderLabel}`,
+        text: [
+            `Hi ${displayName},`,
+            '',
+            reminderType === 'weekly'
+                ? 'Here is your assignment summary for the week.'
+                : 'Here are the assignments that need your attention.',
+            '',
+            ...assignmentReminderLines(assignments),
+            '',
+            'You can change email reminders from System Settings > Preferences.'
+        ].join('\n'),
+        html: `
+            <p>Hi ${escapeHtml(displayName)},</p>
+            <p>${reminderType === 'weekly'
+                ? 'Here is your assignment summary for the week.'
+                : 'Here are the assignments that need your attention.'}</p>
+            <ul>
+                ${assignmentReminderHtml(assignments)}
+            </ul>
+            <p>You can change email reminders from <strong>System Settings &gt; Preferences</strong>.</p>
+        `
+    })
+}
+
 module.exports = {
     assertEmailConfiguration,
+    sendAssignmentReminderEmail,
     sendEmailVerificationEmail,
     sendPasswordResetEmail
 }

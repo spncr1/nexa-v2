@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     await window.NexaAppStorage.ready;
     const storage = window.NexaAppStorage;
 
+    function copy(key, fallback = "") {
+        return window.NexaCopy?.get?.(key, fallback) ?? fallback;
+    }
+
     const queueList = document.getElementById("queue-list");
     const addSessionBtn = document.getElementById("add-session-btn");
     const playNextBtn = document.getElementById("play-next-session-btn");
@@ -908,7 +912,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const queueCount = queue.length;
         if (queueCountPill) queueCountPill.textContent = `${queueCount} ${queueCount === 1 ? "session" : "sessions"}`;
-        if (queueEmptyState) queueEmptyState.hidden = queueCount > 0;
+        if (queueEmptyState) {
+            queueEmptyState.textContent = copy("study.empty.queue", "No study sessions queued yet.");
+            queueEmptyState.hidden = queueCount > 0;
+        }
     }
 
     function renderSuggestions() {
@@ -929,7 +936,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!suggestions.length) {
             const empty = document.createElement("p");
             empty.className = "study-empty-state";
-            empty.textContent = "No suggested focuses yet.";
+            empty.textContent = copy("study.empty.suggestions", "No suggested focuses yet.");
             suggestionList.appendChild(empty);
             return;
         }
@@ -973,7 +980,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     createdAt: Date.now(),
                     updatedAt: Date.now()
                 });
-                showToast("Suggested focus added to queue.", "positive");
+                showToast(copy("study.toast.suggestionQueued", "Suggested focus added to queue."), "positive");
             });
             suggestionList.appendChild(card);
         });
@@ -1016,9 +1023,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function renderHistoryPanels() {
-        renderPanel("recent", completedSessions.slice(0, RECENT_LIMIT), "No recent study sessions yet.");
-        renderPanel("history", completedSessions, "Your completed sessions will appear here.");
-        renderPanel("favourites", favouriteSessions, "No saved sessions yet.");
+        renderPanel("recent", completedSessions.slice(0, RECENT_LIMIT), copy("study.empty.recent", "No recent study sessions yet."));
+        renderPanel("history", completedSessions, copy("study.empty.history", "Your completed sessions will appear here."));
+        renderPanel("favourites", favouriteSessions, copy("study.empty.favourites", "No saved sessions yet."));
     }
 
     function renderStats() {
@@ -1393,6 +1400,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderAll();
     }
 
+    function handleDemoDataLoaded() {
+        hydrateState();
+        resetTimerDisplay();
+        renderAll();
+    }
+
     function renderAll() {
         renderQueue();
         renderCurrentSession();
@@ -1584,7 +1597,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         closeModals();
         renderStats();
-        showToast(`${summaryPeriod === "month" ? "Monthly" : "Weekly"} study goal saved.`, "positive");
+        showToast(
+            summaryPeriod === "month"
+                ? copy("study.toast.monthlyGoalSaved", "Monthly study goal saved.")
+                : copy("study.toast.weeklyGoalSaved", "Weekly study goal saved."),
+            "positive"
+        );
     }
 
     function openAddSessionModal() {
@@ -1734,7 +1752,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         closeModals();
         renderAll();
-        showToast(source === "suggestion" ? "Suggestion updated." : "Session updated.", "positive");
+        showToast(
+            source === "suggestion"
+                ? copy("study.toast.suggestionUpdated", "Suggestion updated.")
+                : copy("study.toast.sessionUpdated", "Session updated."),
+            "positive"
+        );
     }
 
     function deleteDetailSession() {
@@ -1749,7 +1772,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         closeModals();
         renderAll();
-        showToast("Session deleted.", "neutral");
+        showToast(copy("study.toast.sessionDeleted", "Session deleted."), "neutral");
     }
 
     function toggleFavouriteFromDetail() {
@@ -1759,7 +1782,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         if (isFavourite(session)) {
             favouriteSessions = favouriteSessions.filter((item) => !sameSessionTemplate(item, session));
-            showToast("Removed from favourites.", "neutral");
+            showToast(copy("study.toast.favouriteRemoved", "Removed from favourites."), "neutral");
         } else {
             const template = getTemplateFromSession(session);
             favouriteSessions.unshift({
@@ -1769,7 +1792,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-            showToast("Added to favourites.", "positive");
+            showToast(copy("study.toast.favouriteAdded", "Added to favourites."), "positive");
         }
 
         persistFavourites();
@@ -1803,7 +1826,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function startQueueAt(index) {
         if (!queue[index]) {
-            showToast("No queued session to start.", "neutral");
+            showToast(copy("study.toast.queueEmpty", "No queued session to start."), "neutral");
             return;
         }
         const [session] = queue.splice(index, 1);
@@ -1865,13 +1888,26 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             renderAll();
         }
-        showToast("Session completed.", "positive");
+        const timerAlertsOn = window.NexaPreferences?.get?.("studyTimerAlerts") === true;
+        showToast(
+            timerAlertsOn
+                ? copy("study.toast.timerAlert", "Study timer finished. Session saved to history.")
+                : copy("study.toast.sessionCompleted", "Session completed."),
+            "positive"
+        );
+
+        if (timerAlertsOn) {
+            window.NexaPreferences?.notifyStudyTimerComplete?.(
+                copy("study.notification.completeTitle", "Study session complete"),
+                copy("study.notification.completeBody", "Your study timer has finished.")
+            );
+        }
     }
 
     async function previousSession() {
         const template = activeSession ? getTemplateFromSession(activeSession) : lastPlayedTemplate;
         if (!template) {
-            showToast("No previous session yet.", "neutral");
+            showToast(copy("study.toast.previousEmpty", "No previous session yet."), "neutral");
             return;
         }
         if (activeSession && !(await abandonActiveSession())) return;
@@ -1880,7 +1916,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function nextSession() {
         if (!queue.length) {
-            showToast("No next session in the queue.", "neutral");
+            showToast(copy("study.toast.nextEmpty", "No next session in the queue."), "neutral");
             return;
         }
         if (activeSession && !(await abandonActiveSession())) return;
@@ -1897,7 +1933,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function toggleRepeat() {
         if (!activeSession) {
-            showToast("Start a session before turning repeat on.", "neutral");
+            showToast(copy("study.toast.repeatNeedsSession", "Start a session before turning repeat on."), "neutral");
             return;
         }
         activeSession.isRepeating = !(activeSession.isRepeating || activeSession.isLooping);
@@ -1908,7 +1944,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function clearQueue() {
         if (!queue.length && !activeSession) {
-            showToast("Queue is already clear.", "neutral");
+            showToast(copy("study.toast.queueAlreadyClear", "Queue is already clear."), "neutral");
             return;
         }
 
@@ -1927,7 +1963,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         saveActiveSession();
         resetTimerDisplay();
         renderAll();
-        showToast("Queue cleared.", "neutral");
+        showToast(copy("study.toast.queueCleared", "Queue cleared."), "neutral");
     }
 
     function resetTimer() {
@@ -2177,7 +2213,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (addDurationInput) addDurationInput.value = formatTimerInput(result.session.durationSeconds);
         addSessionToQueue(result.session);
         closeModals();
-        showToast("Session added to queue.", "positive");
+            showToast(copy("study.toast.sessionQueued", "Session added to queue."), "positive");
     });
 
     saveDetailBtn?.addEventListener("click", saveDetailEdits);
@@ -2220,7 +2256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     createdAt: Date.now(),
                     updatedAt: Date.now()
                 });
-                showToast("Favourite added to queue.", "positive");
+                showToast(copy("study.toast.favouriteQueued", "Favourite added to queue."), "positive");
             }
             return;
         }
@@ -2302,8 +2338,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    window.addEventListener("nexa:load-demo-data", loadDemoStudyPlannerData);
+    window.addEventListener("nexa:demo-data-loaded", handleDemoDataLoaded);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
+    window.NexaPreferences?.onChange?.((prefs, changedKey) => {
+        if (changedKey === "appTone") {
+            renderAll();
+        }
+    });
 
     window.addEventListener("storage", (event) => {
         if (event.key === ASSIGNMENTS_KEY || event.key === SUBJECTS_KEY) renderSuggestions();
