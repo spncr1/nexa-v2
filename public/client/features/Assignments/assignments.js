@@ -451,13 +451,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return "neutral";
     }
 
-    function formatReminderDays(daysUntil) {
-        if (daysUntil < 0) return { value: "Overdue", label: "" };
-        if (daysUntil === 0) return { value: "0", label: "DAYS" };
-        if (daysUntil === 1) return { value: "1", label: "DAY" };
-        return { value: String(daysUntil), label: "DAYS" };
-    }
-
     function formatReminderBadge(daysUntil) {
         if (daysUntil < 0) return "Overdue";
         return `${daysUntil}d`;
@@ -1022,21 +1015,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast(copy("assignments.toast.reset", "Assignments reset."), "negative");
     }
 
-    function randomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function pick(list) {
-        return list[randomInt(0, list.length - 1)];
-    }
-
-    function formatISODate(dateObj) {
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
-        const d = String(dateObj.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
-    }
-
     function handleAppDataReset() {
         editingAssignmentId = null;
         editingSubjectId = null;
@@ -1047,151 +1025,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         closeViewAssignmentModal();
         refreshSubjectViews();
         renderSemesterLabel();
-        renderDashboard();
-        updateSubjectsOverflowHint();
-    }
-
-    function generateDemoAssignmentsData() {
-        const subjectPool = [
-            "Introduction to (University Studies)",
-            "Research Methods",
-            "Critical Thinking",
-            "Professional Practice",
-            "Global Perspectives",
-            "Contemporary Issues",
-            "Applied Studies",
-            "Ethics and Society",
-            "Global Perspectives",
-            "Principles of Communication",
-            "Statistics",
-            "Academic Writing",
-            "Business Fundamentals"
-        ];
-        const taskPool = [
-            "Quiz",
-            "Lab Report",
-            "Case Study",
-            "Team Presentation",
-            "Project Milestone",
-            "Final Exam",
-            "Reflection",
-            "Research Summary",
-            "Project Report",
-            "Group Presentation",
-            "Research Paper",
-            "Reflection Journal",
-            "Literature Review"
-        ];
-        const descPool = [
-            "Summarise the key concepts and support your ideas with references.",
-            "Apply the weekly material to analyse the given scenario.",
-            "Work with your group to deveop and present your findings.",
-            "Demonstrate your understanding of the topic through clear examples.",
-            "Use credible sources to support your arguments.",
-            "Structure your work clearly and reference all sources",
-            "Focus on the main themes discussed during the semester.",
-            "Provide a concise explanation of your reasoning."
-        ];
-        const priorities = ["low", "medium", "high"];
-        const statuses = ["not-started", "in-progress", "completed"];
-        const now = Date.now();
-        const today = new Date();
-        const subjectCount = randomInt(4, 5);
-        const subjects = [];
-        const assignments = [];
-
-        const shuffledSubjects = [...subjectPool].sort(() => Math.random() - 0.5).slice(0, subjectCount);
-
-        shuffledSubjects.forEach((name, subjectIndex) => {
-            const subjectId = `subject_demo_${now}_${subjectIndex}`;
-            subjects.push({
-                id: subjectId,
-                name,
-                createdAt: now - subjectIndex * 1000,
-                updatedAt: now - subjectIndex * 1000
-            });
-
-            const assignmentCount = randomInt(1, 5);
-            const weightingTemplates = {
-                1: [
-                    [100]
-                ],
-                2: [
-                    [50, 50],
-                    [40, 60],
-                    [30, 70]
-                ],
-                3: [
-                    [20, 30, 50],
-                    [25, 25, 50],
-                    [30, 30, 40],
-                    [20, 40, 40]
-                ],
-                4: [
-                    [25, 25, 25, 25],
-                    [20, 20, 20, 40],
-                    [10, 20, 30, 40],
-                    [15, 20, 25, 40]
-                ],
-                5: [
-                    [10, 15, 20, 25, 30],
-                    [10, 20, 20, 20, 30],
-                    [15, 15, 20, 25, 25],
-                    [10, 10, 20, 30, 30]
-                ]
-            };
-
-            function shuffleArray(arr) {
-                return [...arr].sort(() => Math.random() - 0.5);
-            }
-
-            function pickWeightings(count) {
-                const templates = weightingTemplates[count];
-                const chosen = pick(templates);
-                return shuffleArray(chosen);
-            }
-
-            const weightings = pickWeightings(assignmentCount);
-
-            for (let i = 0; i < assignmentCount; i += 1) {
-                const dueDate = new Date(today);
-                dueDate.setDate(today.getDate() + randomInt(2, 120));
-                const taskType = pick(taskPool);
-
-                assignments.push({
-                    id: `assignment_demo_${now}_${subjectIndex}_${i}`,
-                    courseId: subjectId,
-                    task: `${taskType} ${i + 1}`,
-                    description: pick(descPool),
-                    priority: pick(priorities),
-                    status: pick(statuses),
-                    dueDate: formatISODate(dueDate),
-                    weighting: Number(weightings[i].toFixed(1)),
-                    createdAt: now - randomInt(0, 10) * 86400000,
-                    updatedAt: now - randomInt(0, 3) * 3600000
-                });
-            }
-        });
-
-        return { subjects, assignments };
-    }
-
-    function loadDemoAssignmentsData() {
-        const demo = generateDemoAssignmentsData();
-        storage.setItem(STORAGE_KEY, JSON.stringify(demo.subjects));
-        storage.setItem(ASSIGNMENTS_KEY, JSON.stringify(demo.assignments));
-        editingAssignmentId = null;
-        editingSubjectId = null;
-        refreshSubjectViews();
-        renderSemesterLabel();
-        renderDashboard();
-        updateSubjectsOverflowHint();
-    }
-
-    function handleDemoDataLoaded() {
-        editingAssignmentId = null;
-        editingSubjectId = null;
-        refreshSubjectViews();
         renderDashboard();
         updateSubjectsOverflowHint();
     }
@@ -2019,7 +1852,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderSemesterLabel();
     renderDashboard();
     openAssignmentFromHomeWidget();
-    window.addEventListener("nexa:demo-data-loaded", handleDemoDataLoaded);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
     window.addEventListener("nexa:account-updated", renderSemesterLabel);
     window.NexaPreferences?.onChange?.((prefs, changedKey) => {

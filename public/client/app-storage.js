@@ -160,7 +160,6 @@
             language: systemPreferences.language || 'en-AU',
             reducedMotion: Boolean(systemPreferences.reducedMotion),
             notifications: hasNotificationPreference,
-            privateActivity: Boolean(systemPreferences.sensitiveMode || systemPreferences.privateActivity),
             systemPreferences
         };
     }

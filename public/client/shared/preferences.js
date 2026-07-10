@@ -10,7 +10,6 @@
         deadlineReminderLevel: "important",
         appTone: "encouraging",
         personalisation: true,
-        sensitiveMode: false,
         emailReminders: "off"
     });
 
@@ -20,7 +19,7 @@
         emailReminders: new Set(["off", "important", "weekly"])
     });
 
-    const BOOLEAN_KEYS = new Set(["studyTimerAlerts", "personalisation", "sensitiveMode"]);
+    const BOOLEAN_KEYS = new Set(["studyTimerAlerts", "personalisation"]);
 
     function storage() {
         return window.NexaAppStorage || window.localStorage;
@@ -64,7 +63,6 @@
     function save(prefs, changedKey = "") {
         const nextPrefs = sanitizePrefs(prefs);
         storage().setItem(SYSTEM_PREFS_KEY, JSON.stringify(nextPrefs));
-        applySensitiveMode(nextPrefs);
         window.dispatchEvent(new CustomEvent(UPDATE_EVENT, {
             detail: {
                 prefs: nextPrefs,
@@ -112,10 +110,6 @@
         storage().removeItem(HOME_TASK_SORT_KEY);
     }
 
-    function applySensitiveMode(prefs = load()) {
-        document.body.classList.toggle("sensitive-mode", Boolean(prefs.sensitiveMode));
-    }
-
     function requestStudyTimerNotificationPermission() {
         if (!("Notification" in window)) {
             return Promise.resolve("unsupported");
@@ -150,13 +144,7 @@
         onChange,
         allowsPersonalisation,
         clearPersonalisedUiState,
-        applySensitiveMode,
         requestStudyTimerNotificationPermission,
         notifyStudyTimerComplete
     };
-
-    document.addEventListener("DOMContentLoaded", () => {
-        const ready = window.NexaAppStorage?.ready || Promise.resolve();
-        ready.then(() => applySensitiveMode()).catch(() => applySensitiveMode(DEFAULTS));
-    });
 })();

@@ -50,8 +50,7 @@ body.nav-collapsed > main.content {
     --app-sidebar-space: 128px;
 }
 
-body > main.content.study-planner-page,
-body > main.content.job-applications-page {
+body > main.content.study-planner-page {
     width: calc(100% - var(--app-sidebar-space));
     margin: 0 0 0 var(--app-sidebar-space);
 }
@@ -1258,11 +1257,6 @@ body.settings-modal-open .settings-navbar-icon-hover {
     color: var(--color-text-inverse);
 }
 
-body.sensitive-mode [data-sensitive] {
-    filter: blur(6px);
-    user-select: none;
-}
-
 .setting-account-input {
     width: 190px;
     max-width: 100%;
@@ -1667,6 +1661,8 @@ body.sensitive-mode [data-sensitive] {
         border-radius: 0.95rem;
         box-sizing: border-box;
         overflow: visible;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
         transition: none;
     }
 
@@ -1743,6 +1739,7 @@ body.sensitive-mode [data-sensitive] {
     body.mobile-nav-open .navbar .nav-list {
         max-height: 90rem;
         padding-top: 0.75rem;
+        padding-bottom: 0.25rem;
         opacity: 1;
         pointer-events: auto;
         transform: none;
@@ -2005,6 +2002,16 @@ body.sensitive-mode [data-sensitive] {
         background: var(--color-surface-floating-strong);
         box-shadow: 0 0.75rem 2rem var(--color-shadow-floating);
         transition: none;
+    }
+
+    body.mobile-nav-open .settings-navbar-actions {
+        position: static;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        transform: none;
+        margin: 1rem auto 0;
+        flex: 0 0 auto;
     }
 
     .settings-navbar-button {

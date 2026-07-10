@@ -386,10 +386,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         return Number.isFinite(durationMinutes) && durationMinutes > 0 ? Math.round(durationMinutes * 60) : 0;
     }
 
-    function getSessionMinutes(session) {
-        return getSessionSeconds(session) / 60;
-    }
-
     function formatClock(totalSeconds, options = {}) {
         const secondsValue = Math.max(0, Math.round(Number(totalSeconds) || 0));
         const hours = Math.floor(secondsValue / 3600);
@@ -1282,111 +1278,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    function randomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function pick(list) {
-        return list[randomInt(0, list.length - 1)];
-    }
-
-    function generateDemoStudyPlannerData() {
-        const now = Date.now();
-        const sessionPool = [
-            { title: "Exam revision", type: "deep", durations: [90 * 60, 120 * 60] },
-            { title: "Assignment work", type: "standard", durations: [60 * 60] },
-            { title: "Lecture recap", type: "light", durations: [30 * 60, 45 * 60] },
-            { title: "Practice questions", type: "standard", durations: [60 * 60] },
-            { title: "Research sprint", type: "deep", durations: [90 * 60, 120 * 60] },
-            { title: "Notes review", type: "light", durations: [30 * 60, 45 * 60] },
-            { title: "Reading block", type: "standard", durations: [60 * 60] },
-            { title: "Problem set", type: "deep", durations: [90 * 60] }
-        ];
-        const notesPool = [
-            "Demo study block.",
-            "Use this to test queue flow.",
-            "Demo time-blocking session.",
-            "Generated from the shared demo data action."
-        ];
-        const shuffled = [...sessionPool].sort(() => Math.random() - 0.5);
-
-        function makeSession(source, index, prefix = "study_demo") {
-            const durationSeconds = pick(source.durations);
-            return {
-                id: `${prefix}_${now}_${index}`,
-                title: source.title,
-                type: source.type,
-                durationSeconds,
-                durationMinutes: durationSeconds / 60,
-                notes: pick(notesPool),
-                createdAt: now + index,
-                updatedAt: now + index
-            };
-        }
-
-        const queueSessions = shuffled.slice(0, randomInt(3, 5)).map((session, index) => {
-            return makeSession(session, index + 1, "study_demo_queue");
-        });
-        const completedSessionsDemo = shuffled.slice(2, 4).map((session, index) => {
-            const completed = makeSession(session, index + 1, "study_demo_completed");
-            completed.completedAt = now - randomInt(30, 2880) * 60 * 1000;
-            completed.createdAt = completed.completedAt;
-            return completed;
-        });
-        const favouriteSource = pick(sessionPool);
-        const favouriteDuration = pick(favouriteSource.durations);
-
-        return {
-            queue: queueSessions,
-            completedSessions: completedSessionsDemo,
-            favouriteSessions: [
-                {
-                    id: `study_demo_favourite_${now}_1`,
-                    title: `${favouriteSource.title} template`,
-                    type: favouriteSource.type,
-                    durationSeconds: favouriteDuration,
-                    durationMinutes: favouriteDuration / 60,
-                    notes: "Reusable demo favourite.",
-                    createdAt: now,
-                    updatedAt: now
-                }
-            ]
-        };
-    }
-
-    function loadDemoStudyPlannerData() {
-        const demo = generateDemoStudyPlannerData();
-
-        storage.setItem(QUEUE_KEY, JSON.stringify(demo.queue));
-        storage.setItem(COMPLETED_KEY, JSON.stringify(demo.completedSessions));
-        storage.setItem(FAVOURITES_KEY, JSON.stringify(demo.favouriteSessions));
-        saveStudyGoal("week", {
-            targetSessions: 8,
-            targetFocusSeconds: 10 * 3600,
-            activeDays: 4,
-            focusBalance: { deep: 50, standard: 30, light: 20 },
-            updatedAt: now
-        });
-        saveStudyGoal("month", {
-            targetSessions: 32,
-            targetFocusSeconds: 40 * 3600,
-            activeDays: 16,
-            focusBalance: { deep: 50, standard: 30, light: 20 },
-            updatedAt: now
-        });
-        storage.removeItem(ACTIVE_KEY);
-        storage.removeItem(SUGGESTION_OVERRIDES_KEY);
-
-        queue = normaliseSessionList(demo.queue, "study_session");
-        completedSessions = normaliseSessionList(demo.completedSessions, "study_completed");
-        favouriteSessions = normaliseSessionList(demo.favouriteSessions, "study_favourite");
-        suggestionOverrides = {};
-        activeSession = null;
-        lastPlayedTemplate = getTemplateFromSession(completedSessions[0]);
-        resetTimerDisplay();
-        renderAll();
-    }
-
     function handleAppDataReset() {
         queue = [];
         completedSessions = [];
@@ -1396,12 +1287,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         lastPlayedTemplate = null;
         storage.removeItem(WEEKLY_GOAL_KEY);
         storage.removeItem(MONTHLY_GOAL_KEY);
-        resetTimerDisplay();
-        renderAll();
-    }
-
-    function handleDemoDataLoaded() {
-        hydrateState();
         resetTimerDisplay();
         renderAll();
     }
@@ -2338,7 +2223,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    window.addEventListener("nexa:demo-data-loaded", handleDemoDataLoaded);
     window.addEventListener("nexa:app-data-reset", handleAppDataReset);
     window.NexaPreferences?.onChange?.((prefs, changedKey) => {
         if (changedKey === "appTone") {

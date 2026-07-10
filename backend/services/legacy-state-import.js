@@ -289,7 +289,6 @@ function normalisePreferences(storage) {
         language: cleanString(systemPreferences.language || 'en', 16),
         reducedMotion: Boolean(systemPreferences.reducedMotion),
         notifications: systemPreferences.notifications !== false,
-        privateActivity: Boolean(systemPreferences.privateActivity),
         systemPreferences: systemPreferences && typeof systemPreferences === 'object' ? systemPreferences : {}
     };
 }

@@ -178,7 +178,6 @@ function rowToPreferences(row) {
         language: row?.language || 'en',
         reducedMotion: Boolean(row?.reduced_motion),
         notifications: row?.notifications !== false,
-        privateActivity: Boolean(row?.private_activity),
         systemPreferences: row?.system_preferences || {}
     };
 }
@@ -862,9 +861,9 @@ async function upsertPreferences(userId, preferences, client) {
     const result = await executor(client).query(
         `INSERT INTO user_preferences (
             user_id, theme_mode, nav_collapsed, nav_group_state, language,
-            reduced_motion, notifications, private_activity, system_preferences, updated_at
+            reduced_motion, notifications, system_preferences, updated_at
          )
-         VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8, $9::jsonb, NOW())
+         VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7, $8::jsonb, NOW())
          ON CONFLICT (user_id) DO UPDATE
          SET theme_mode = EXCLUDED.theme_mode,
              nav_collapsed = EXCLUDED.nav_collapsed,
@@ -872,7 +871,6 @@ async function upsertPreferences(userId, preferences, client) {
              language = EXCLUDED.language,
              reduced_motion = EXCLUDED.reduced_motion,
              notifications = EXCLUDED.notifications,
-             private_activity = EXCLUDED.private_activity,
              system_preferences = EXCLUDED.system_preferences,
              updated_at = NOW()
          RETURNING *`,
@@ -884,7 +882,6 @@ async function upsertPreferences(userId, preferences, client) {
             preferences.language || 'en',
             Boolean(preferences.reducedMotion),
             preferences.notifications !== false,
-            Boolean(preferences.privateActivity),
             JSON.stringify(preferences.systemPreferences || {})
         ]
     );

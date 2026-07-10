@@ -265,7 +265,6 @@ function validatePreferencesPayload(body = {}) {
         language: cleanString(body.language || 'en', 16),
         reducedMotion: Boolean(body.reducedMotion),
         notifications: body.notifications !== false,
-        privateActivity: Boolean(body.privateActivity),
         systemPreferences: body.systemPreferences && typeof body.systemPreferences === 'object' ? body.systemPreferences : {}
     }, errors);
 }

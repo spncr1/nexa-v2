@@ -15,7 +15,6 @@ const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
 const PgSession = require('connect-pg-simple')(session)
-const methodOverride = require('method-override')
 const {
     createAuthToken,
     createPendingRegistration,
@@ -214,7 +213,6 @@ app.use(session({
 app.use(flash())
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(methodOverride('_method'))
 app.use(express.json()) // allows our application to accept JSON
 app.use(async (req, res, next) => {
     try {
@@ -245,19 +243,13 @@ app.get('/', (req, res) => {
 const APP_PAGE_ROUTES = {
     '/tasks': 'pages/features/tasks.ejs',
     '/assignments': 'pages/features/assignments.ejs',
-    '/study-planner': 'pages/features/study-planner.ejs',
-    '/habits': 'pages/features/habits.ejs',
-    '/job-applications': 'pages/features/job-applications.ejs',
-    '/finances': 'pages/features/finances.ejs'
+    '/study-planner': 'pages/features/study-planner.ejs'
 }
 
 const LEGACY_APP_PAGE_REDIRECTS = {
     '/client/features/Tasks/tasks.html': '/tasks',
     '/client/features/Assignments/assignments.html': '/assignments',
-    '/client/features/StudyPlanner/study-planner.html': '/study-planner',
-    '/client/features/Habits/habits.html': '/habits',
-    '/client/features/JobApplications/job-applications.html': '/job-applications',
-    '/client/features/Finances/finances.html': '/finances'
+    '/client/features/StudyPlanner/study-planner.html': '/study-planner'
 }
 
 Object.entries(APP_PAGE_ROUTES).forEach(([route, view]) => {

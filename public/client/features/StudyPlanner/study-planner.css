@@ -1022,6 +1022,17 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
     overflow: hidden;
 }
 
+.suggested-focuses .card-heading {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+}
+
+.suggested-focuses .card-heading h2,
+#view-assignments {
+    white-space: nowrap;
+}
+
 #view-assignments {
     display: inline-flex;
     align-items: center;
@@ -1047,8 +1058,11 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
     flex: 1;
     max-height: none;
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
     min-height: 0;
     padding-right: 2px;
+    box-sizing: border-box;
     scrollbar-width: thin;
     scrollbar-color: var(--color-border-panel-strong) transparent;
 }
@@ -1076,6 +1090,9 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
     border: 1px solid var(--study-inner-surface-border);
     border-radius: 7px;
     background: var(--study-inner-surface-bg);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
 .suggestion-card-main {
@@ -1103,16 +1120,29 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
 
 .suggestion-actions {
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 10px 12px;
     align-items: center;
-    justify-content: space-between;
     width: 100%;
+    min-width: 0;
     margin-top: 2px;
 }
 
 .suggestion-actions .edit-suggestion,
 .suggestion-actions .add-suggestion {
+    flex: 1 1 11rem;
+    width: auto;
+    min-width: min(100%, 11rem);
+    min-height: 36px;
+    padding-inline: 14px;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.suggestion-actions .app-icon {
     flex: 0 0 auto;
+    width: 15px;
+    height: 15px;
 }
 
 .suggestion-session-meta {
@@ -1591,9 +1621,17 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
     grid-template-columns: 110px 84px auto;
     align-items: center;
     justify-content: start;
-    gap: 8px;
+    column-gap: 12px;
     color: var(--color-text-primary);
     font-family: "Noto Sans";
+}
+
+.goal-balance-label {
+    min-width: 0;
+}
+
+#study-goal-modal .required-marker {
+    margin-left: 2px;
 }
 
 .goal-balance-fields input {
@@ -1727,6 +1765,18 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
         min-height: 2.2rem;
         padding: 0.45rem 0.7rem;
         font-size: 0.8rem;
+    }
+
+    .suggestion-actions .edit-suggestion,
+    .suggestion-actions .add-suggestion {
+        min-height: 2.35rem;
+        padding-inline: 0.9rem;
+        font-size: 0.82rem;
+    }
+
+    .suggestion-actions .app-icon {
+        width: 0.95rem;
+        height: 0.95rem;
     }
 
     .study-stats-grid {
@@ -1930,6 +1980,13 @@ body.dark-mode .study-planner-page .timer-control.is-repeat {
         min-height: 2rem;
         padding: 0.38rem 0.55rem;
         font-size: 0.74rem;
+    }
+
+    .suggestion-actions .edit-suggestion,
+    .suggestion-actions .add-suggestion {
+        min-height: 2.25rem;
+        padding-inline: 0.8rem;
+        font-size: 0.78rem;
     }
 
     /* Small-phone current session */

@@ -59,9 +59,7 @@
             "study.toast.weeklyGoalSaved": "Weekly study goal saved.",
             "study.toast.monthlyGoalSaved": "Monthly study goal saved.",
             "study.notification.completeTitle": "Study session complete",
-            "study.notification.completeBody": "Your study timer has finished.",
-
-            "jobs.toast.saved": "Application saved."
+            "study.notification.completeBody": "Your study timer has finished."
         },
         neutral: {
             "home.welcomePhrases": [
@@ -118,9 +116,7 @@
             "study.toast.weeklyGoalSaved": "Weekly study goal saved.",
             "study.toast.monthlyGoalSaved": "Monthly study goal saved.",
             "study.notification.completeTitle": "Study session complete",
-            "study.notification.completeBody": "Your study timer has finished.",
-
-            "jobs.toast.saved": "Application saved."
+            "study.notification.completeBody": "Your study timer has finished."
         },
         direct: {
             "home.welcomePhrases": [
@@ -177,9 +173,7 @@
             "study.toast.weeklyGoalSaved": "Weekly goal saved.",
             "study.toast.monthlyGoalSaved": "Monthly goal saved.",
             "study.notification.completeTitle": "Session complete",
-            "study.notification.completeBody": "Timer finished.",
-
-            "jobs.toast.saved": "Application saved."
+            "study.notification.completeBody": "Timer finished."
         }
     };
 

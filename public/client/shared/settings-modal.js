@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const themeModeSelect = document.getElementById("theme-mode-select");
     const themeSwitch = document.getElementById("theme-switch");
     const resetAppDataBtn = document.getElementById("reset-app-data-btn");
-    const loadDemoDataBtn = document.getElementById("load-demo-data-btn");
     const sendEmailReminderBtn = document.getElementById("send-email-reminder-btn");
     const emailReminderStatus = document.getElementById("email-reminder-status");
     const accountNameInput = document.getElementById("account-name-input");
@@ -65,7 +64,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const STUDY_WEEKLY_GOAL_KEY = "studenthub_study_weekly_goal";
     const STUDY_MONTHLY_GOAL_KEY = "studenthub_study_monthly_goal";
     const STUDY_SUGGESTION_OVERRIDES_KEY = "studenthub_study_suggestion_overrides";
-    const JOB_APPLICATIONS_KEY = "studenthub_job_applications";
     const APP_DATA_KEYS = [
         TASKS_KEY,
         SUBJECTS_KEY,
@@ -77,7 +75,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         STUDY_WEEKLY_GOAL_KEY,
         STUDY_MONTHLY_GOAL_KEY,
         STUDY_SUGGESTION_OVERRIDES_KEY,
-        JOB_APPLICATIONS_KEY,
         USER_NAME_KEY,
         SEMESTER_KEY,
         PROFILE_AGE_KEY,
@@ -718,179 +715,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 900);
     }
 
-    function randomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function shuffleList(items) {
-        return [...items].sort(() => Math.random() - 0.5);
-    }
-
-    function atNoon(dateObj) {
-        const date = new Date(dateObj);
-        date.setHours(12, 0, 0, 0);
-        return date;
-    }
-
-    function addDays(dateObj, days) {
-        const date = atNoon(dateObj);
-        date.setDate(date.getDate() + days);
-        return date;
-    }
-
-    function dateKey(dateObj) {
-        const date = atNoon(dateObj);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-
-    function timeInput(hour, minute = 0) {
-        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
-    }
-
-    function generateDemoTasksByDate() {
-        const now = Date.now();
-        const today = atNoon(new Date());
-        const taskTemplates = [
-            { title: "Draft weekly plan", notes: "Block out study, admin, and recovery time.", priority: "medium", status: "in-progress", hour: 9 },
-            { title: "Review assignment rubric", notes: "Check criteria before writing.", priority: "high", status: "not-started", hour: 11 },
-            { title: "Update lecture notes", notes: "Clean up examples and formulas.", priority: "low", status: "completed", hour: 14 },
-            { title: "Prepare tutorial questions", notes: "Bring two discussion points.", priority: "medium", status: "not-started", hour: 16 },
-            { title: "Submit progress reflection", notes: "Keep it brief and specific.", priority: "high", status: "in-progress", hour: 18 }
-        ];
-        const tasksByDate = {};
-
-        [-2, -1, 0, 1, 2, 4, 6].forEach((offset, dateIndex) => {
-            const key = dateKey(addDays(today, offset));
-            tasksByDate[key] = shuffleList(taskTemplates).slice(0, offset === 0 ? 4 : randomInt(2, 3)).map((task, taskIndex) => ({
-                id: `task_demo_${now}_${dateIndex}_${taskIndex}`,
-                title: task.title,
-                notes: task.notes,
-                priority: task.priority,
-                status: task.status,
-                scheduledHour: task.hour,
-                scheduledMinute: 0,
-                scheduledTime: timeInput(task.hour),
-                createdAt: now - randomInt(0, 8) * 86400000,
-                updatedAt: now - randomInt(0, 3) * 3600000
-            }));
-        });
-
-        return tasksByDate;
-    }
-
-    function generateDemoAssignmentsData() {
-        const now = Date.now();
-        const today = atNoon(new Date());
-        const subjectNames = ["Design Systems", "Data Structures", "Research Methods", "Business Analytics"];
-        const assignmentTemplates = [
-            { task: "Research report", priority: "high", status: "in-progress", weight: 35, offset: 1 },
-            { task: "Tutorial portfolio", priority: "medium", status: "not-started", weight: 20, offset: 4 },
-            { task: "Quiz revision", priority: "low", status: "completed", weight: 10, offset: -2 },
-            { task: "Final presentation", priority: "high", status: "not-started", weight: 30, offset: 8 }
-        ];
-        const subjects = subjectNames.map((name, index) => ({
-            id: `subject_demo_${now}_${index}`,
-            name,
-            createdAt: now - index * 1000,
-            updatedAt: now - index * 1000
-        }));
-        const assignments = [];
-
-        subjects.forEach((subject, subjectIndex) => {
-            shuffleList(assignmentTemplates).slice(0, 3).forEach((template, templateIndex) => {
-                assignments.push({
-                    id: `assignment_demo_${now}_${subjectIndex}_${templateIndex}`,
-                    courseId: subject.id,
-                    task: template.task,
-                    desc: "Demo assignment used to check layout, charts, reminders, and dashboard states.",
-                    priority: template.priority,
-                    status: template.status,
-                    dueDate: dateKey(addDays(today, template.offset + subjectIndex)),
-                    weighting: template.weight,
-                    createdAt: now - randomInt(0, 10) * 86400000,
-                    updatedAt: now - randomInt(0, 3) * 3600000
-                });
-            });
-        });
-
-        return { subjects, assignments };
-    }
-
-    function generateDemoStudyPlannerData() {
-        const now = Date.now();
-        const baseSessions = [
-            { title: "Exam revision", type: "deep", seconds: 90 * 60 },
-            { title: "Assignment writing", type: "standard", seconds: 60 * 60 },
-            { title: "Lecture recap", type: "light", seconds: 35 * 60 },
-            { title: "Practice questions", type: "standard", seconds: 50 * 60 },
-            { title: "Research sprint", type: "deep", seconds: 120 * 60 }
-        ];
-        const makeSession = (session, index, prefix) => ({
-            id: `${prefix}_${now}_${index}`,
-            title: session.title,
-            type: session.type,
-            durationSeconds: session.seconds,
-            durationMinutes: Math.round(session.seconds / 60),
-            notes: "Demo study block.",
-            createdAt: now - index * 3600000,
-            updatedAt: now - index * 1800000
-        });
-
-        return {
-            queue: baseSessions.slice(0, 3).map((session, index) => makeSession(session, index + 1, "study_demo_queue")),
-            completedSessions: baseSessions.slice(2, 5).map((session, index) => ({
-                ...makeSession(session, index + 1, "study_demo_completed"),
-                completedAt: now - randomInt(30, 2880) * 60 * 1000
-            })),
-            favouriteSessions: [{ ...makeSession(baseSessions[0], 1, "study_demo_favourite"), notes: "Reusable demo favourite." }],
-            weeklyGoal: {
-                targetSessions: 8,
-                targetFocusSeconds: 10 * 3600,
-                activeDays: 4,
-                focusBalance: { deep: 50, standard: 30, light: 20 },
-                updatedAt: now
-            },
-            monthlyGoal: {
-                targetSessions: 32,
-                targetFocusSeconds: 40 * 3600,
-                activeDays: 16,
-                focusBalance: { deep: 50, standard: 30, light: 20 },
-                updatedAt: now
-            }
-        };
-    }
-
-    function generateDemoJobApplications() {
-        const now = Date.now();
-        return [
-            { id: `job_demo_${now}_1`, company: "Atlassian", role: "Software Engineer Intern", location: "Sydney, Australia", type: "SWE Internship", status: "Applied", database: "SWE Internships", createdAt: now - 6 * 86400000, updatedAt: now - 2 * 86400000 },
-            { id: `job_demo_${now}_2`, company: "Canva", role: "Frontend Intern", location: "Sydney, Australia", type: "SWE Internship", status: "Interview", database: "SWE Internships", createdAt: now - 10 * 86400000, updatedAt: now - 3600000 },
-            { id: `job_demo_${now}_3`, company: "Commonwealth Bank", role: "Graduate Analyst", location: "Melbourne, Australia", type: "Graduate Role", status: "OA", database: "Graduate Roles", createdAt: now - 14 * 86400000, updatedAt: now - 4 * 86400000 },
-            { id: `job_demo_${now}_4`, company: "Local Cafe", role: "Part-Time Team Member", location: "Newcastle, Australia", type: "Part-Time", status: "Offer", database: "Part-Time", createdAt: now - 20 * 86400000, updatedAt: now - 7 * 86400000 }
-        ];
-    }
-
-    function loadDemoDataAcrossApp() {
-        const taskData = generateDemoTasksByDate();
-        const assignmentData = generateDemoAssignmentsData();
-        const studyData = generateDemoStudyPlannerData();
-
-        storage.setItem(TASKS_KEY, JSON.stringify(taskData));
-        storage.setItem(SUBJECTS_KEY, JSON.stringify(assignmentData.subjects));
-        storage.setItem(ASSIGNMENTS_KEY, JSON.stringify(assignmentData.assignments));
-        storage.setItem(STUDY_QUEUE_KEY, JSON.stringify(studyData.queue));
-        storage.setItem(STUDY_COMPLETED_KEY, JSON.stringify(studyData.completedSessions));
-        storage.setItem(STUDY_FAVOURITES_KEY, JSON.stringify(studyData.favouriteSessions));
-        storage.setItem(STUDY_WEEKLY_GOAL_KEY, JSON.stringify(studyData.weeklyGoal));
-        storage.setItem(STUDY_MONTHLY_GOAL_KEY, JSON.stringify(studyData.monthlyGoal));
-        storage.removeItem(STUDY_ACTIVE_KEY);
-        storage.removeItem(STUDY_SUGGESTION_OVERRIDES_KEY);
-        storage.setItem(JOB_APPLICATIONS_KEY, JSON.stringify(generateDemoJobApplications()));
-
-        window.dispatchEvent(new CustomEvent("nexa:demo-data-loaded"));
-        showToast("Demo data loaded.", "positive");
-    }
-
     async function resetAllAppData() {
         const confirmed = await confirmAction({
             title: "Reset app data?",
@@ -907,10 +731,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         populateProfileInputs();
         populateSystemPreferences();
         window.dispatchEvent(new CustomEvent("nexa:app-data-reset"));
-    }
-
-    function requestDemoData() {
-        loadDemoDataAcrossApp();
     }
 
     function updateAvatarFromFile(file) {
@@ -1043,7 +863,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             showToast("Could not reset app data right now.", "negative");
         });
     });
-    loadDemoDataBtn?.addEventListener("click", requestDemoData);
     sendEmailReminderBtn?.addEventListener("click", () => {
         sendEmailReminderDigest().catch((error) => {
             console.error("Failed to send email reminder digest:", error);
@@ -1103,5 +922,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     initialiseThemeSetting();
     populateProfileInputs();
     populateSystemPreferences();
-    window.NexaPreferences?.applySensitiveMode?.();
 });

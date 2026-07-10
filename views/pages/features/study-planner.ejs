@@ -44,30 +44,6 @@
                         </ul>
                     </details>
                 </li>
-                <li>
-                    <details class="nav-group">
-                        <summary aria-label="Life"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/habits.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Life</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
-                        <ul class="nav-submenu">
-                            <li><a href="/habits">Habits</a></li>
-                        </ul>
-                    </details>
-                </li>
-                <li>
-                    <details class="nav-group">
-                        <summary aria-label="Career"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/career.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Career</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
-                        <ul class="nav-submenu">
-                            <li><a href="/job-applications">Job Applications</a></li>
-                        </ul>
-                    </details>
-                </li>
-                <li>
-                    <details class="nav-group">
-                        <summary aria-label="Financial"><span class="nav-summary-main"><img class="app-icon nav-summary-icon" src="/client/shared/assets/Icons/financial.svg" alt="" aria-hidden="true"> <span class="nav-summary-label">Financial</span></span><img class="app-icon nav-chevron" src="/client/shared/assets/Icons/next.svg" alt="" aria-hidden="true"></summary>
-                        <ul class="nav-submenu">
-                            <li><a href="/finances">Finances</a></li>
-                        </ul>
-                    </details>
-                </li>
             </ul>
             <%- include("../../partials/settings-navbar-actions") %>
         </nav>
@@ -383,9 +359,9 @@
 
                 <fieldset class="goal-balance-fields">
                     <legend>Focus balance</legend>
-                    <label for="goal-deep-work">Deep Work<span class="required-marker" title="Required">*</span> <input id="goal-deep-work" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="50"><span>%</span></label>
-                    <label for="goal-standard-focus">Standard Focus<span class="required-marker" title="Required">*</span> <input id="goal-standard-focus" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="30"><span>%</span></label>
-                    <label for="goal-light-study">Light Study<span class="required-marker" title="Required">*</span> <input id="goal-light-study" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="20"><span>%</span></label>
+                    <label for="goal-deep-work"><span class="goal-balance-label">Deep Work<span class="required-marker" title="Required">*</span></span><input id="goal-deep-work" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="50"><span>%</span></label>
+                    <label for="goal-standard-focus"><span class="goal-balance-label">Standard Focus<span class="required-marker" title="Required">*</span></span><input id="goal-standard-focus" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="30"><span>%</span></label>
+                    <label for="goal-light-study"><span class="goal-balance-label">Light Study<span class="required-marker" title="Required">*</span></span><input id="goal-light-study" type="number" min="0" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="20"><span>%</span></label>
                 </fieldset>
 
                 <p id="study-goal-status-text" class="task-status"></p>

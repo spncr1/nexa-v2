@@ -120,18 +120,6 @@ h2 {
     box-shadow: 0 20px 44px var(--color-accent-primary-shadow-lg);
 }
 
-.subjects-panel.has-more::after {
-    content: "";
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 12px;
-    height: 28px;
-    pointer-events: none;
-    border-radius: 8px;
-    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
-}
-
 .panel-title {
     margin: 0 0 10px;
     font-size: 17px;
@@ -908,7 +896,6 @@ body.dark-mode .assignments-layout .assignments-table-card {
 }
 
 .subjects-panel::after,
-.subjects-panel.has-more::after,
 .weighting-carousel::after,
 .widget-card::after,
 .assignments-table-card::after,
@@ -925,7 +912,6 @@ body.dark-mode .assignments-layout .assignments-table-card {
 }
 
 body:not(.dark-mode) .subjects-panel::after,
-body:not(.dark-mode) .subjects-panel.has-more::after,
 body:not(.dark-mode) .weighting-carousel::after,
 body:not(.dark-mode) .widget-card::after,
 body:not(.dark-mode) .assignments-table-card::after,
@@ -945,21 +931,6 @@ body:not(.dark-mode) .assignment-reminder-link::after {
 .assignment-reminder-link::before,
 .assignment-reminder-link::after {
     content: none;
-}
-
-.subjects-panel.has-more::after {
-    content: "";
-    position: absolute;
-    left: 8px;
-    right: 8px;
-    bottom: 12px;
-    width: auto;
-    height: 28px;
-    border-radius: 8px;
-    background: linear-gradient(to bottom, var(--color-scroll-fade-start), var(--color-scroll-fade-end));
-    pointer-events: none;
-    -webkit-mask: none;
-    mask: none;
 }
 
 .assignment-reminder-link {
