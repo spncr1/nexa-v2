@@ -84,18 +84,23 @@
                         maxlength="64"
                         required
                         aria-invalid="<%= fieldErrors.password ? 'true' : 'false' %>"
-                        <%= fieldErrors.password ? 'aria-describedby="password-error"' : '' %>
+                        aria-describedby="<%= fieldErrors.password ? 'password-guidance password-error' : 'password-guidance' %>"
                     >
                     <button id="toggle-password-btn" class="password-inline-btn" type="button" aria-label="Show password" aria-pressed="false">
                         <img class="app-icon password-visibility-icon" src="/client/shared/assets/Icons/visibility-on.svg" alt="" aria-hidden="true">
                     </button>
                 </div>
+                <ul class="password-guidance" id="password-guidance">
+                    <li>Use 12-64 characters</li>
+                    <li>Include an uppercase letter, a number, and a symbol</li>
+                    <li>Avoid common or easy-to-guess passwords</li>
+                </ul>
                 <% if (fieldErrors.password) { %>
                     <p class="field-error" id="password-error"><%= fieldErrors.password %></p>
                 <% } %>
                 <div class="password-suggestion">
                     <span>Use suggested password?</span>
-                    <button id="generate-password-btn" class="password-helper-btn" type="button">Generate</button>
+                    <button id="generate-password-btn" class="generate-random-password-btn" type="button">Generate</button>
                 </div>
             </div>
 
