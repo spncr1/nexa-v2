@@ -227,6 +227,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.alert(message);
     }
 
+    async function confirmStudySaved(failureMessage, noticeTarget = null) {
+        try {
+            await storage.flush?.();
+            return true;
+        } catch (error) {
+            console.error(failureMessage, error);
+            if (noticeTarget) {
+                showNotice(noticeTarget, failureMessage, "negative");
+            } else {
+                showToast(failureMessage, "negative");
+            }
+            return false;
+        }
+    }
+
     function showNotice(targetEl, message, tone = "neutral") {
         if (window.NexaFeedback) {
             window.NexaFeedback.notice(targetEl, message, { tone });
@@ -968,14 +983,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             card.querySelector(".edit-suggestion").addEventListener("click", () => {
                 openDetailModal("suggestion", suggestion.id);
             });
-            card.querySelector(".add-suggestion").addEventListener("click", () => {
-                addSessionToQueue({
+            card.querySelector(".add-suggestion").addEventListener("click", async () => {
+                const saved = await addSessionToQueue({
                     ...getTemplateFromSession(suggestion),
                     id: createId("study_session"),
                     sourceAssignmentId: suggestion.id,
                     createdAt: Date.now(),
                     updatedAt: Date.now()
                 });
+                if (!saved) return;
+
                 showToast(copy("study.toast.suggestionQueued", "Suggested focus added to queue."), "positive");
             });
             suggestionList.appendChild(card);
@@ -1432,7 +1449,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return { value };
     }
 
-    function saveStudyGoalFromModal() {
+    async function saveStudyGoalFromModal() {
         const targetSessions = readPositiveInteger(goalTargetSessionsInput, "Target sessions");
         if (targetSessions.error) {
             showNotice(studyGoalStatusText, targetSessions.error, "negative");
@@ -1479,6 +1496,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             },
             updatedAt: Date.now()
         });
+        if (!(await confirmStudySaved("Could not save study goal right now.", studyGoalStatusText))) return;
 
         closeModals();
         renderStats();
@@ -1525,10 +1543,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
     }
 
-    function addSessionToQueue(session) {
+    async function addSessionToQueue(session) {
         queue.push(session);
         persistQueue();
+        if (!(await confirmStudySaved("Could not save queued session right now."))) return false;
+
         renderAll();
+        return true;
     }
 
     function persistSuggestionOverrides() {
@@ -1611,7 +1632,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (source === "recent" || source === "history" || source === "completed") persistCompleted();
     }
 
-    function saveDetailEdits() {
+    async function saveDetailEdits() {
         if (detailContext && (detailContext.source === "recent" || detailContext.source === "history" || detailContext.source === "completed")) {
             showNotice(detailStatusText, "Completed sessions are read-only.", "neutral");
             return;
@@ -1635,6 +1656,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             type: normaliseType(detailTypeSelect?.value),
             notes: (detailNotesInput?.value || "").trim().slice(0, 500)
         });
+        if (!(await confirmStudySaved("Could not save session changes right now.", detailStatusText))) return;
+
         closeModals();
         renderAll();
         showToast(
@@ -1645,7 +1668,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
     }
 
-    function deleteDetailSession() {
+    async function deleteDetailSession() {
         if (!detailContext) return;
         const { source, id } = detailContext;
         if (source === "queue") {
@@ -1655,19 +1678,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             favouriteSessions = favouriteSessions.filter((session) => session.id !== id);
             persistFavourites();
         }
+        if (!(await confirmStudySaved("Could not delete session right now.", detailStatusText))) return;
+
         closeModals();
         renderAll();
         showToast(copy("study.toast.sessionDeleted", "Session deleted."), "neutral");
     }
 
-    function toggleFavouriteFromDetail() {
+    async function toggleFavouriteFromDetail() {
         if (!detailContext) return;
         const session = getSessionBySource(detailContext.source, detailContext.id);
         if (!session) return;
+        let toastMessage = "";
+        let toastTone = "neutral";
 
         if (isFavourite(session)) {
             favouriteSessions = favouriteSessions.filter((item) => !sameSessionTemplate(item, session));
-            showToast(copy("study.toast.favouriteRemoved", "Removed from favourites."), "neutral");
+            toastMessage = copy("study.toast.favouriteRemoved", "Removed from favourites.");
         } else {
             const template = getTemplateFromSession(session);
             favouriteSessions.unshift({
@@ -1677,12 +1704,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-            showToast(copy("study.toast.favouriteAdded", "Added to favourites."), "positive");
+            toastMessage = copy("study.toast.favouriteAdded", "Added to favourites.");
+            toastTone = "positive";
         }
 
         persistFavourites();
+        if (!(await confirmStudySaved("Could not update favourites right now.", detailStatusText))) return;
+
         closeModals();
         renderAll();
+        showToast(toastMessage, toastTone);
     }
 
     function startSessionFromTemplate(template, options = {}) {
@@ -1750,7 +1781,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return true;
     }
 
-    function completeActiveSession() {
+    async function completeActiveSession() {
         if (!activeSession) return;
         const template = getTemplateFromSession(activeSession);
         const shouldRepeat = Boolean(activeSession.isRepeating || activeSession.isLooping);
@@ -1773,6 +1804,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
             renderAll();
         }
+        if (!(await confirmStudySaved("Could not save completed session right now."))) return;
+
         const timerAlertsOn = window.NexaPreferences?.get?.("studyTimerAlerts") === true;
         showToast(
             timerAlertsOn
@@ -1846,6 +1879,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         activeSession = null;
         persistQueue();
         saveActiveSession();
+        if (!(await confirmStudySaved("Could not clear queue right now."))) return;
+
         resetTimerDisplay();
         renderAll();
         showToast(copy("study.toast.queueCleared", "Queue cleared."), "neutral");
@@ -2089,21 +2124,37 @@ document.addEventListener("DOMContentLoaded", async () => {
     cancelDetailModalBtn?.addEventListener("click", closeModals);
     addModalBackdrop?.addEventListener("click", closeModals);
 
-    confirmAddModalBtn?.addEventListener("click", () => {
+    confirmAddModalBtn?.addEventListener("click", async () => {
         const result = getAddSessionPayload();
         if (result.error) {
             showNotice(addStatusText, result.error, "negative");
             return;
         }
         if (addDurationInput) addDurationInput.value = formatTimerInput(result.session.durationSeconds);
-        addSessionToQueue(result.session);
+        if (!(await addSessionToQueue(result.session))) return;
+
         closeModals();
-            showToast(copy("study.toast.sessionQueued", "Session added to queue."), "positive");
+        showToast(copy("study.toast.sessionQueued", "Session added to queue."), "positive");
     });
 
-    saveDetailBtn?.addEventListener("click", saveDetailEdits);
-    deleteDetailBtn?.addEventListener("click", deleteDetailSession);
-    favouriteDetailBtn?.addEventListener("click", toggleFavouriteFromDetail);
+    saveDetailBtn?.addEventListener("click", () => {
+        saveDetailEdits().catch((error) => {
+            console.error("Failed to save study session:", error);
+            showNotice(detailStatusText, "Could not save session changes right now.", "negative");
+        });
+    });
+    deleteDetailBtn?.addEventListener("click", () => {
+        deleteDetailSession().catch((error) => {
+            console.error("Failed to delete study session:", error);
+            showNotice(detailStatusText, "Could not delete session right now.", "negative");
+        });
+    });
+    favouriteDetailBtn?.addEventListener("click", () => {
+        toggleFavouriteFromDetail().catch((error) => {
+            console.error("Failed to update favourites:", error);
+            showNotice(detailStatusText, "Could not update favourites right now.", "negative");
+        });
+    });
 
     queueList?.addEventListener("click", (event) => {
         const item = event.target.closest(".queue-item");
@@ -2140,8 +2191,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     id: createId("study_session"),
                     createdAt: Date.now(),
                     updatedAt: Date.now()
+                }).then((saved) => {
+                    if (saved) {
+                        showToast(copy("study.toast.favouriteQueued", "Favourite added to queue."), "positive");
+                    }
+                }).catch((error) => {
+                    console.error("Failed to queue favourite:", error);
+                    showToast("Could not save queued session right now.", "negative");
                 });
-                showToast(copy("study.toast.favouriteQueued", "Favourite added to queue."), "positive");
             }
             return;
         }
@@ -2188,7 +2245,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     setStudyGoalBtn?.addEventListener("click", openStudyGoalModal);
     closeStudyGoalBtn?.addEventListener("click", closeModals);
     cancelStudyGoalBtn?.addEventListener("click", closeModals);
-    saveStudyGoalBtn?.addEventListener("click", saveStudyGoalFromModal);
+    saveStudyGoalBtn?.addEventListener("click", () => {
+        saveStudyGoalFromModal().catch((error) => {
+            console.error("Failed to save study goal:", error);
+            showNotice(studyGoalStatusText, "Could not save study goal right now.", "negative");
+        });
+    });
     goalTargetTimeInput?.addEventListener("blur", () => {
         const parsed = parseGoalFocusTime(goalTargetTimeInput.value);
         if (!parsed.error) {

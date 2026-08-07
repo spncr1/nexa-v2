@@ -275,6 +275,13 @@ function normaliseProfile(storage) {
 
 function normalisePreferences(storage) {
     const systemPreferences = parseJsonValue(storage[STORAGE_KEYS.systemPreferences], {});
+    const suggestionOverrides = parseJsonValue(storage[STORAGE_KEYS.studySuggestionOverrides], {});
+    const normalizedSystemPreferences = systemPreferences && typeof systemPreferences === 'object' ? systemPreferences : {};
+    const normalizedSuggestionOverrides = suggestionOverrides && typeof suggestionOverrides === 'object' && Object.keys(suggestionOverrides).length
+        ? suggestionOverrides
+        : normalizedSystemPreferences.studySuggestionOverrides && typeof normalizedSystemPreferences.studySuggestionOverrides === 'object'
+            ? normalizedSystemPreferences.studySuggestionOverrides
+            : {};
     const navGroupState = parseJsonValue(storage[STORAGE_KEYS.navGroups], {});
     const rawThemeMode = cleanString(storage[STORAGE_KEYS.themeMode], 16);
     const legacyDarkMode = storage[STORAGE_KEYS.legacyDarkMode] === '1';
@@ -289,7 +296,10 @@ function normalisePreferences(storage) {
         language: cleanString(systemPreferences.language || 'en', 16),
         reducedMotion: Boolean(systemPreferences.reducedMotion),
         notifications: systemPreferences.notifications !== false,
-        systemPreferences: systemPreferences && typeof systemPreferences === 'object' ? systemPreferences : {}
+        systemPreferences: {
+            ...normalizedSystemPreferences,
+            studySuggestionOverrides: normalizedSuggestionOverrides
+        }
     };
 }
 

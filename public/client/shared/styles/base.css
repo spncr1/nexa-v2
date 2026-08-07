@@ -996,6 +996,110 @@ body.settings-modal-open .settings-navbar-icon-hover {
     position: fixed;
 }
 
+.avatar-crop-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 2300;
+    display: grid;
+    justify-items: center;
+    width: min(360px, 92vw);
+    max-height: min(620px, 88vh);
+    padding: 22px;
+    border: 1px solid var(--color-border-modal);
+    border-radius: 12px;
+    background: var(--color-surface-modal);
+    box-shadow: var(--shadow-panel);
+    color: var(--color-text-primary);
+    font-family: "Noto Sans";
+    transform: translate(-50%, -50%);
+    overflow: auto;
+}
+
+.avatar-crop-modal.hidden {
+    display: none;
+}
+
+.avatar-crop-header {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.avatar-crop-header h3 {
+    margin: 0;
+    font-family: "Manrope", sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.avatar-crop-frame {
+    position: relative;
+    width: min(240px, 68vw);
+    aspect-ratio: 1;
+    border: 2px solid var(--color-profile-avatar-border);
+    border-radius: 50%;
+    background: var(--color-surface-input);
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+}
+
+.avatar-crop-frame.is-dragging {
+    cursor: grabbing;
+}
+
+.avatar-crop-frame img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    max-width: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    transform-origin: center;
+}
+
+.avatar-crop-mask {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.08);
+    pointer-events: none;
+}
+
+.avatar-crop-zoom {
+    display: grid;
+    width: min(240px, 68vw);
+    gap: 6px;
+    margin: 14px 0 4px;
+    color: var(--color-text-primary);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.avatar-crop-zoom input {
+    width: 100%;
+}
+
+.avatar-crop-status {
+    min-height: 1.2em;
+    margin: 4px 0 10px;
+    color: var(--color-feedback-negative);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.avatar-crop-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
 .settings-close-btn {
     appearance: none;
     -webkit-appearance: none;
@@ -1308,8 +1412,9 @@ body.settings-modal-open .settings-navbar-icon-hover {
     --profile-avatar-action-width: 6rem;
     display: grid;
     align-items: start;
-    justify-items: start;
+    justify-items: center;
     gap: 8px;
+    width: min(18rem, 100%);
 }
 
 .profile-avatar-controls .setting-file-btn,
@@ -1358,6 +1463,25 @@ body.settings-modal-open .settings-navbar-icon-hover {
     margin: 0;
 }
 
+.profile-avatar-status {
+    width: 100%;
+    min-height: 1.2em;
+    margin: 2px 0 0;
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.profile-avatar-status.nexa-inline-notice--positive {
+    color: var(--color-feedback-positive);
+}
+
+.profile-avatar-status.nexa-inline-notice--negative {
+    color: var(--color-feedback-negative);
+}
+
 .profile-settings-group {
     display: grid;
     gap: 10px;
@@ -1374,6 +1498,26 @@ body.settings-modal-open .settings-navbar-icon-hover {
     font-weight: 800;
     line-height: 1.2;
     text-align: left;
+}
+
+.profile-save-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 5.75rem;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 0;
+}
+
+#save-profile-btn {
+    justify-self: end;
+    width: 5.75rem;
+    min-width: 5.75rem;
+    max-width: 5.75rem;
+    margin: 0 10px 0 0;
+}
+
+#profile-settings-status:empty {
+    display: none;
 }
 
 .year-level-options {
@@ -1606,7 +1750,6 @@ body.settings-modal-open .settings-navbar-icon-hover {
 
     #system-settings-modal .settings-panel[data-panel="data"] .setting-action-btn,
     #profile-settings-modal .settings-panel[data-panel="account"] .setting-action-btn,
-    #save-profile-btn,
     #change-password-btn {
         width: auto;
         min-width: 4.25rem;
@@ -1619,10 +1762,24 @@ body.settings-modal-open .settings-navbar-icon-hover {
         flex: 0 0 auto;
     }
 
-    #save-profile-btn,
     #change-password-btn {
         align-self: flex-start;
         margin-left: 10px;
+    }
+
+    .profile-save-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 5.75rem;
+        align-items: center;
+        margin: 0.65rem 0 0;
+    }
+
+    #save-profile-btn {
+        justify-self: end;
+        width: 5.75rem;
+        min-width: 5.75rem;
+        max-width: 5.75rem;
+        margin: 0;
     }
 
     #system-settings-modal .setting-account-input {

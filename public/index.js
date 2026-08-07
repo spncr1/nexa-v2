@@ -198,6 +198,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(TASKS_KEY, JSON.stringify(tasksByDate));
     }
 
+    async function confirmTasksSaved(failureMessage) {
+        try {
+            await storage.flush?.();
+            return true;
+        } catch (error) {
+            console.error(failureMessage, error);
+            showStatus(failureMessage, { tone: "negative" });
+            return false;
+        }
+    }
+
     function normalizeTaskStatus(task) {
         const status = (task?.status || "").trim().toLowerCase();
         if (status === "completed" || task?.done === true) return "completed";
@@ -609,7 +620,7 @@ document.addEventListener("DOMContentLoaded", async () => {
        ===========================
     */
     /* ADD TASK */
-    function addTask() {
+    async function addTask() {
         const title = titleInput.value.trim();
         const notes = notesInput.value.trim();
         const priority = prioritySelect.value;
@@ -642,6 +653,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         tasksByDate[key].push(newTask)
 
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved("Could not save task right now."))) return;
+
         renderTasksForSelectedDate();
 
         showStatus("Task added.", { closeAfter: true, tone: "positive" });
@@ -674,7 +687,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     /* TASK EDITS + SAVES */
-    function saveEdits() {
+    async function saveEdits() {
         const title = titleInput.value.trim();
         if (!title) {
             showInlineStatus("Title is required.", "negative");
@@ -696,12 +709,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         tasks[idx].updatedAt = Date.now();
 
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved("Could not save task changes right now."))) return;
+
         renderTasksForSelectedDate();
 
         showStatus("Task updated.", { closeAfter: true, tone: "neutral" });
     }
 
-    function deleteTask() {
+    async function deleteTask() {
         if (!editingTaskId) return;
 
         const tasksByDate = loadAllTasks();
@@ -711,12 +726,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         tasksByDate[key] = tasks.filter(t => t.id !== editingTaskId);
 
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved("Could not delete task right now."))) return;
+
         renderTasksForSelectedDate();
 
         showStatus("Task deleted.", { closeAfter: true, tone: "negative" });
     }
 
-    function toggleTaskCompletion(taskId) {
+    async function toggleTaskCompletion(taskId) {
         const tasksByDate = loadAllTasks();
         const key = dateKey(selectedDate);
         const tasks = tasksByDate[key] || [];
@@ -729,6 +746,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         task.updatedAt = Date.now();
 
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved("Could not update task right now."))) return;
+
         renderTasksForSelectedDate();
     }
 

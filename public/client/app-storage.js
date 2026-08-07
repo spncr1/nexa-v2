@@ -57,12 +57,14 @@
         KEYS.studyActive,
         KEYS.studyWeeklyGoal,
         KEYS.studyMonthlyGoal,
+        KEYS.studySuggestionOverrides,
         ...PROFILE_KEYS,
         ...PREFERENCE_KEYS
     ]);
 
     let currentUser = null;
     let storageState = {};
+    let persistedState = {};
     let saveTimer = null;
     let savePromise = Promise.resolve();
     const pendingKeys = new Set();
@@ -86,7 +88,16 @@
 
         if (!response.ok) {
             const text = await response.text();
-            throw new Error(text || `Request failed with status ${response.status}`);
+            let message = text;
+
+            try {
+                const payload = text ? JSON.parse(text) : null;
+                message = payload?.error || message;
+            } catch (error) {
+                // Keep the raw response text when the server did not send JSON.
+            }
+
+            throw new Error(message || `Request failed with status ${response.status}`);
         }
 
         return response.json();
@@ -133,16 +144,85 @@
         }
     }
 
-    function profilePayload() {
-        return {
+    function hasOwn(source, key) {
+        return Object.prototype.hasOwnProperty.call(source || {}, key);
+    }
+
+    function cleanProfileValue(value) {
+        return String(value || '').trim();
+    }
+
+    function hasAvatarOverride(overrides = {}) {
+        return hasOwn(overrides, 'avatarUrlOrData') || hasOwn(overrides, 'avatar');
+    }
+
+    function profilePayload(overrides = {}, options = {}) {
+        const payload = {
             age: storageState[KEYS.profileAge] || '',
             location: storageState[KEYS.profileLocation] || '',
             university: storageState[KEYS.profileUniversity] || '',
             degree: storageState[KEYS.profileDegree] || '',
             yearLevel: storageState[KEYS.profileYearLevel] || '',
-            semesterLabel: storageState[KEYS.semester] || '',
-            avatarUrlOrData: storageState[KEYS.profileAvatar] || ''
+            semesterLabel: storageState[KEYS.semester] || ''
         };
+
+        if (options.includeAvatar) {
+            payload.avatarUrlOrData = storageState[KEYS.profileAvatar] || '';
+        }
+
+        if (hasOwn(overrides, 'age')) payload.age = cleanProfileValue(overrides.age);
+        if (hasOwn(overrides, 'location')) payload.location = cleanProfileValue(overrides.location);
+        if (hasOwn(overrides, 'university')) payload.university = cleanProfileValue(overrides.university);
+        if (hasOwn(overrides, 'degree')) payload.degree = cleanProfileValue(overrides.degree);
+        if (hasOwn(overrides, 'yearLevel')) payload.yearLevel = cleanProfileValue(overrides.yearLevel);
+        if (hasOwn(overrides, 'semesterLabel')) payload.semesterLabel = cleanProfileValue(overrides.semesterLabel);
+        if (hasOwn(overrides, 'avatarUrlOrData')) payload.avatarUrlOrData = cleanProfileValue(overrides.avatarUrlOrData);
+        if (hasOwn(overrides, 'avatar') && !hasOwn(overrides, 'avatarUrlOrData')) {
+            payload.avatarUrlOrData = cleanProfileValue(overrides.avatar);
+        }
+
+        return payload;
+    }
+
+    function applyProfileToStorage(profile = {}) {
+        storageState[KEYS.semester] = profile.semesterLabel || '';
+        storageState[KEYS.profileAge] = profile.age || '';
+        storageState[KEYS.profileLocation] = profile.location || '';
+        storageState[KEYS.profileUniversity] = profile.university || '';
+        storageState[KEYS.profileDegree] = profile.degree || '';
+        storageState[KEYS.profileYearLevel] = profile.yearLevel || '';
+        storageState[KEYS.profileAvatar] = profile.avatarUrlOrData || '';
+    }
+
+    function markKeyPersisted(key) {
+        if (Object.prototype.hasOwnProperty.call(storageState, key)) {
+            persistedState[key] = storageState[key];
+        } else {
+            delete persistedState[key];
+        }
+    }
+
+    function restorePersistedKey(key) {
+        if (Object.prototype.hasOwnProperty.call(persistedState, key)) {
+            storageState[key] = persistedState[key];
+        } else {
+            delete storageState[key];
+        }
+    }
+
+    async function saveProfileNow(overrides = {}) {
+        PROFILE_KEYS.forEach((key) => pendingKeys.delete(key));
+
+        const result = await fetchJson('/api/profile', {
+            method: 'PATCH',
+            body: JSON.stringify(profilePayload(overrides, {
+                includeAvatar: hasAvatarOverride(overrides)
+            }))
+        });
+
+        applyProfileToStorage(result?.profile || {});
+        PROFILE_KEYS.forEach(markKeyPersisted);
+        return result?.profile || profilePayload();
     }
 
     function preferencesPayload() {
@@ -206,6 +286,18 @@
             return;
         }
 
+        if (key === KEYS.studySuggestionOverrides) {
+            const systemPreferences = parseJson(KEYS.systemPreferences, {});
+            systemPreferences.studySuggestionOverrides = parseJson(KEYS.studySuggestionOverrides, {});
+            setJson(KEYS.systemPreferences, systemPreferences);
+            await fetchJson('/api/preferences', {
+                method: 'PATCH',
+                body: JSON.stringify(preferencesPayload())
+            });
+            markKeyPersisted(KEYS.systemPreferences);
+            return;
+        }
+
         if (key === KEYS.studyActive) {
             if (!Object.prototype.hasOwnProperty.call(storageState, key)) {
                 await fetchJson('/api/study/active-session', { method: 'DELETE' });
@@ -236,7 +328,9 @@
         if (PROFILE_KEYS.has(key)) {
             await fetchJson('/api/profile', {
                 method: 'PATCH',
-                body: JSON.stringify(profilePayload())
+                body: JSON.stringify(profilePayload({}, {
+                    includeAvatar: key === KEYS.profileAvatar
+                }))
             });
             return;
         }
@@ -252,6 +346,41 @@
         saveMiscKey(key);
     }
 
+    function runSaveQueue(keysToSave) {
+        if (!keysToSave.length) return savePromise;
+
+        const runPromise = savePromise.then(async () => {
+            for (let index = 0; index < keysToSave.length; index += 1) {
+                const pendingKey = keysToSave[index];
+
+                try {
+                    await saveStructuredKey(pendingKey);
+                    markKeyPersisted(pendingKey);
+                } catch (error) {
+                    keysToSave.slice(index).forEach(restorePersistedKey);
+                    throw error;
+                }
+            }
+        });
+
+        savePromise = runPromise.catch((error) => {
+            console.error('Failed to persist app data:', error);
+        });
+
+        return runPromise;
+    }
+
+    function takePendingKeys() {
+        if (saveTimer) {
+            window.clearTimeout(saveTimer);
+            saveTimer = null;
+        }
+
+        const keysToSave = Array.from(pendingKeys);
+        pendingKeys.clear();
+        return keysToSave;
+    }
+
     function scheduleSave(key) {
         if (key) pendingKeys.add(key);
 
@@ -260,37 +389,12 @@
         }
 
         saveTimer = window.setTimeout(() => {
-            const keysToSave = Array.from(pendingKeys);
-            pendingKeys.clear();
-
-            savePromise = keysToSave.reduce(
-                (promise, pendingKey) => promise.then(() => saveStructuredKey(pendingKey)),
-                savePromise
-            ).catch((error) => {
-                console.error('Failed to persist app data:', error);
-            });
+            runSaveQueue(takePendingKeys()).catch(() => {});
         }, 150);
     }
 
     function flushPendingSaves() {
-        if (saveTimer) {
-            window.clearTimeout(saveTimer);
-            saveTimer = null;
-        }
-
-        const keysToSave = Array.from(pendingKeys);
-        pendingKeys.clear();
-
-        if (keysToSave.length) {
-            savePromise = keysToSave.reduce(
-                (promise, pendingKey) => promise.then(() => saveStructuredKey(pendingKey)),
-                savePromise
-            ).catch((error) => {
-                console.error('Failed to persist app data:', error);
-            });
-        }
-
-        return savePromise;
+        return runSaveQueue(takePendingKeys());
     }
 
     function getItem(key) {
@@ -386,14 +490,7 @@
             setJson(KEYS.studyMonthlyGoal, goalsPayload.goals.month);
         }
 
-        const profile = profilePayloadResult.profile || {};
-        storageState[KEYS.semester] = profile.semesterLabel || '';
-        storageState[KEYS.profileAge] = profile.age || '';
-        storageState[KEYS.profileLocation] = profile.location || '';
-        storageState[KEYS.profileUniversity] = profile.university || '';
-        storageState[KEYS.profileDegree] = profile.degree || '';
-        storageState[KEYS.profileYearLevel] = profile.yearLevel || '';
-        if (profile.avatarUrlOrData) storageState[KEYS.profileAvatar] = profile.avatarUrlOrData;
+        applyProfileToStorage(profilePayloadResult.profile || {});
 
         const preferences = preferencesPayloadResult.preferences || {};
         storageState[KEYS.themeMode] = preferences.themeMode || 'system';
@@ -401,6 +498,8 @@
         storageState[KEYS.navCollapsed] = preferences.navCollapsed ? '1' : '0';
         setJson(KEYS.navGroups, preferences.navGroupState || {});
         setJson(KEYS.systemPreferences, preferences.systemPreferences || {});
+        setJson(KEYS.studySuggestionOverrides, preferences.systemPreferences?.studySuggestionOverrides || {});
+        persistedState = { ...storageState };
     }
 
     window.NexaAppStorage = {
@@ -413,6 +512,7 @@
         getItem,
         setItem,
         removeItem,
+        saveProfileNow,
         clear,
         key,
         get length() {

@@ -31,6 +31,7 @@
                             <button type="button" id="upload-avatar-btn" class="setting-file-btn"><span class="ui-btn-label">Upload</span><img class="app-icon" src="/client/shared/assets/Icons/upload.svg" alt="" aria-hidden="true"></button>
                             <input id="profile-avatar-input" class="hidden" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
                             <button type="button" id="remove-avatar-btn" class="setting-action-btn danger"><span class="ui-btn-label">Remove</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+                            <p id="profile-avatar-status" class="profile-avatar-status" aria-live="polite"></p>
                         </div>
                     </div>
 
@@ -89,10 +90,11 @@
                         </div>
                     </section>
 
-                    <div class="setting-row">
+                    <div class="setting-row profile-save-row">
                         <div class="setting-labels">Save profile details</div>
                         <button type="button" id="save-profile-btn" class="setting-action-btn success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
                     </div>
+                    <p id="profile-settings-status" class="task-status" aria-live="polite"></p>
                 </div>
 
                 <div class="settings-panel hidden" data-settings-panel="profile" data-panel="security">
@@ -130,6 +132,27 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="avatar-crop-modal" class="avatar-crop-modal hidden" role="dialog" aria-modal="true" aria-label="Crop profile picture">
+    <button type="button" id="close-avatar-crop-btn" class="settings-close-btn" aria-label="Close crop tool"><img class="app-icon" src="/client/shared/assets/Icons/close.svg" alt="" aria-hidden="true"></button>
+    <div class="avatar-crop-header">
+        <img class="modal-brand-logo" src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
+        <h3>Crop Picture</h3>
+    </div>
+    <div id="avatar-crop-frame" class="avatar-crop-frame">
+        <img id="avatar-crop-image" alt="">
+        <div class="avatar-crop-mask" aria-hidden="true"></div>
+    </div>
+    <label class="avatar-crop-zoom" for="avatar-crop-zoom">
+        <span>Zoom</span>
+        <input id="avatar-crop-zoom" type="range" min="1" max="3" step="0.01" value="1">
+    </label>
+    <p id="avatar-crop-status" class="avatar-crop-status" aria-live="polite"></p>
+    <div class="avatar-crop-actions">
+        <button type="button" id="cancel-avatar-crop-btn" class="btn-secondary is-neutral"><span class="ui-btn-label">Cancel</span><img class="app-icon" src="/client/shared/assets/Icons/cancel.svg" alt="" aria-hidden="true"></button>
+        <button type="button" id="save-avatar-crop-btn" class="btn-secondary is-success"><span class="ui-btn-label">Save</span><img class="app-icon" src="/client/shared/assets/Icons/check.svg" alt="" aria-hidden="true"></button>
     </div>
 </div>
 

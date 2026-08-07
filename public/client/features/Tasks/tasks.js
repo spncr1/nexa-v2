@@ -200,6 +200,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         storage.setItem(TASKS_KEY, JSON.stringify(tasksByDate));
     }
 
+    async function confirmTasksSaved(failureMessage) {
+        try {
+            await storage.flush?.();
+            return true;
+        } catch (error) {
+            console.error(failureMessage, error);
+            showTaskToast(failureMessage, "negative");
+            return false;
+        }
+    }
+
     function normalizeTaskStatus(task) {
         const status = (task?.status || "").trim().toLowerCase();
         if (status === "completed" || task?.done === true) return "completed";
@@ -623,7 +634,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
     }
 
-    function moveMonthTask(payload, toDateKey, targetHour = null) {
+    async function moveMonthTask(payload, toDateKey, targetHour = null) {
         if (!payload?.taskId || !payload?.fromDateKey || !toDateKey) return;
 
         const tasksByDate = loadAllTasks();
@@ -651,6 +662,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved("Could not move task right now."))) return;
+
         refreshCalendarViews();
         showTaskToast(hasHour ? `Task scheduled for ${hourLabel(targetHour)}.` : "Task moved to Time TBD.", "neutral");
     }
@@ -960,7 +973,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         titleInput.focus();
     }
 
-    function upsertTask() {
+    async function upsertTask() {
         const title = titleInput.value.trim();
         const notes = notesInput.value.trim();
         const priority = prioritySelect.value;
@@ -977,6 +990,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const tasksByDate = loadAllTasks();
         const key = modalDateKey || dateKey(activeDate);
         const list = Array.isArray(tasksByDate[key]) ? tasksByDate[key] : [];
+        const wasEditing = Boolean(editingTaskId);
 
         if (editingTaskId) {
             const index = list.findIndex((task) => task.id === editingTaskId);
@@ -991,7 +1005,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             list[index].scheduledMinute = chosenMinute;
             list[index].scheduledTime = normalizedTime;
             list[index].updatedAt = Date.now();
-            showTaskToast(copy("tasks.toast.updated", "Task updated."), "neutral");
         } else {
             list.push({
                 id: Date.now(),
@@ -1006,17 +1019,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-            showTaskToast(copy("tasks.toast.added", "Task added."), "positive");
         }
 
         tasksByDate[key] = list;
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved(wasEditing ? "Could not save task changes right now." : "Could not save task right now."))) return;
 
         refreshCalendarViews();
         closeTaskModal();
+        showTaskToast(
+            wasEditing ? copy("tasks.toast.updated", "Task updated.") : copy("tasks.toast.added", "Task added."),
+            wasEditing ? "neutral" : "positive"
+        );
     }
 
-    function deleteTask() {
+    async function deleteTask() {
         if (!editingTaskId || !modalDateKey) return;
 
         const tasksByDate = loadAllTasks();
@@ -1024,6 +1041,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         tasksByDate[modalDateKey] = list.filter((task) => task.id !== editingTaskId);
 
         saveAllTasks(tasksByDate);
+        if (!(await confirmTasksSaved("Could not delete task right now."))) return;
+
         refreshCalendarViews();
         closeTaskModal();
         showTaskToast(copy("tasks.toast.deleted", "Task deleted."), "negative");

@@ -210,6 +210,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         showInlineNotice(assignmentStatusText, message, tone);
     }
 
+    async function confirmStorageSaved(failureMessage, statusArea = "toast") {
+        try {
+            await storage.flush?.();
+            return true;
+        } catch (error) {
+            console.error(failureMessage, error);
+
+            if (statusArea === "subject") {
+                showSubjectStatus(failureMessage, { tone: "negative" });
+                return false;
+            }
+
+            if (statusArea === "assignment") {
+                showAssignmentStatus(failureMessage, "negative");
+                return false;
+            }
+
+            showToast(failureMessage, "negative");
+            return false;
+        }
+    }
+
     function setButtonLabel(button, label) {
         const labelEl = button?.querySelector(".ui-btn-label");
         if (labelEl) {
@@ -297,7 +319,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Add subject
-    function addSubject() {
+    async function addSubject() {
         const name = subjectNameInput.value.trim();
 
         if (!name) {
@@ -324,11 +346,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         subjects.push(newSubject);
         saveSubjects(subjects);
+        if (!(await confirmStorageSaved("Could not save subject right now.", "subject"))) return;
+
         refreshSubjectViews();
         showSubjectStatus("Subject added.", { closeAfter: true, tone: "positive" });
     }
 
-    function saveSubjectEdits() {
+    async function saveSubjectEdits() {
         if (!editingSubjectId) return;
 
         const name = subjectNameInput.value.trim();
@@ -354,16 +378,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         subjects[idx].updatedAt = Date.now();
 
         saveSubjects(subjects);
+        if (!(await confirmStorageSaved("Could not save subject changes right now.", "subject"))) return;
+
         refreshSubjectViews();
         showSubjectStatus("Subject updated.", { closeAfter: true, tone: "neutral" });
     }
 
-    function deleteSubject() {
+    async function deleteSubject() {
         if (!editingSubjectId) return;
 
         const subjects = loadSubjects().filter(s => s.id !== editingSubjectId);
 
         saveSubjects(subjects);
+        if (!(await confirmStorageSaved("Could not delete subject right now.", "subject"))) return;
+
         refreshSubjectViews();
         showSubjectStatus("Subject deleted.", { closeAfter: true, tone: "negative" });
     }
@@ -855,7 +883,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.history.replaceState({}, "", window.location.pathname);
     }
 
-    function addAssignment() {
+    async function addAssignment() {
         if (assignmentCourse.disabled) {
             showAssignmentStatus("Add a subject first.", "negative");
             return;
@@ -917,12 +945,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         assignments.push(newAssignment);
         saveAssignments(assignments);
+        if (!(await confirmStorageSaved("Could not save assignment right now.", "assignment"))) return;
+
         refreshAssignmentViews();
         closeAssignmentModal();
         showToast(copy("assignments.toast.added", "Assignment added."), "positive");
     }
 
-    function saveAssignmentEdits() {
+    async function saveAssignmentEdits() {
         if (!editingAssignmentId) return;
 
         const missingFields = getMissingRequiredAssignmentFields();
@@ -975,15 +1005,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         saveAssignments(assignments);
+        if (!(await confirmStorageSaved("Could not save assignment changes right now.", "assignment"))) return;
+
         refreshAssignmentViews();
         closeAssignmentModal();
         showToast(copy("assignments.toast.updated", "Assignment updated."), "neutral");
     }
 
-    function deleteAssignment() {
+    async function deleteAssignment() {
         if (!editingAssignmentId) return;
         const assignments = loadAssignments().filter(a => a.id !== editingAssignmentId);
         saveAssignments(assignments);
+        if (!(await confirmStorageSaved("Could not delete assignment right now.", "assignment"))) return;
+
         refreshAssignmentViews();
         closeAssignmentModal();
         showToast(copy("assignments.toast.deleted", "Assignment deleted."), "negative");
@@ -1009,6 +1043,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         editingAssignmentId = null;
         activeChartFilter = { type: null, value: null };
         assignmentTableSort = { ...DEFAULT_ASSIGNMENT_SORT };
+        if (!(await confirmStorageSaved("Could not reset assignments right now."))) return;
 
         closeAssignmentModal();
         refreshAssignmentViews();

@@ -29,9 +29,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     const accountSemesterInput = document.getElementById("account-semester-input");
     const yearLevelButtons = document.querySelectorAll(".year-level-option");
     const saveProfileBtn = document.getElementById("save-profile-btn");
+    const profileSettingsStatus = document.getElementById("profile-settings-status");
     const avatarInput = document.getElementById("profile-avatar-input");
     const uploadAvatarBtn = document.getElementById("upload-avatar-btn");
     const removeAvatarBtn = document.getElementById("remove-avatar-btn");
+    const profileAvatarStatus = document.getElementById("profile-avatar-status");
+    const avatarCropModal = document.getElementById("avatar-crop-modal");
+    const avatarCropFrame = document.getElementById("avatar-crop-frame");
+    const avatarCropImage = document.getElementById("avatar-crop-image");
+    const avatarCropZoom = document.getElementById("avatar-crop-zoom");
+    const avatarCropStatus = document.getElementById("avatar-crop-status");
+    const saveAvatarCropBtn = document.getElementById("save-avatar-crop-btn");
+    const cancelAvatarCropBtn = document.getElementById("cancel-avatar-crop-btn");
+    const closeAvatarCropBtn = document.getElementById("close-avatar-crop-btn");
     const settingsNavbarProfileAvatar = document.getElementById("settings-navbar-profile-avatar");
     const profileAvatarPreview = document.getElementById("profile-avatar-preview");
     const currentPasswordInput = document.getElementById("current-password-input");
@@ -92,8 +102,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const DEFAULT_SEMESTER_LABEL = "Untitled Semester";
     const DEFAULT_YEAR_LEVEL = "N/A";
     const ALLOWED_AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+    const MAX_AVATAR_SOURCE_BYTES = 4 * 1024 * 1024;
+    const MAX_AVATAR_DATA_URL_LENGTH = 80 * 1024;
+    const AVATAR_CANVAS_SIZE = 256;
+    const AVATAR_OUTPUT_TYPE = "image/jpeg";
+    const AVATAR_OUTPUT_QUALITY = 0.82;
+    const AVATAR_MIN_OUTPUT_QUALITY = 0.58;
     const mobileNavQuery = window.matchMedia("(max-width: 600px)");
     const darkThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    let avatarSaveRequestId = 0;
+    let avatarCropState = null;
 
     /*
       ==========================
@@ -334,6 +352,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         return prefs && typeof prefs === "object" ? prefs : {};
     }
 
+    async function confirmSettingsSaved(failureMessage) {
+        try {
+            await storage.flush?.();
+            return true;
+        } catch (error) {
+            console.error(failureMessage, error);
+            showToast(failureMessage, "negative");
+            return false;
+        }
+    }
+
     function setSegmentedPreferenceValue(group, value) {
         group.querySelectorAll("[data-pref-value]").forEach((button) => {
             const isActive = button.dataset.prefValue === value;
@@ -406,6 +435,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const prefs = loadSystemPrefs();
         prefs[key] = value;
         saveSystemPrefs(prefs, key);
+        if (!(await confirmSettingsSaved("Could not save system preference right now."))) return;
+
         if (key === "emailReminders") syncEmailReminderAction(prefs);
         if (key === "emailReminders") {
             showEmailReminderStatus(
@@ -418,13 +449,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         showToast("System preference saved.", "neutral");
     }
 
-    function saveSegmentedSystemPreference(group, value) {
+    async function saveSegmentedSystemPreference(group, value) {
         const key = group.dataset.systemSegmentedPref;
         if (!key || !value) return;
 
         const prefs = loadSystemPrefs();
         prefs[key] = value;
         saveSystemPrefs(prefs, key);
+        if (!(await confirmSettingsSaved("Could not save system preference right now."))) return;
+
         setSegmentedPreferenceValue(group, value);
         showToast("System preference saved.", "neutral");
     }
@@ -494,6 +527,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (targetEl) targetEl.textContent = message || "";
     }
 
+    function setButtonLabel(button, label) {
+        const labelEl = button?.querySelector(".ui-btn-label");
+        if (labelEl) {
+            labelEl.textContent = label;
+            return;
+        }
+        if (button) button.textContent = label;
+    }
+
+    function showAvatarStatus(message, tone = "neutral") {
+        showInlineNotice(profileAvatarStatus || profileSettingsStatus, message, tone);
+    }
+
+    function resetAvatarControls() {
+        if (uploadAvatarBtn) {
+            uploadAvatarBtn.disabled = false;
+            uploadAvatarBtn.removeAttribute("aria-busy");
+            setButtonLabel(uploadAvatarBtn, "Upload");
+        }
+
+        if (removeAvatarBtn) {
+            removeAvatarBtn.disabled = false;
+            removeAvatarBtn.removeAttribute("aria-busy");
+            setButtonLabel(removeAvatarBtn, "Remove");
+        }
+    }
+
     function confirmAction(options) {
         if (window.NexaFeedback) {
             return window.NexaFeedback.confirm(options);
@@ -503,15 +563,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function closeSettingsModals() {
+        if (avatarCropModal && !avatarCropModal.classList.contains("hidden")) {
+            closeAvatarCropper();
+        }
         profileSettingsModal?.classList.add("hidden");
         systemSettingsModal?.classList.add("hidden");
         settingsBackdrop?.classList.add("hidden");
         document.body.classList.remove("settings-modal-open");
+        showInlineNotice(profileSettingsStatus, "");
+        showAvatarStatus("");
         showInlineNotice(passwordSettingsStatus, "");
     }
 
     function openProfileSettings() {
         populateProfileInputs();
+        resetAvatarControls();
+        showAvatarStatus("");
         settingsBackdrop?.classList.remove("hidden");
         profileSettingsModal?.classList.remove("hidden");
         systemSettingsModal?.classList.add("hidden");
@@ -562,8 +629,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         const yearLevelValue = getSelectedYearLevel();
         const semesterValue = (accountSemesterInput?.value || "").trim() || DEFAULT_SEMESTER_LABEL;
 
+        showInlineNotice(profileSettingsStatus, "");
+
         if (!emailValue) {
-            showToast("Email cannot be blank.", "negative");
+            const message = "Email cannot be blank.";
+            showInlineNotice(profileSettingsStatus, message, "negative");
+            showToast(message, "negative");
             populateProfileInputs();
             return;
         }
@@ -571,65 +642,76 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (ageValue) {
             const ageNumber = Number(ageValue);
             if (!Number.isInteger(ageNumber) || ageNumber < 13 || ageNumber > 120) {
-                showToast("Age must be a whole number between 13 and 120.", "negative");
+                const message = "Age must be a whole number between 13 and 120.";
+                showInlineNotice(profileSettingsStatus, message, "negative");
+                showToast(message, "negative");
                 return;
             }
         }
 
-        const response = await fetch("/api/me", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            body: JSON.stringify({ name: nameValue, email: emailValue })
-        });
+        let accountSaved = false;
+        saveProfileBtn.disabled = true;
 
-        if (!response.ok) {
-            const payload = await response.json().catch(() => ({}));
-            showToast(payload.error || "Could not update profile details right now.", "negative");
-            populateProfileInputs();
-            return;
-        }
+        try {
+            const response = await fetch("/api/me", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ name: nameValue, email: emailValue })
+            });
 
-        currentUser = await response.json();
-        storage.setCurrentUser(currentUser);
-        storage.setItem(USER_NAME_KEY, nameValue);
-        storage.setItem(SEMESTER_KEY, semesterValue);
-        if (ageValue) {
-            storage.setItem(PROFILE_AGE_KEY, ageValue);
-        } else {
-            storage.removeItem(PROFILE_AGE_KEY);
-        }
-        if (locationValue) {
-            storage.setItem(PROFILE_LOCATION_KEY, locationValue);
-        } else {
-            storage.removeItem(PROFILE_LOCATION_KEY);
-        }
-        if (universityValue) {
-            storage.setItem(PROFILE_UNIVERSITY_KEY, universityValue);
-        } else {
-            storage.removeItem(PROFILE_UNIVERSITY_KEY);
-        }
-        if (degreeValue) {
-            storage.setItem(PROFILE_DEGREE_KEY, degreeValue);
-        } else {
-            storage.removeItem(PROFILE_DEGREE_KEY);
-        }
-        storage.setItem(PROFILE_YEAR_LEVEL_KEY, yearLevelValue || DEFAULT_YEAR_LEVEL);
+            if (!response.ok) {
+                const payload = await response.json().catch(() => ({}));
+                const message = payload.error || "Could not save name or email right now.";
+                showInlineNotice(profileSettingsStatus, message, "negative");
+                showToast(message, "negative");
+                populateProfileInputs();
+                return;
+            }
 
-        populateProfileInputs();
-        window.dispatchEvent(new CustomEvent("nexa:account-updated", {
-            detail: {
-                user: currentUser,
-                name: nameValue,
-                semester: semesterValue,
+            if (typeof storage.saveProfileNow !== "function") {
+                throw new Error("Profile storage is unavailable.");
+            }
+
+            currentUser = await response.json();
+            storage.setCurrentUser(currentUser);
+            accountSaved = true;
+            const savedProfile = await storage.saveProfileNow({
                 age: ageValue,
                 location: locationValue,
                 university: universityValue,
                 degree: degreeValue,
-                yearLevel: yearLevelValue
-            }
-        }));
-        showToast("Profile details saved.", "neutral");
+                yearLevel: yearLevelValue || DEFAULT_YEAR_LEVEL,
+                semesterLabel: semesterValue
+            });
+            await storage.flush?.();
+
+            populateProfileInputs();
+            window.dispatchEvent(new CustomEvent("nexa:account-updated", {
+                detail: {
+                    user: currentUser,
+                    name: currentUser.name,
+                    semester: savedProfile.semesterLabel,
+                    age: savedProfile.age,
+                    location: savedProfile.location,
+                    university: savedProfile.university,
+                    degree: savedProfile.degree,
+                    yearLevel: savedProfile.yearLevel
+                }
+            }));
+            showToast("Profile details saved.", "positive");
+        } catch (error) {
+            console.error("Failed to save profile settings:", error);
+            const message = accountSaved
+                ? `Name and email saved, but profile details were not saved. ${error.message || ""}`.trim()
+                : error.message || "Could not save profile details to the database right now.";
+            showInlineNotice(profileSettingsStatus, message, "negative");
+            showToast(message, "negative");
+            populateProfileInputs();
+        } finally {
+            saveProfileBtn.disabled = false;
+            setButtonLabel(saveProfileBtn, "Save");
+        }
     }
 
     function clearPasswordInputs() {
@@ -727,44 +809,307 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         APP_DATA_KEYS.forEach((key) => storage.removeItem(key));
         setDarkMode(false);
+        if (!(await confirmSettingsSaved("Could not reset app data right now."))) return;
+
         if (themeModeSelect) themeModeSelect.value = "light";
         populateProfileInputs();
         populateSystemPreferences();
         window.dispatchEvent(new CustomEvent("nexa:app-data-reset"));
     }
 
-    function updateAvatarFromFile(file) {
+    function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.addEventListener("load", () => resolve(typeof reader.result === "string" ? reader.result : ""));
+            reader.addEventListener("error", () => reject(new Error("Could not read that image.")));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function loadImageDataUrl(dataUrl) {
+        return new Promise((resolve, reject) => {
+            const image = new Image();
+            image.addEventListener("load", () => resolve(image), { once: true });
+            image.addEventListener("error", () => reject(new Error("Could not load that image.")), { once: true });
+            image.src = dataUrl;
+        });
+    }
+
+    function showCropStatus(message) {
+        if (avatarCropStatus) avatarCropStatus.textContent = message || "";
+    }
+
+    function getAvatarCropFrameSize() {
+        return avatarCropFrame?.getBoundingClientRect().width || 240;
+    }
+
+    function constrainAvatarCrop() {
+        if (!avatarCropState) return;
+        const frameSize = getAvatarCropFrameSize();
+        const scale = avatarCropState.baseScale * avatarCropState.zoom;
+        const displayedWidth = avatarCropState.image.naturalWidth * scale;
+        const displayedHeight = avatarCropState.image.naturalHeight * scale;
+        const maxX = Math.max(0, (displayedWidth - frameSize) / 2);
+        const maxY = Math.max(0, (displayedHeight - frameSize) / 2);
+
+        avatarCropState.offsetX = Math.max(-maxX, Math.min(maxX, avatarCropState.offsetX));
+        avatarCropState.offsetY = Math.max(-maxY, Math.min(maxY, avatarCropState.offsetY));
+    }
+
+    function renderAvatarCrop() {
+        if (!avatarCropState || !avatarCropImage) return;
+        const frameSize = getAvatarCropFrameSize();
+        const { image } = avatarCropState;
+        avatarCropState.baseScale = Math.max(
+            frameSize / Math.max(1, image.naturalWidth),
+            frameSize / Math.max(1, image.naturalHeight)
+        );
+        constrainAvatarCrop();
+        const displayScale = avatarCropState.baseScale * avatarCropState.zoom;
+
+        avatarCropImage.style.width = `${image.naturalWidth * displayScale}px`;
+        avatarCropImage.style.height = `${image.naturalHeight * displayScale}px`;
+        avatarCropImage.style.transform = `translate(-50%, -50%) translate(${avatarCropState.offsetX}px, ${avatarCropState.offsetY}px)`;
+    }
+
+    function closeAvatarCropper() {
+        avatarCropModal?.classList.add("hidden");
+        avatarCropFrame?.classList.remove("is-dragging");
+        showCropStatus("");
+        avatarCropState = null;
+        if (avatarCropImage) {
+            avatarCropImage.removeAttribute("src");
+            avatarCropImage.removeAttribute("style");
+        }
+        if (avatarCropZoom) avatarCropZoom.value = "1";
+        if (avatarInput) avatarInput.value = "";
+        resetAvatarControls();
+    }
+
+    function openAvatarCropper(dataUrl, image) {
+        if (!avatarCropModal || !avatarCropImage || !avatarCropFrame || !avatarCropZoom) {
+            return saveAvatarDataUrlFromImage(image);
+        }
+
+        avatarCropState = {
+            image,
+            dataUrl,
+            baseScale: 1,
+            zoom: 1,
+            offsetX: 0,
+            offsetY: 0,
+            dragging: false,
+            startX: 0,
+            startY: 0,
+            startOffsetX: 0,
+            startOffsetY: 0
+        };
+
+        avatarCropImage.src = dataUrl;
+        avatarCropZoom.value = "1";
+        showCropStatus("");
+        avatarCropModal.classList.remove("hidden");
+        requestAnimationFrame(renderAvatarCrop);
+        saveAvatarCropBtn?.focus();
+        return Promise.resolve();
+    }
+
+    function createAvatarDataUrlFromImage(image, crop = null) {
+        const canvas = document.createElement("canvas");
+        canvas.width = AVATAR_CANVAS_SIZE;
+        canvas.height = AVATAR_CANVAS_SIZE;
+
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Could not prepare that image.");
+
+        let sourceSize = Math.min(image.naturalWidth || image.width, image.naturalHeight || image.height);
+        let sourceX = ((image.naturalWidth || image.width) - sourceSize) / 2;
+        let sourceY = ((image.naturalHeight || image.height) - sourceSize) / 2;
+
+        if (crop) {
+            sourceSize = crop.sourceSize;
+            sourceX = crop.sourceX;
+            sourceY = crop.sourceY;
+        }
+
+        context.drawImage(
+            image,
+            sourceX,
+            sourceY,
+            sourceSize,
+            sourceSize,
+            0,
+            0,
+            AVATAR_CANVAS_SIZE,
+            AVATAR_CANVAS_SIZE
+        );
+
+        let quality = AVATAR_OUTPUT_QUALITY;
+        let output = canvas.toDataURL(AVATAR_OUTPUT_TYPE, quality);
+
+        while (output.length > MAX_AVATAR_DATA_URL_LENGTH && quality > AVATAR_MIN_OUTPUT_QUALITY) {
+            quality = Math.max(AVATAR_MIN_OUTPUT_QUALITY, quality - 0.08);
+            output = canvas.toDataURL(AVATAR_OUTPUT_TYPE, quality);
+        }
+
+        if (output.length > MAX_AVATAR_DATA_URL_LENGTH) {
+            throw new Error("Choose a smaller profile picture.");
+        }
+
+        return output;
+    }
+
+    function createAvatarDataUrlFromCrop() {
+        if (!avatarCropState) throw new Error("Choose a profile picture first.");
+        const frameSize = getAvatarCropFrameSize();
+        const scale = avatarCropState.baseScale * avatarCropState.zoom;
+        const sourceSize = frameSize / scale;
+        const maxSourceX = Math.max(0, avatarCropState.image.naturalWidth - sourceSize);
+        const maxSourceY = Math.max(0, avatarCropState.image.naturalHeight - sourceSize);
+        const sourceX = Math.max(0, Math.min(
+            maxSourceX,
+            avatarCropState.image.naturalWidth / 2 - sourceSize / 2 - avatarCropState.offsetX / scale
+        ));
+        const sourceY = Math.max(0, Math.min(
+            maxSourceY,
+            avatarCropState.image.naturalHeight / 2 - sourceSize / 2 - avatarCropState.offsetY / scale
+        ));
+
+        return createAvatarDataUrlFromImage(avatarCropState.image, {
+            sourceX,
+            sourceY,
+            sourceSize
+        });
+    }
+
+    async function saveAvatarDataUrl(result) {
+        const requestId = ++avatarSaveRequestId;
+        resetAvatarControls();
+        if (uploadAvatarBtn) uploadAvatarBtn.setAttribute("aria-busy", "true");
+        setButtonLabel(uploadAvatarBtn, "Saving");
+        showAvatarStatus("Saving profile picture...", "neutral");
+
+        try {
+            if (typeof storage.saveProfileNow !== "function") {
+                throw new Error("Profile storage is unavailable.");
+            }
+
+            const savedProfile = await storage.saveProfileNow({ avatarUrlOrData: result });
+            await storage.flush?.();
+            if (requestId !== avatarSaveRequestId) return;
+
+            setAvatarPreview(savedProfile.avatarUrlOrData || result);
+            showAvatarStatus("");
+            showToast("Profile picture updated.", "positive");
+            closeAvatarCropper();
+        } catch (error) {
+            if (requestId !== avatarSaveRequestId) return;
+            console.error("Failed to save profile picture:", error);
+            const message = error.message || "Could not save that profile picture.";
+            showAvatarStatus(message, "negative");
+            showCropStatus(message);
+            showToast(message, "negative");
+            populateProfileInputs();
+        } finally {
+            if (requestId === avatarSaveRequestId) {
+                resetAvatarControls();
+            }
+        }
+    }
+
+    async function saveAvatarDataUrlFromImage(image) {
+        return saveAvatarDataUrl(createAvatarDataUrlFromImage(image));
+    }
+
+    async function saveAvatarCrop() {
+        if (!avatarCropState) return;
+        setButtonLabel(saveAvatarCropBtn, "Saving");
+        showCropStatus("");
+
+        try {
+            const result = createAvatarDataUrlFromCrop();
+            await saveAvatarDataUrl(result);
+        } catch (error) {
+            console.error("Failed to crop profile picture:", error);
+            const message = error.message || "Could not save that profile picture.";
+            showCropStatus(message);
+            showToast(message, "negative");
+        } finally {
+            setButtonLabel(saveAvatarCropBtn, "Save");
+        }
+    }
+
+    async function updateAvatarFromFile(file) {
         if (!file) return;
+        avatarSaveRequestId += 1;
+        resetAvatarControls();
+        showAvatarStatus("");
 
         if (!ALLOWED_AVATAR_TYPES.has(file.type)) {
-            showToast("Use a JPG, PNG, or WebP image for your profile picture.", "negative");
+            const message = "Use a JPG, PNG, or WebP image for your profile picture.";
+            showAvatarStatus(message, "negative");
+            showToast(message, "negative");
             if (avatarInput) avatarInput.value = "";
             return;
         }
 
-        const reader = new FileReader();
-        reader.addEventListener("load", () => {
-            const result = typeof reader.result === "string" ? reader.result : "";
-            if (!Array.from(ALLOWED_AVATAR_TYPES).some((type) => result.startsWith(`data:${type};`))) {
-                showToast("Could not read that image.", "negative");
-                return;
+        if (file.size > MAX_AVATAR_SOURCE_BYTES) {
+            const message = "Choose an image under 4 MB for your profile picture.";
+            showAvatarStatus(message, "negative");
+            showToast(message, "negative");
+            if (avatarInput) avatarInput.value = "";
+            return;
+        }
+
+        try {
+            const dataUrl = await readFileAsDataUrl(file);
+            if (!Array.from(ALLOWED_AVATAR_TYPES).some((type) => dataUrl.startsWith(`data:${type};`))) {
+                throw new Error("Could not read that image.");
             }
 
-            storage.setItem(PROFILE_AVATAR_KEY, result);
-            setAvatarPreview(result);
-            showToast("Profile picture updated.", "positive");
-        });
-        reader.addEventListener("error", () => {
-            showToast("Could not read that image.", "negative");
-        });
-        reader.readAsDataURL(file);
+            const image = await loadImageDataUrl(dataUrl);
+            await openAvatarCropper(dataUrl, image);
+        } catch (error) {
+            console.error("Failed to prepare profile picture:", error);
+            const message = error.message || "Could not read that image.";
+            showAvatarStatus(message, "negative");
+            showToast(message, "negative");
+            if (avatarInput) avatarInput.value = "";
+        }
     }
 
-    function removeAvatar() {
-        storage.removeItem(PROFILE_AVATAR_KEY);
-        if (avatarInput) avatarInput.value = "";
-        setAvatarPreview("");
-        showToast("Profile picture removed.", "neutral");
+    async function removeAvatar() {
+        const requestId = ++avatarSaveRequestId;
+        resetAvatarControls();
+        if (removeAvatarBtn) removeAvatarBtn.setAttribute("aria-busy", "true");
+        setButtonLabel(removeAvatarBtn, "Removing");
+        showAvatarStatus("Removing profile picture...", "neutral");
+
+        try {
+            if (typeof storage.saveProfileNow !== "function") {
+                throw new Error("Profile storage is unavailable.");
+            }
+
+            await storage.saveProfileNow({ avatarUrlOrData: "" });
+            await storage.flush?.();
+            if (requestId !== avatarSaveRequestId) return;
+
+            if (avatarInput) avatarInput.value = "";
+            setAvatarPreview("");
+            showAvatarStatus("");
+            showToast("Profile picture removed.", "neutral");
+        } catch (error) {
+            if (requestId !== avatarSaveRequestId) return;
+            console.error("Failed to remove profile picture:", error);
+            const message = "Could not remove profile picture right now.";
+            showAvatarStatus(message, "negative");
+            showToast(message, "negative");
+            populateProfileInputs();
+        } finally {
+            if (requestId === avatarSaveRequestId) {
+                resetAvatarControls();
+            }
+        }
     }
 
     /*
@@ -848,10 +1193,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     settingsBackdrop?.addEventListener("click", closeSettingsModals);
     settingsCloseBtns.forEach((btn) => {
-        btn.addEventListener("click", closeSettingsModals);
+        btn.addEventListener("click", (event) => {
+            if (btn.closest("#avatar-crop-modal")) {
+                event.stopImmediatePropagation();
+                closeAvatarCropper();
+                return;
+            }
+
+            closeSettingsModals();
+        });
     });
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeSettingsModals();
+        if (event.key !== "Escape") return;
+        if (avatarCropModal && !avatarCropModal.classList.contains("hidden")) {
+            closeAvatarCropper();
+            return;
+        }
+        closeSettingsModals();
     });
     navButtons.forEach((btn) => {
         btn.addEventListener("click", () => setActiveTab(btn.dataset.settingsTarget, btn.dataset.tab));
@@ -880,6 +1238,43 @@ document.addEventListener("DOMContentLoaded", async () => {
     uploadAvatarBtn?.addEventListener("click", () => avatarInput?.click());
     profileAvatarPreview?.addEventListener("click", () => avatarInput?.click());
     removeAvatarBtn?.addEventListener("click", removeAvatar);
+    avatarCropFrame?.addEventListener("pointerdown", (event) => {
+        if (!avatarCropState) return;
+        event.preventDefault();
+        avatarCropState.dragging = true;
+        avatarCropState.startX = event.clientX;
+        avatarCropState.startY = event.clientY;
+        avatarCropState.startOffsetX = avatarCropState.offsetX;
+        avatarCropState.startOffsetY = avatarCropState.offsetY;
+        avatarCropFrame.classList.add("is-dragging");
+        avatarCropFrame.setPointerCapture?.(event.pointerId);
+    });
+    avatarCropFrame?.addEventListener("pointermove", (event) => {
+        if (!avatarCropState?.dragging) return;
+        avatarCropState.offsetX = avatarCropState.startOffsetX + event.clientX - avatarCropState.startX;
+        avatarCropState.offsetY = avatarCropState.startOffsetY + event.clientY - avatarCropState.startY;
+        renderAvatarCrop();
+    });
+    function endAvatarCropDrag(event) {
+        if (!avatarCropState) return;
+        avatarCropState.dragging = false;
+        avatarCropFrame?.classList.remove("is-dragging");
+        avatarCropFrame?.releasePointerCapture?.(event.pointerId);
+    }
+    avatarCropFrame?.addEventListener("pointerup", endAvatarCropDrag);
+    avatarCropFrame?.addEventListener("pointercancel", endAvatarCropDrag);
+    avatarCropZoom?.addEventListener("input", () => {
+        if (!avatarCropState) return;
+        avatarCropState.zoom = Number(avatarCropZoom.value) || 1;
+        renderAvatarCrop();
+    });
+    saveAvatarCropBtn?.addEventListener("click", () => {
+        saveAvatarCrop().catch((error) => {
+            console.error("Failed to save cropped profile picture:", error);
+            showToast("Could not save that profile picture.", "negative");
+        });
+    });
+    cancelAvatarCropBtn?.addEventListener("click", closeAvatarCropper);
     yearLevelButtons.forEach((btn) => {
         btn.addEventListener("click", () => setYearLevel(btn.dataset.yearLevel));
     });
@@ -913,7 +1308,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         group.addEventListener("click", (event) => {
             const button = event.target.closest("[data-pref-value]");
             if (!button || !group.contains(button)) return;
-            saveSegmentedSystemPreference(group, button.dataset.prefValue);
+            saveSegmentedSystemPreference(group, button.dataset.prefValue).catch((error) => {
+                console.error("Failed to save system preference:", error);
+                showToast("Could not save system preference right now.", "negative");
+            });
         });
     });
 
