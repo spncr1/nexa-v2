@@ -222,6 +222,11 @@ body > main.content {
     cursor: pointer;
 }
 
+.verify-email-form > button[type="submit"] {
+    width: 160px;
+    white-space: nowrap;
+}
+
 .auth-form > button[type="submit"]:hover {
     transform: scale(1.03);
     filter: brightness(1.15);

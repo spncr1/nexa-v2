@@ -350,6 +350,27 @@ async function createPendingRegistration({ name, email, passwordHash, tokenHash,
     }
 }
 
+async function findPendingRegistrationByTokenHash(tokenHash) {
+    const result = await pool.query(
+        `SELECT pending_registrations.id,
+                pending_registrations.name,
+                pending_registrations.email,
+                pending_registrations.expires_at,
+                pending_registrations.used_at,
+                pending_registrations.created_at,
+                pending_registrations.used_at IS NULL
+                    AND pending_registrations.expires_at > NOW() AS can_verify,
+                users.id AS verified_user_id
+         FROM pending_registrations
+         LEFT JOIN users ON users.email = pending_registrations.email
+         WHERE pending_registrations.token_hash = $1
+         LIMIT 1`,
+        [tokenHash]
+    );
+
+    return result.rows[0] || null;
+}
+
 async function createUserFromPendingRegistrationToken(tokenHash) {
     const client = await pool.connect();
 
@@ -374,7 +395,7 @@ async function createUserFromPendingRegistrationToken(tokenHash) {
         }
 
         const existingUserResult = await client.query(
-            `SELECT id
+            `SELECT id, name, email, password_hash AS password
              FROM users
              WHERE email = $1
              LIMIT 1`,
@@ -390,7 +411,7 @@ async function createUserFromPendingRegistrationToken(tokenHash) {
                 [pendingRegistration.email]
             );
             await client.query('COMMIT');
-            return null;
+            return existingUserResult.rows[0];
         }
 
         const userResult = await client.query(
@@ -438,6 +459,7 @@ module.exports = {
     findValidAuthToken,
     resetPasswordWithAuthToken,
     createPendingRegistration,
+    findPendingRegistrationByTokenHash,
     createUserFromPendingRegistrationToken,
     invalidatePendingRegistration
 };

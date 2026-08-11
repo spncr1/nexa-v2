@@ -91,12 +91,12 @@ async function sendEmailVerificationEmail({ to, name, verificationUrl }) {
     await transporter.sendMail({
         from: process.env.MAIL_FROM,
         to,
-        subject: 'Verify your NEXA account',
+        subject: 'Confirm your NEXA account',
         text: [
             `Hi ${displayName},`,
             '',
             'Thanks for signing up for NEXA.',
-            `Verify your account here: ${verificationUrl}`,
+            `Confirm your account here: ${verificationUrl}`,
             '',
             'This link expires in 60 minutes. If you did not create a NEXA account, you can ignore this email.',
             'If this email landed in spam or junk, mark it as not spam so future NEXA emails reach your inbox.'
@@ -104,7 +104,7 @@ async function sendEmailVerificationEmail({ to, name, verificationUrl }) {
         html: `
             <p>Hi ${escapeHtml(displayName)},</p>
             <p>Thanks for signing up for NEXA.</p>
-            <p>You can verify your account <a href="${escapeHtml(verificationUrl)}">here</a>.</p>
+            <p>You can confirm your account <a href="${escapeHtml(verificationUrl)}">here</a>.</p>
             <p>This link expires in 60 minutes. If you did not create a NEXA account, you can ignore this email.</p>
             <p>If this email landed in spam or junk, mark it as not spam so future NEXA emails reach your inbox.</p>
         `

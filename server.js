@@ -23,6 +23,7 @@ const {
     ensureDatabaseSchema,
     findUserByEmail,
     findUserById,
+    findPendingRegistrationByTokenHash,
     findValidAuthToken,
     formatDbError,
     invalidateAuthTokens,
@@ -123,6 +124,16 @@ function renderForgotPassword(res, options = {}) {
 function renderCheckEmail(res, options = {}) {
     res.status(options.status || 200).render('pages/auth/check-email.ejs', {
         email: options.email || null
+    })
+}
+
+function renderVerifyEmail(res, options = {}) {
+    res.status(options.status || 200).render('pages/auth/verify-email.ejs', {
+        token: options.token || '',
+        email: options.email || null,
+        formError: options.formError || null,
+        successMessage: options.successMessage || null,
+        canVerify: options.canVerify === true
     })
 }
 
@@ -315,19 +326,82 @@ app.get('/reset-password/:token', checkNotAuthenticated, async (req, res) => {
 
 app.get('/verify-email/:token', checkNotAuthenticated, async (req, res) => {
     try {
-        const createdUser = await createUserFromPendingRegistrationToken(hashAuthToken(req.params.token))
+        const pendingRegistration = await findPendingRegistrationByTokenHash(hashAuthToken(req.params.token))
+
+        if (pendingRegistration?.verified_user_id) {
+            return renderVerifyEmail(res, {
+                token: req.params.token,
+                email: pendingRegistration.email,
+                successMessage: 'Email already verified. You can log in now.',
+                canVerify: false
+            })
+        }
+
+        if (!pendingRegistration || !pendingRegistration.can_verify) {
+            return renderVerifyEmail(res, {
+                status: 400,
+                token: req.params.token,
+                formError: 'This verification link is invalid or has expired. Please register again.',
+                canVerify: false
+            })
+        }
+
+        renderVerifyEmail(res, {
+            token: req.params.token,
+            email: pendingRegistration.email,
+            canVerify: true
+        })
+    } catch (error) {
+        console.error('Failed to load email verification page:', formatDbError(error))
+        renderVerifyEmail(res, {
+            status: 500,
+            token: req.params.token,
+            formError: 'Could not load email verification right now.',
+            canVerify: false
+        })
+    }
+});
+
+app.post('/verify-email/:token', checkNotAuthenticated, async (req, res) => {
+    try {
+        const tokenHash = hashAuthToken(req.params.token)
+        const pendingRegistration = await findPendingRegistrationByTokenHash(tokenHash)
+
+        if (pendingRegistration?.verified_user_id) {
+            req.flash('success', 'Email verified. You can log in now.')
+            return res.redirect('/login')
+        }
+
+        if (!pendingRegistration || !pendingRegistration.can_verify) {
+            return renderVerifyEmail(res, {
+                status: 400,
+                token: req.params.token,
+                formError: 'This verification link is invalid or has expired. Please register again.',
+                canVerify: false
+            })
+        }
+
+        const createdUser = await createUserFromPendingRegistrationToken(tokenHash)
 
         if (!createdUser) {
-            req.flash('error', 'This verification link is invalid or has expired. Please register again.')
-            return res.redirect('/register')
+            return renderVerifyEmail(res, {
+                status: 400,
+                token: req.params.token,
+                formError: 'This verification link is invalid or has expired. Please register again.',
+                canVerify: false
+            })
         }
 
         req.flash('success', 'Email verified. You can log in now.')
         res.redirect('/login')
     } catch (error) {
         console.error('Failed to verify email:', formatDbError(error))
-        req.flash('error', 'Could not verify your email right now.')
-        res.redirect('/register')
+        renderVerifyEmail(res, {
+            status: 500,
+            token: req.params.token,
+            formError: 'Could not verify your email right now.',
+            canVerify: false
+        })
     }
 });
 
