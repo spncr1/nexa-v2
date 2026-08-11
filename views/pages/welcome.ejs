@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXA - Plan Academic Work</title>
+
+    <link rel="stylesheet" href="/client/welcome.css">
+    <script src="/client/welcome.js" defer></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" href="/client/shared/assets/Images/nexa-v1.png">
+</head>
+<body class="welcome-page">
+    <header class="welcome-header">
+        <nav class="welcome-nav" aria-label="Welcome">
+            <a class="welcome-brand" href="/welcome" aria-label="NEXA welcome">
+                <img src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
+                <span>NEXA</span>
+            </a>
+
+            <div class="welcome-nav-actions">
+                <a href="#features">Features</a>
+                <a href="/login">Log in</a>
+                <a class="welcome-nav-primary" href="/register">Create account</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section class="welcome-hero" aria-labelledby="welcome-title">
+            <div class="welcome-shell welcome-hero-grid">
+                <div class="welcome-hero-copy">
+                    <h1 id="welcome-title" data-reveal>
+                        <span>Plan the</span>
+                        <span>work.</span>
+                        <span>See the</span>
+                        <span>bigger</span>
+                        <span><strong>picture</strong>.</span>
+                    </h1>
+                    <p class="welcome-lede" data-reveal data-reveal-delay="90">
+                        <span>Track tasks, assignments,</span>
+                        <span>study sessions, and deadlines</span>
+                        <span>in one focused student dashboard.</span>
+                    </p>
+
+                    <dl class="welcome-stats" aria-label="NEXA overview" data-reveal data-reveal-delay="180">
+                        <div>
+                            <dt>4</dt>
+                            <dd>views for tasks, assignments, study, and planning</dd>
+                        </div>
+                        <div>
+                            <dt>1</dt>
+                            <dd>dashboard for today's academic workload</dd>
+                        </div>
+                        <div>
+                            <dt>0</dt>
+                            <dd>extra tabs needed to see what matters next</dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="welcome-hero-media" aria-label="NEXA dashboard preview" data-reveal data-reveal-delay="120">
+                    <img src="/client/shared/assets/Screenshots/app-screenshot-1.png" alt="NEXA dashboard showing today's tasks, assignments, and calendar." decoding="async" fetchpriority="high">
+                </div>
+            </div>
+        </section>
+
+        <section class="welcome-timeline welcome-shell" aria-labelledby="timeline-title">
+            <div class="timeline-card">
+                <div class="timeline-copy" data-reveal>
+                    <h2 id="timeline-title">Where your week gets heavy</h2>
+                    <p>Tasks, study sessions, and assignment deadlines stay visible across the week.</p>
+                </div>
+
+                <div class="timeline-track" aria-label="Example weekly workload">
+                    <div class="timeline-day" data-reveal data-reveal-delay="40">
+                        <span class="timeline-bar" style="--height: 30%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Mon</strong>
+                        <small>2 tasks</small>
+                    </div>
+                    <div class="timeline-day is-today" data-reveal data-reveal-delay="90">
+                        <span class="timeline-bar" style="--height: 18%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Tue</strong>
+                        <small>Today</small>
+                    </div>
+                    <div class="timeline-day" data-reveal data-reveal-delay="140">
+                        <span class="timeline-bar" style="--height: 46%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Wed</strong>
+                        <small>4 tasks</small>
+                    </div>
+                    <div class="timeline-day" data-reveal data-reveal-delay="190">
+                        <span class="timeline-bar" style="--height: 26%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Thu</strong>
+                        <small>Study</small>
+                    </div>
+                    <div class="timeline-day is-deadline" data-reveal data-reveal-delay="240">
+                        <span class="timeline-bar" style="--height: 72%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Fri</strong>
+                        <small>Deadline</small>
+                    </div>
+                    <div class="timeline-day" data-reveal data-reveal-delay="290">
+                        <span class="timeline-bar" style="--height: 16%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Sat</strong>
+                        <small>Review</small>
+                    </div>
+                    <div class="timeline-day" data-reveal data-reveal-delay="340">
+                        <span class="timeline-bar" style="--height: 10%;"></span>
+                        <span class="timeline-node"></span>
+                        <strong>Sun</strong>
+                        <small>Clear</small>
+                    </div>
+                </div>
+
+                <div class="timeline-legend" aria-hidden="true" data-reveal data-reveal-delay="390">
+                    <span><i></i> Task or study session</span>
+                    <span><i class="deadline"></i> Assignment deadline</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="welcome-features welcome-shell" id="features" aria-labelledby="features-title">
+            <div class="section-heading" data-reveal>
+                <h2 id="features-title">Everything academic, in one place</h2>
+                <p>No separate apps for tasks, deadlines, and study time. NEXA keeps the whole workload visible.</p>
+            </div>
+
+            <div class="feature-grid">
+                <article class="feature-card" data-reveal>
+                    <div class="feature-icon">01</div>
+                    <div>
+                        <h3>Assignment tracking</h3>
+                        <p>Track due dates, priorities, progress, and weighting across every subject.</p>
+                    </div>
+                    <img src="/client/shared/assets/Screenshots/app-screenshot-2.png" alt="NEXA assignments tracker showing subjects, progress, and assessment details." loading="lazy" decoding="async">
+                </article>
+
+                <article class="feature-card" data-reveal data-reveal-delay="90">
+                    <div class="feature-icon">02</div>
+                    <div>
+                        <h3>Task management</h3>
+                        <p>Plan tasks across weekly and monthly views so upcoming work stays visible.</p>
+                    </div>
+                    <img src="/client/shared/assets/Screenshots/app-screenshot-6.png" alt="NEXA tasks page showing monthly planning." loading="lazy" decoding="async">
+                </article>
+
+                <article class="feature-card" data-reveal data-reveal-delay="180">
+                    <div class="feature-icon">03</div>
+                    <div>
+                        <h3>Study sessions</h3>
+                        <p>Build a focused session queue, set study goals, and see where your time is going.</p>
+                    </div>
+                    <img src="/client/shared/assets/Screenshots/app-screenshot-3.png" alt="NEXA study planner showing goals, session queue, focus balance, and study timer." loading="lazy" decoding="async">
+                </article>
+
+                <article class="feature-card" data-reveal data-reveal-delay="270">
+                    <div class="feature-icon">04</div>
+                    <div>
+                        <h3>Dark mode and email reminders</h3>
+                        <p>Work comfortably at any hour and get a reminder before important work lands.</p>
+                    </div>
+                    <img src="/client/shared/assets/Screenshots/app-screenshot-9.png" alt="NEXA dashboard in dark mode." loading="lazy" decoding="async">
+                </article>
+            </div>
+        </section>
+
+        <section class="welcome-cta welcome-shell" aria-labelledby="cta-title" data-reveal>
+            <h2 id="cta-title">Start your semester with one clear view</h2>
+            <p>Free to create an account. Set up your first week in a couple of minutes.</p>
+            <div class="welcome-actions welcome-actions-centered">
+                <a class="welcome-btn welcome-btn-primary" href="/register">Create account</a>
+                <a class="welcome-btn welcome-btn-secondary" href="/login">Log in</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="welcome-footer">
+        <div class="welcome-shell welcome-footer-row">
+            <a class="welcome-footer-brand" href="/welcome" aria-label="NEXA welcome">
+                <img src="/client/shared/assets/Images/nexa-v1.png" alt="" aria-hidden="true">
+                <span>NEXA</span>
+            </a>
+            <p>&copy; 2026 NEXA. Everything academic, in one place.</p>
+        </div>
+    </footer>
+</body>
+</html>

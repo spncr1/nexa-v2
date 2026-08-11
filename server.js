@@ -248,7 +248,11 @@ app.get('/', (req, res) => {
         return res.render('pages/index.ejs')
     }
 
-    res.redirect('/login')
+    res.redirect('/welcome')
+});
+
+app.get('/welcome', (req, res) => {
+    res.render('pages/welcome.ejs')
 });
 
 const APP_PAGE_ROUTES = {
@@ -806,14 +810,14 @@ function checkAuthenticatedApi(req, res, next) {
 }
 
 const PORT = process.env.PORT || 3000
-const LOCAL_LOGIN_URL = `http://localhost:${PORT}/login`
+const LOCAL_WELCOME_URL = `http://localhost:${PORT}/welcome`
 
 async function startServer() {
     try {
         await ensureAppReady()
 
         app.listen(PORT, () => {
-          console.log(`Nexa is running at ${LOCAL_LOGIN_URL}`)
+          console.log(`Nexa is running at ${LOCAL_WELCOME_URL}`)
         })
     } catch (error) {
         console.error('Database startup check failed:', formatDbError(error))
