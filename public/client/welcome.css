@@ -7,6 +7,11 @@
     --welcome-radius-md: 16px;
     --welcome-radius-lg: 24px;
     --welcome-shadow: 0 18px 44px -32px rgba(15, 15, 16, 0.42);
+    --welcome-space-compact: 12px;
+    --welcome-space-element: 16px;
+    --welcome-space-content: 24px;
+    --welcome-space-block: 32px;
+    --welcome-space-section: 48px;
 }
 
 * {
@@ -653,10 +658,26 @@ html {
     }
 
     .welcome-hero {
-        padding: 62px 0 48px;
+        padding: var(--welcome-space-section) 0 0;
+    }
+
+    .welcome-hero-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(140px, 50%);
+        grid-template-areas:
+            "title media"
+            "lede lede"
+            "stats stats";
+        align-items: center;
+        column-gap: var(--welcome-space-compact);
+        row-gap: var(--welcome-space-content);
+    }
+
+    .welcome-hero-copy {
+        display: contents;
     }
 
     .welcome-hero h1 {
+        grid-area: title;
         max-width: 100%;
         font-size: clamp(2.1rem, 9.4vw, 2.85rem);
         line-height: 1.08;
@@ -664,12 +685,44 @@ html {
     }
 
     .welcome-lede {
+        grid-area: lede;
+        margin-top: 0;
         font-size: 17px;
     }
 
     .welcome-stats {
+        grid-area: stats;
         grid-template-columns: 1fr;
-        gap: 16px;
+        gap: var(--welcome-space-compact);
+        margin-top: 0;
+        padding-top: var(--welcome-space-element);
+    }
+
+    .welcome-stats div {
+        display: grid;
+        grid-template-columns: 30px minmax(0, 1fr);
+        align-items: baseline;
+        column-gap: 10px;
+    }
+
+    .welcome-stats dd {
+        margin-top: 0;
+    }
+
+    .welcome-hero-media {
+        grid-area: media;
+        width: min(100%, 260px);
+        align-self: center;
+        justify-self: end;
+    }
+
+    .welcome-hero-media img {
+        border-radius: var(--welcome-radius-md);
+    }
+
+    .welcome-timeline {
+        margin-top: var(--welcome-space-section);
+        padding: 0;
     }
 
     .timeline-card {
@@ -679,6 +732,8 @@ html {
     .timeline-copy {
         align-items: flex-start;
         flex-direction: column;
+        gap: var(--welcome-space-element);
+        margin-bottom: var(--welcome-space-content);
     }
 
     .timeline-track {
@@ -691,8 +746,35 @@ html {
         min-width: 72px;
     }
 
+    .timeline-legend {
+        gap: var(--welcome-space-element);
+        margin-top: var(--welcome-space-element);
+        padding-top: var(--welcome-space-element);
+    }
+
+    .welcome-features {
+        margin-top: var(--welcome-space-section);
+        padding: 0 0 var(--welcome-space-content);
+    }
+
+    .section-heading {
+        margin-bottom: var(--welcome-space-block);
+    }
+
+    .feature-grid {
+        gap: var(--welcome-space-element);
+    }
+
     .feature-card {
         padding: 22px;
+    }
+
+    .welcome-cta {
+        padding: var(--welcome-space-content) 0 var(--welcome-space-section);
+    }
+
+    .welcome-cta p {
+        margin-bottom: var(--welcome-space-content);
     }
 
     .welcome-footer-row {
@@ -703,7 +785,7 @@ html {
 
 @media (max-width: 520px) {
     .welcome-actions {
-        align-items: stretch;
+        align-items: center;
         flex-direction: column;
     }
 

@@ -1381,12 +1381,30 @@ body.dark-mode .assignments-table .assignment-priority-pill.is-high {
   text-overflow: ellipsis;
 }
 
+.vchart-plot .vbar-column:first-child .chart-tooltip {
+  left: 0;
+  transform: translateY(4px);
+}
+
+.vchart-plot .vbar-column:last-child .chart-tooltip {
+  right: 0;
+  left: auto;
+  transform: translateY(4px);
+}
+
 .bar-row:hover .chart-tooltip,
 .bar-row:focus-visible .chart-tooltip,
 .vbar-column:hover .chart-tooltip,
 .vbar-column:focus-within .chart-tooltip {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+.vchart-plot .vbar-column:first-child:hover .chart-tooltip,
+.vchart-plot .vbar-column:first-child:focus-within .chart-tooltip,
+.vchart-plot .vbar-column:last-child:hover .chart-tooltip,
+.vchart-plot .vbar-column:last-child:focus-within .chart-tooltip {
+  transform: translateY(0);
 }
 
 .dash-dots {
@@ -1651,8 +1669,8 @@ button, input, select, textarea { font-family: inherit; }
 
 }
 
-/* ### SPLIT SCREEN ### */
-@media (max-width: 1200px) {
+/* ### COMPACT DESKTOP / SPLIT SCREEN ### */
+@media (max-width: 1384px) {
     /* Split-screen assignment layout */
     .assignments-layout {
         grid-template-columns: 200px minmax(0, 1fr);
